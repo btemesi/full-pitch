@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Full Pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="bar">
+  <div class="brand">FULL<span>PITCH</span></div>
+  <div class="scoreboard" aria-live="polite">
+    <span class="team" id="home"><i></i><b></b></span>
+    <span class="score" id="score">0–0</span>
+    <span class="team away" id="away"><b></b><i></i></span>
+    <span class="clock" id="clock">0'</span>
+    <span class="live" id="live">LIVE</span>
+  </div>
+  <button class="missed" id="missedBtn">What did I miss?</button>
+</header>
+
+<main class="layout">
+  <section class="stage">
+    <div class="pitch-wrap">
+      <canvas id="pitch" width="1400" height="906" aria-label="Live pitch view"></canvas>
+      <div class="hook" id="hook"></div>
+      <div class="view-toggle" role="tablist">
+        <button data-view="tv" role="tab">Broadcast</button>
+        <button data-view="full" role="tab" class="on">Full pitch</button>
+      </div>
+      <div class="follow-card" id="followCard" hidden></div>
+      <div class="hint" id="hint">Tap a player to follow them</div>
+    </div>
+    <div class="timeline">
+      <button id="play" class="play" aria-label="Pause">❚❚</button>
+      <div class="track" id="track"><div class="fill" id="fill"></div><div class="marks" id="marks"></div></div>
+      <select id="speed" aria-label="Playback speed">
+        <option value="1">1×</option><option value="4">4×</option><option value="8" selected>8×</option>
+        <option value="16">16×</option><option value="32">32×</option>
+      </select>
+      <label class="chk"><input type="checkbox" id="shapes" checked> Shape</label>
+    </div>
+  </section>
+
+  <aside class="feed">
+    <div class="feed-head">
+      <div class="seg" id="persona">
+        <button data-p="casual" class="on">Fan</button>
+        <button data-p="analyst">Analyst</button>
+        <button data-p="player">My player</button>
+      </div>
+      <div class="seg small" id="lang">
+        <button data-l="en" class="on">EN</button>
+        <button data-l="hu">HU</button>
+      </div>
+    </div>
+    <div class="cards" id="cards"><p class="empty">Insights appear here as the match unfolds.</p></div>
+  </aside>
+</main>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="drawer-box" role="dialog" aria-labelledby="drawerTitle">
+    <div class="drawer-head">
+      <h2 id="drawerTitle">What did I miss?</h2>
+      <button class="x" id="drawerClose" aria-label="Close">×</button>
+    </div>
+    <div class="chips" id="awayFor">
+      <span>I was away for</span>
+      <button data-min="5">5 min</button><button data-min="10" class="on">10 min</button>
+      <button data-min="15">15 min</button><button data-min="30">30 min</button>
+    </div>
+    <p class="missed-window" id="missedWindow"></p>
+    <ul class="missed-lines" id="missedLines"></ul>
+    <p class="source" id="missedSource"></p>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

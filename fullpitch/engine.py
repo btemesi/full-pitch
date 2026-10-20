@@ -77,6 +77,8 @@ class Match:
         self.pos = np.zeros((2, 11, 2))
         self.vel = np.zeros((2, 11, 2))
         self.noise = np.zeros((2, 11, 2))
+        self.urgent = np.zeros((2, 11), dtype=bool)
+        self.smooth_T = None
         self.run_timer = np.zeros((2, 11))
         self.vmax = self.rng.uniform(7.6, 8.9, size=(2, 11))
         self.vmax[:, 0] = 6.0
@@ -180,17 +182,19 @@ class Match:
         R = flip(k, self.pos[k])
         b = flip(k, self.ball)
         in_poss = self.poss == k
+        U = self.urgent[k]
+        U[:] = False
         kickoff = self.mode == "dead" and self.restart and self.restart["kind"] == "kickoff"
 
         if in_poss and not kickoff:
             coords = f["att"]
-            line = np.clip(b[0] - 22, 18, p["att_line"])
+            line = np.clip(p["att_line"] - 14 + 0.45 * (b[0] - L / 2), 16, p["att_line"] + 4)
             length, width = p["length_att"], p["width_att"]
             yc = W / 2 + 0.25 * (b[1] - W / 2)
         else:
             coords = f["def"]
             floor = min(9.0, max(3.0, b[0] - 4))
-            line = np.clip(b[0] - 21, floor, p["def_line"])
+            line = np.clip(p["def_line"] - 8 + 0.45 * (b[0] - L / 2), floor, p["def_line"] + 4)
             length, width = p["length_def"], p["width_def"]
             if b[0] < 35:  # ball in our final third: narrow and compact around the box
                 width *= 0.72
@@ -212,6 +216,7 @@ class Match:
                         self.run_timer[k, s] = self.rng.uniform(2.5, 5.0)
                 if self.run_timer[k, s] > 0:
                     T[s, 0] = off + 0.2
+                    U[s] = True
                     T[s, 1] += 0.3 * (W / 2 - T[s, 1])
             T[1:, 0] = np.minimum(T[1:, 0], off + 0.2)
         self.run_timer[k] -= DT
@@ -226,7 +231,7 @@ class Match:
             T[:, 0] = np.minimum(T[:, 0], L / 2 - 1.0)
 
         T[:, 1] = np.clip(T[:, 1], 1.5, W - 1.5)
-        T += self.noise[k] * 1.6
+        T += self.noise[k] * 0.9
         T[0] -= self.noise[k, 0] * 1.4
 
         # pressing: nearest defenders break out of the block
@@ -237,6 +242,7 @@ class Match:
             own_goal = np.array([0.0, W / 2])
             if d[order[0] - 1] < trigger:
                 T[order[0]] = b + unit(own_goal - b) * 0.6
+                U[order[0]] = True
             danger = b[0] < 35
             if b[0] < 45:  # man-marking inside our box: free defenders pick up attackers goal-side
                 O = flip(k, self.pos[1 - k])
@@ -248,33 +254,49 @@ class Match:
                     dd = [np.linalg.norm(T[s] - O[j]) for s in free]
                     s = free.pop(int(np.argmin(dd)))
                     T[s] = O[j] + unit(own_goal - O[j]) * 1.2
+                    U[s] = True
             if (p["press"] > 0.55 or danger) and d[order[1] - 1] < trigger * 0.85:
                 T[order[1]] = b + unit(own_goal - b) * 4.0 + np.array([0, 3.0 * np.sign(W / 2 - b[1])])
+                U[order[1]] = True
             if danger:  # a third defender stays goal-side of the ball
                 T[order[2]] = b + unit(own_goal - b) * 7.0
+                U[order[2]] = True
 
         # ball-related overrides
         if self.mode == "carry" and self.carrier[0] == k:
             s = self.carrier[1]
             T[s] = R[s] + self.dribble * 6.0
+            U[s] = True
             T[s] = (np.clip(T[s, 0], 1.0, L - 2.0), np.clip(T[s, 1], 1.0, W - 1.0))
         if self.mode == "flight" and self.flight.get("chaser") and self.flight["chaser"][0] == k:
             T[self.flight["chaser"][1]] = flip(k, self.flight["end"])
+            U[self.flight["chaser"][1]] = True
         if self.mode == "loose":
             s, _ = self.nearest(k, self.ball)
             T[s] = flip(k, self.ball)
+            U[s] = True
         if self.mode == "dead" and self.restart["team"] == k and self.restart.get("taker") is not None:
             T[self.restart["taker"]] = flip(k, self.restart["pos"])
+            U[self.restart["taker"]] = True
         return flip(k, T)
 
     # ---------------------------------------------------------------- movement
     def move(self):
         fatigue = 1.0 - 0.10 * (self.clock / (2 * HALF))
         for k in (0, 1):
-            self.noise[k] += -self.noise[k] * DT / 4.0 + math.sqrt(DT) * 0.35 * self.rng.standard_normal((11, 2))
+            self.noise[k] += -self.noise[k] * DT / 4.0 + math.sqrt(DT) * 0.25 * self.rng.standard_normal((11, 2))
             T = self.targets(k)
+            # off the ball, players react with a delay and jog into position;
+            # only urgent jobs (press, mark, chase, carry, run) get full speed
+            if self.smooth_T is None:
+                self.smooth_T = np.stack([self.pos[0].copy(), self.pos[1].copy()])
+            U = self.urgent[k]
+            self.smooth_T[k][~U] += (T[~U] - self.smooth_T[k][~U]) * (DT / 2.2)
+            self.smooth_T[k][U] = T[U]
+            T = self.smooth_T[k]
             tired = fatigue - 0.06 * self.params[k]["press"] * (self.clock / (2 * HALF))
-            desired = (T - self.pos[k]) / 0.8
+            tau = np.where(U, 0.6, 3.2)[:, None]
+            desired = (T - self.pos[k]) / tau
             cap = self.vmax[k] * tired
             if self.mode == "carry" and self.carrier[0] == k:
                 s = self.carrier[1]
@@ -303,7 +325,7 @@ class Match:
         self.pressured = False
         tempo = self.params[k]["tempo"]
         if hold is None:
-            hold = self.rng.gamma(2.0, 1.05) * (1.25 - 0.6 * tempo)
+            hold = self.rng.gamma(2.2, 1.35) * (1.25 - 0.6 * tempo)
             if s == 0:
                 hold += self.rng.uniform(1.0, 3.0)
         self.hold = hold
@@ -369,6 +391,8 @@ class Match:
             d = float(np.linalg.norm(tp - c))
             if d < 4:
                 continue
+            if c[0] > L - 6 and tp[0] > L - 8:
+                continue  # on the byline: cut it back or cross it, never pass along the line
             prog = tp[0] - c[0]
             space = float(np.min(np.linalg.norm(O - tp, axis=1)))
             lane = float(np.min(lane_distance(O, c, tp)[0]))
@@ -388,7 +412,7 @@ class Match:
         j = int(self.rng.choice(len(cand), p=w / w.sum()))
         t, (tp, d, risk, lane) = cand[j], info[j]
 
-        p_ok = p["quality"] + 0.08 - 0.0045 * max(0, d - 12) - 0.3 * min(risk, 1.0) - (0.08 if dmin < 2.5 else 0)
+        p_ok = p["quality"] + 0.16 - 0.0045 * max(0, d - 12) - 0.3 * min(risk, 1.0) - (0.08 if dmin < 2.5 else 0)
         space = float(np.min(np.linalg.norm(O - tp, axis=1)))
         if tp[0] > L - 16.5 and abs(tp[1] - W / 2) < 20.16:
             # balls into the box: crowded, contested, the keeper comes for them
@@ -590,7 +614,7 @@ class Match:
                 self.pressured = True
                 self.emit("pressure", team=opp, slot=j, on=self.pid(k, s))
             if dmin < 1.7 and s != 0:
-                hazard = 0.5 * (0.5 + 0.5 * self.params[opp]["press"])
+                hazard = 0.2 * (0.5 + 0.5 * self.params[opp]["press"])
                 if self.rng.random() < hazard * DT:
                     if self.rng.random() < 0.15:
                         self.emit("foul", team=opp, slot=j, on=self.pid(k, s), at=self.ball.copy())
@@ -624,9 +648,12 @@ class Match:
             r = self.restart
             self.ball = r["pos"].copy()
             r["timer"] -= DT
-            k, s = r["team"], r["taker"]
+            k = r["team"]
+            if r["kind"] in ("throw_in", "free_kick", "corner"):
+                r["taker"] = int(np.argmin(np.linalg.norm(self.pos[k, 1:] - r["pos"], axis=1))) + 1
+            s = r["taker"]
             close = np.linalg.norm(self.pos[k, s] - r["pos"]) < 1.5
-            if r["timer"] <= 0 and (close or r["timer"] < -4):
+            if r["timer"] <= 0 and (close or r["timer"] < -15):
                 self.pos[k, s] = r["pos"].copy()
                 self.emit("restart", team=k, slot=s, kind=r["kind"], at=r["pos"])
                 self.restart = None
@@ -639,6 +666,7 @@ class Match:
         for kk in (0, 1):
             self.pos[kk] = self.targets(kk)
             self.vel[kk] = 0
+        self.smooth_T = np.stack([self.pos[0].copy(), self.pos[1].copy()])
 
     def run(self):
         stoppage = self.sc.get("stoppage", [120, 240])

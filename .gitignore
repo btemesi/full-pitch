@@ -4,3 +4,4 @@ __pycache__/
 .env
 preview.html
 .claude/
+data/*/analysis.json

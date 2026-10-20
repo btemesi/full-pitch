@@ -7,7 +7,7 @@
       "kind": "block",
       "label": "Northgate drop into a deep low block and stop pressing",
       "set": {
-        "def_line": 23,
+        "def_line": 20,
         "length_def": 27,
         "width_def": 35,
         "press": 0.25
@@ -27,7 +27,7 @@
         }
       ],
       "set": {
-        "def_line": 31,
+        "def_line": 33,
         "length_def": 30,
         "width_def": 40,
         "press": 0.55,
@@ -50,8 +50,8 @@
         }
       ],
       "set": {
-        "def_line": 48,
-        "att_line": 60,
+        "def_line": 51,
+        "att_line": 62,
         "press": 0.97,
         "tempo": 0.85,
         "length_def": 36
