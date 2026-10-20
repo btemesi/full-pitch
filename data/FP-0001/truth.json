@@ -1,0 +1,62 @@
+{
+  "match_id": "FP-0001",
+  "tactical_changes": [
+    {
+      "t": 1860,
+      "team": 1,
+      "kind": "block",
+      "label": "Northgate drop into a deep low block and stop pressing",
+      "set": {
+        "def_line": 23,
+        "length_def": 27,
+        "width_def": 35,
+        "press": 0.25
+      },
+      "applied_at": 1860.0
+    },
+    {
+      "t": 3240,
+      "team": 1,
+      "kind": "formation",
+      "label": "Northgate switch to a back three (3-5-2) and attack down their left",
+      "formation": "3-5-2",
+      "subs": [
+        {
+          "slot": 6,
+          "role": "CB"
+        }
+      ],
+      "set": {
+        "def_line": 31,
+        "length_def": 30,
+        "width_def": 40,
+        "press": 0.55,
+        "tempo": 0.7,
+        "channel": 0.7
+      },
+      "applied_at": 3240.2
+    },
+    {
+      "t": 4140,
+      "team": 0,
+      "kind": "press",
+      "label": "Riverside push their line higher and press all-out",
+      "subs": [
+        {
+          "slot": 6
+        },
+        {
+          "slot": 9
+        }
+      ],
+      "set": {
+        "def_line": 48,
+        "att_line": 60,
+        "press": 0.97,
+        "tempo": 0.85,
+        "length_def": 36
+      },
+      "applied_at": 4140.2
+    }
+  ]
+}

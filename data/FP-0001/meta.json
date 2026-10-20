@@ -1,0 +1,425 @@
+{
+  "match_id": "FP-0001",
+  "competition": "Synthetic League",
+  "venue": "Harbour Park",
+  "seed": 10,
+  "hz": 5,
+  "pitch": {
+    "length": 105.0,
+    "width": 68.0
+  },
+  "home_attacks": "+x",
+  "teams": [
+    {
+      "name": "Riverside Athletic",
+      "short": "RIV",
+      "color": "#d94a3d",
+      "alt": "#ffffff",
+      "formation": "4-3-3"
+    },
+    {
+      "name": "Northgate FC",
+      "short": "NOR",
+      "color": "#2f6fd6",
+      "alt": "#ffffff",
+      "formation": "4-2-3-1"
+    }
+  ],
+  "players": [
+    {
+      "id": "RIV-01",
+      "team": 0,
+      "number": 1,
+      "start_role": "GK",
+      "name": "Umar Zelenko"
+    },
+    {
+      "id": "RIV-02",
+      "team": 0,
+      "number": 38,
+      "start_role": "LB",
+      "name": "Felix Novak"
+    },
+    {
+      "id": "RIV-03",
+      "team": 0,
+      "number": 31,
+      "start_role": "LCB",
+      "name": "Samir Tavernier"
+    },
+    {
+      "id": "RIV-04",
+      "team": 0,
+      "number": 21,
+      "start_role": "RCB",
+      "name": "Jonas Abara"
+    },
+    {
+      "id": "RIV-05",
+      "team": 0,
+      "number": 27,
+      "start_role": "RB",
+      "name": "Bastian Marlowe"
+    },
+    {
+      "id": "RIV-06",
+      "team": 0,
+      "number": 2,
+      "start_role": "LCM",
+      "name": "Xavi Lindqvist"
+    },
+    {
+      "id": "RIV-07",
+      "team": 0,
+      "number": 18,
+      "start_role": "CM",
+      "name": "Pablo Kovacic"
+    },
+    {
+      "id": "RIV-08",
+      "team": 0,
+      "number": 12,
+      "start_role": "RCM",
+      "name": "Dominik Ibarra"
+    },
+    {
+      "id": "RIV-09",
+      "team": 0,
+      "number": 25,
+      "start_role": "LW",
+      "name": "Hugo Grieve"
+    },
+    {
+      "id": "RIV-10",
+      "team": 0,
+      "number": 22,
+      "start_role": "ST",
+      "name": "Rafael Holm"
+    },
+    {
+      "id": "RIV-11",
+      "team": 0,
+      "number": 10,
+      "start_role": "RW",
+      "name": "Zoltan Crane"
+    },
+    {
+      "id": "RIV-12",
+      "team": 0,
+      "number": 35,
+      "start_role": "SUB",
+      "name": "Elias Yates"
+    },
+    {
+      "id": "RIV-13",
+      "team": 0,
+      "number": 11,
+      "start_role": "SUB",
+      "name": "Gabriel Falk"
+    },
+    {
+      "id": "RIV-14",
+      "team": 0,
+      "number": 33,
+      "start_role": "SUB",
+      "name": "Bruno Esterhuizen"
+    },
+    {
+      "id": "RIV-15",
+      "team": 0,
+      "number": 5,
+      "start_role": "SUB",
+      "name": "Emil Castell"
+    },
+    {
+      "id": "RIV-16",
+      "team": 0,
+      "number": 14,
+      "start_role": "SUB",
+      "name": "Florin Quarry"
+    },
+    {
+      "id": "NOR-01",
+      "team": 1,
+      "number": 1,
+      "start_role": "GK",
+      "name": "Luca Garrow"
+    },
+    {
+      "id": "NOR-02",
+      "team": 1,
+      "number": 14,
+      "start_role": "LB",
+      "name": "Dario Ulloa"
+    },
+    {
+      "id": "NOR-03",
+      "team": 1,
+      "number": 2,
+      "start_role": "LCB",
+      "name": "Kai Okafor"
+    },
+    {
+      "id": "NOR-04",
+      "team": 1,
+      "number": 31,
+      "start_role": "RCB",
+      "name": "Cyril Jessop"
+    },
+    {
+      "id": "NOR-05",
+      "team": 1,
+      "number": 38,
+      "start_role": "RB",
+      "name": "Oscar Sauer"
+    },
+    {
+      "id": "NOR-06",
+      "team": 1,
+      "number": 17,
+      "start_role": "LDM",
+      "name": "Theo Dorsey"
+    },
+    {
+      "id": "NOR-07",
+      "team": 1,
+      "number": 16,
+      "start_role": "RDM",
+      "name": "Quentin Delacroix"
+    },
+    {
+      "id": "NOR-08",
+      "team": 1,
+      "number": 35,
+      "start_role": "LAM",
+      "name": "Callum Varga"
+    },
+    {
+      "id": "NOR-09",
+      "team": 1,
+      "number": 5,
+      "start_role": "CAM",
+      "name": "Mateo Ekwueme"
+    },
+    {
+      "id": "NOR-10",
+      "team": 1,
+      "number": 18,
+      "start_role": "RAM",
+      "name": "Arlo Bellweather"
+    },
+    {
+      "id": "NOR-11",
+      "team": 1,
+      "number": 28,
+      "start_role": "ST",
+      "name": "Ivan Renshaw"
+    },
+    {
+      "id": "NOR-12",
+      "team": 1,
+      "number": 22,
+      "start_role": "SUB",
+      "name": "Viktor Ashby"
+    },
+    {
+      "id": "NOR-13",
+      "team": 1,
+      "number": 9,
+      "start_role": "SUB",
+      "name": "Wes Whitlock"
+    },
+    {
+      "id": "NOR-14",
+      "team": 1,
+      "number": 12,
+      "start_role": "SUB",
+      "name": "Adam Pell"
+    },
+    {
+      "id": "NOR-15",
+      "team": 1,
+      "number": 15,
+      "start_role": "SUB",
+      "name": "Nils Brannigan"
+    },
+    {
+      "id": "NOR-16",
+      "team": 1,
+      "number": 32,
+      "start_role": "SUB",
+      "name": "Yannick Fennick"
+    }
+  ],
+  "tracking_columns": [
+    "RIV:slot0",
+    "RIV:slot1",
+    "RIV:slot2",
+    "RIV:slot3",
+    "RIV:slot4",
+    "RIV:slot5",
+    "RIV:slot6",
+    "RIV:slot7",
+    "RIV:slot8",
+    "RIV:slot9",
+    "RIV:slot10",
+    "NOR:slot0",
+    "NOR:slot1",
+    "NOR:slot2",
+    "NOR:slot3",
+    "NOR:slot4",
+    "NOR:slot5",
+    "NOR:slot6",
+    "NOR:slot7",
+    "NOR:slot8",
+    "NOR:slot9",
+    "NOR:slot10",
+    "ball"
+  ],
+  "formations": {
+    "4-3-3": {
+      "roles": [
+        "GK",
+        "LB",
+        "LCB",
+        "RCB",
+        "RB",
+        "LCM",
+        "CM",
+        "RCM",
+        "LW",
+        "ST",
+        "RW"
+      ],
+      "att_groups": [
+        "G",
+        "D",
+        "D",
+        "D",
+        "D",
+        "M",
+        "M",
+        "M",
+        "F",
+        "F",
+        "F"
+      ],
+      "def_groups": [
+        "G",
+        "D",
+        "D",
+        "D",
+        "D",
+        "M",
+        "M",
+        "M",
+        "F",
+        "F",
+        "F"
+      ]
+    },
+    "4-2-3-1": {
+      "roles": [
+        "GK",
+        "LB",
+        "LCB",
+        "RCB",
+        "RB",
+        "LDM",
+        "RDM",
+        "LAM",
+        "CAM",
+        "RAM",
+        "ST"
+      ],
+      "att_groups": [
+        "G",
+        "D",
+        "D",
+        "D",
+        "D",
+        "M",
+        "M",
+        "A",
+        "A",
+        "A",
+        "F"
+      ],
+      "def_groups": [
+        "G",
+        "D",
+        "D",
+        "D",
+        "D",
+        "M",
+        "M",
+        "A",
+        "A",
+        "A",
+        "F"
+      ]
+    },
+    "3-5-2": {
+      "roles": [
+        "GK",
+        "LWB",
+        "LCB",
+        "RCB",
+        "RWB",
+        "LCM",
+        "CB",
+        "RCM",
+        "CM",
+        "LST",
+        "RST"
+      ],
+      "att_groups": [
+        "G",
+        "M",
+        "D",
+        "D",
+        "M",
+        "M",
+        "D",
+        "M",
+        "M",
+        "F",
+        "F"
+      ],
+      "def_groups": [
+        "G",
+        "D",
+        "D",
+        "D",
+        "D",
+        "M",
+        "D",
+        "M",
+        "M",
+        "F",
+        "F"
+      ]
+    }
+  },
+  "formation_log": [
+    {
+      "t": 0.0,
+      "team": 0,
+      "formation": "4-3-3"
+    },
+    {
+      "t": 0.0,
+      "team": 1,
+      "formation": "4-2-3-1"
+    },
+    {
+      "t": 3240.1999999995087,
+      "team": 1,
+      "formation": "3-5-2"
+    }
+  ],
+  "final_score": [
+    2,
+    3
+  ]
+}
