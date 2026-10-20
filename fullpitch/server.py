@@ -104,8 +104,6 @@ def clock(sid: str = Query(alias="session")):
 def match():
     s = store()
     info = s.match_info()
-    info["formations"] = s.md.meta["formations"]
-    info["formation_log"] = s.md.meta["formation_log"]
     info["team_colors"] = {t["short"]: t["color"] for t in s.md.meta["teams"]}
     info["hz"] = s.md.hz
     return info
@@ -117,7 +115,7 @@ def frame(sid: str = Query(alias="session")):
     s, m = store(), now(sid)
     f = s.frame(m)
     md = s.md
-    return {"f": f, "c": md.clock_label(f), "p": int(md.poss[f]), "t": round(float(md.clock[f]), 1),
+    return {"f": f, "c": md.clock_label(f), "p": int(md.poss[f]), "t": round(float(md.clock[f]), 1), "per": int(md.period[f]),
             "m": round(float(md.tmin[f]), 3), "xy": [round(float(v), 1) for v in md.xy[f].ravel()]}
 
 
@@ -277,6 +275,7 @@ async def stream(sid: str = Query(alias="session"), speed: float = Query(8.0, ge
             for ff in range(f, min(f + batch, md.F)):
                 frames.append({
                     "f": ff, "c": md.clock_label(ff), "p": int(md.poss[ff]), "t": round(float(md.clock[ff]), 1),
+                    "per": int(md.period[ff]),
                     "m": round(float(md.tmin[ff]), 3),
                     "xy": [round(float(v), 1) for v in md.xy[ff].ravel()],
                 })

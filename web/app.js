@@ -219,10 +219,20 @@
     return { k, base, P, inView: (x, y) => { const [u, v] = toScreen(x, y); return u >= ox && u <= ox + vw && v >= oy && v <= oy + vh; } };
   }
 
-  function formationAt(team, t) {
-    let fm = S.match.teams[team].starting_formation;
-    for (const x of S.match.formation_log) if (x.team === team && x.t <= t) fm = x.formation;
-    return S.match.formations[fm];
+  // Team lines from positions only: sort outfield players by depth (in the team's own direction of
+  // attack) and cut at the two largest gaps. The coach's plan is never sent to the page.
+  function linesOf(fr, k, onPitch) {
+    const plusX = (k === 0) === ((fr.per || 1) === 1);
+    const pl = [];
+    for (let s = 1; s < 11; s++) if (onPitch(k, s)) {
+      const x = fr.xy[(k * 11 + s) * 2], y = fr.xy[(k * 11 + s) * 2 + 1];
+      pl.push({ s, depth: plusX ? x : L - x, x, y });
+    }
+    pl.sort((a, b) => a.depth - b.depth);
+    const gaps = pl.slice(1).map((p, i) => ({ i, g: p.depth - pl[i].depth })).sort((a, b) => b.g - a.g).slice(0, 2).map((o) => o.i).sort((a, b) => a - b);
+    const lines = [[]];
+    pl.forEach((p, i) => { lines[lines.length - 1].push([p.x, p.y]); if (gaps.includes(i)) lines.push([]); });
+    return lines;
   }
 
   // ------------------------------------------------------------ drawing
@@ -268,7 +278,7 @@
       }
     }
     if (ov && ov.type === "change" && ov.channel) {
-      const k = ov.team_index, period = fr.t >= 2700 ? 2 : 1;
+      const k = ov.team_index, period = fr.per || 1;
       const plusX = (k === 0) === (period === 1);
       const yLeft = plusX ? W - 12 : 12;  // the team's left touchline side
       g.save(); g.globalAlpha = 0.18; g.fillStyle = "#d7ff3a";
@@ -277,14 +287,11 @@
 
     if ($("shapes").checked) {
       for (let k = 0; k < 2; k++) {
-        const fm = formationAt(k, fr.t);
-        const groups = fr.p === k ? fm.att_groups : fm.def_groups;
-        const lines = {};
-        for (let s = 1; s < 11; s++) if (onPitch(k, s)) (lines[groups[s]] = lines[groups[s]] || []).push(Pw(k * 11 + s));
+        const lines = linesOf(fr, k, onPitch);
         g.strokeStyle = S.colors[S.shorts[k]]; g.globalAlpha = 0.6;
         g.lineWidth = Math.max(2 * d, v.base * 0.26 * (1 + (S.zoom - 1) * 0.4)); g.lineCap = "round"; g.lineJoin = "round";
-        for (const key in lines) {
-          const pts = lines[key].sort((a, b) => a[1] - b[1]);
+        for (const line of lines) {
+          const pts = line.sort((a, b) => a[1] - b[1]);
           if (pts.length < 2) continue;
           g.beginPath();
           pts.forEach((p, i) => { const [x, y] = v.P(p[0], p[1]); i ? g.lineTo(x, y) : g.moveTo(x, y); });
@@ -440,7 +447,8 @@
 
   // ------------------------------------------------------------ insights feed
   function renderScore() { $("score").textContent = `${S.score[0]}–${S.score[1]}`; }
-  const cardKey = (c) => c.kind + (c.team || "") + c.minute;
+  // a change keeps its identity while its start minute is refined: key on when it was first confirmed
+  const cardKey = (c) => c.kind + (c.team || "") + (c.kind === "change" ? c.confirmed_minute : c.minute);
 
   function renderCards() {
     const el = $("cards");
@@ -513,7 +521,8 @@
     if (!rep.frames.length) return;
     S.resumeMinute = currentMinute();
     if (S.es) { S.es.close(); S.es = null; }
-    S.replay = { frames: rep.frames, overlay: rep.overlay, i: 0, doneAt: null };
+    S.replay = { frames: rep.frames, overlay: rep.overlay, i: 0, doneAt: null, liveScore: S.score.slice() };
+    if (rep.score) { S.score = rep.score.slice(); renderScore(); }  // the score as it stood at that moment
     $("replayTitle").textContent = c.title;
     $("replayBar").hidden = false; $("followCard").hidden = true; $("lowerThird").hidden = true;
     $("live").classList.add("paused");
@@ -530,6 +539,7 @@
   }
   async function endReplay() {
     if (!S.replay) return;
+    S.score = S.replay.liveScore; renderScore();
     S.replay = null; $("replayBar").hidden = true;
     $("live").classList.toggle("paused", !S.playing);
     await seek(S.resumeMinute);
@@ -654,15 +664,16 @@
     for (const [lab, val] of [[hu() ? "Gól / gólpassz" : "Goals / assists", `${p.goals} / ${p.assists}`], ["xG", p.xg.toFixed(2)],
       [hu() ? "Passzpontosság" : "Pass accuracy", p.pass_accuracy_pct + "%"],
       [hu() ? "Befutások a vonal mögé" : "Runs in behind", p.off_ball_runs.length],
-      [hu() ? "Csúcs most" : "Top speed now", (last.top_speed_kmh || 0).toFixed(0) + " km/h"], [hu() ? "Sprintek most" : "Sprints now", last.sprints ?? 0]]) {
+      [hu() ? "Csúcs (utolsó negyedóra)" : "Top speed, last period", (last.top_speed_kmh || 0).toFixed(0) + " km/h"],
+      [hu() ? "Sprintek (utolsó negyedóra)" : "Sprints, last period", last.sprints ?? 0]]) {
       const d = document.createElement("div"); d.innerHTML = "<small></small><b></b>";
       d.querySelector("small").textContent = lab; d.querySelector("b").textContent = val; k.appendChild(d);
     }
     drawSplits(p);
     const f = p.fatigue;
-    $("pFatigue").textContent = !f ? (hu() ? "A fáradás a 3. negyedórától mérhető." : "Fatigue shows from the third 15-minute period.")
+    $("pFatigue").textContent = !f ? (hu() ? "A fáradás három teljesebb negyedóra után mérhető." : "Fatigue shows once three fuller 15-minute periods are played.")
       : f.top_speed_drop_kmh >= 1.5
-        ? (hu() ? `Fárad: a csúcssebessége ${f.top_speed_drop_kmh.toFixed(1)} km/h-val alacsonyabb, mint a meccs elején.` : `Tiring: top speed is ${f.top_speed_drop_kmh.toFixed(1)} km/h below where it started.`)
+        ? (hu() ? `Fárad: a csúcssebessége ${f.top_speed_drop_kmh.toFixed(1)} km/h-val alacsonyabb (${f.compared[1]}-tól), mint a meccs elején.` : `Tiring: top speed is ${f.top_speed_drop_kmh.toFixed(1)} km/h lower in the period from ${f.compared[1]} than at the start.`)
         : (hu() ? "Bírja: a csúcssebessége a meccs elejéhez képest alig változott." : "Holding up: top speed is close to where it started.");
     drawHeat(p); drawMap(p);
   }
@@ -713,6 +724,14 @@
     for (const s of p.shots) {
       svgEl("circle", { cx: s.at[0], cy: yy(s.at[1]), r: 1.2 + 6 * Math.sqrt(s.xg), fill: s.outcome === "goal" ? "#d7ff3a" : "none", stroke: "#fff", "stroke-width": 0.6, opacity: 0.9 }, svg);
     }
+  }
+
+  // Static labels that have a Hungarian version (data-hu); the English text is kept in data-en.
+  function translateStatic() {
+    document.querySelectorAll("[data-hu]").forEach((el) => {
+      if (!el.dataset.en) el.dataset.en = el.textContent;
+      el.textContent = hu() ? el.dataset.hu : el.dataset.en;
+    });
   }
 
   // ------------------------------------------------------------ UI wiring
@@ -775,7 +794,7 @@
   $("speed").addEventListener("change", (e) => { S.speed = +e.target.value; if (!S.replay) seek(currentMinute()); });
   $("track").addEventListener("click", (e) => {
     const rc = $("track").getBoundingClientRect();
-    S.replay = null; $("replayBar").hidden = true;
+    if (S.replay) { S.score = S.replay.liveScore; S.replay = null; $("replayBar").hidden = true; $("live").classList.toggle("paused", !S.playing); }
     seek(((e.clientX - rc.left) / rc.width) * S.match.length_minutes);
   });
   $("track").addEventListener("keydown", (e) => {
@@ -789,7 +808,7 @@
       b.addEventListener("click", () => {
         S[key] = b.dataset[attr];
         document.querySelectorAll(`#${id} button`).forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); });
-        if (key === "lang") fillFollowSelect();
+        if (key === "lang") { fillFollowSelect(); translateStatic(); }
         refreshCards(currentMinute(), true);
         refreshPanel(true);
         if (!$("drawer").hidden) loadMissed();

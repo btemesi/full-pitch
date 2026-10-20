@@ -94,6 +94,7 @@ class Match:
         self.period = 1
         self.score = [0, 0]
         self.poss = 0
+        self.poss_since = 0.0
         self.mode = "dead"
         self.carrier = None
         self.hold = 0.0
@@ -210,26 +211,34 @@ class Match:
         U[:] = False
         kickoff = self.mode == "dead" and self.restart and self.restart["kind"] == "kickoff"
 
-        if in_poss and not kickoff:
-            coords = f["att"]
-            line = np.clip(p["att_line"] - 14 + 0.45 * (b[0] - L / 2), 16, p["att_line"] + 4)
-            length, width = p["length_att"], p["width_att"]
-            yc = W / 2 + 0.25 * (b[1] - W / 2)
-        else:
-            coords = f["def"]
-            floor = min(9.0, max(3.0, b[0] - 4))
-            line = np.clip(p["def_line"] - 8 + 0.45 * (b[0] - L / 2), floor, p["def_line"] + 4)
-            length, width = p["length_def"], p["width_def"]
-            if b[0] < 35:  # ball in our final third: narrow and compact around the box
-                width *= 0.72
-                length *= 0.8
-            yc = W / 2 + 0.55 * (b[1] - W / 2)
-        length = min(length, 101 - line)
+        def shape(attacking):
+            if attacking:
+                coords = f["att"]
+                line = np.clip(p["att_line"] - 14 + 0.45 * (b[0] - L / 2), 16, p["att_line"] + 4)
+                length, width = p["length_att"], p["width_att"]
+                yc = W / 2 + 0.25 * (b[1] - W / 2)
+            else:
+                coords = f["def"]
+                floor = min(9.0, max(3.0, b[0] - 4))
+                line = np.clip(p["def_line"] - 8 + 0.45 * (b[0] - L / 2), floor, p["def_line"] + 4)
+                length, width = p["length_def"], p["width_def"]
+                if b[0] < 35:  # ball in our final third: narrow and compact around the box
+                    width *= 0.72
+                    length *= 0.8
+                yc = W / 2 + 0.55 * (b[1] - W / 2)
+            length = min(length, 101 - line)
+            out = np.zeros((11, 2))
+            for s in range(1, 11):
+                d, lat = coords[s]
+                out[s] = (line + d * length, yc + lat * width)
+            return out
 
-        T = np.zeros((11, 2))
-        for s in range(1, 11):
-            d, lat = coords[s]
-            T[s] = (line + d * length, yc + lat * width)
+        if in_poss and not kickoff:
+            # a team opens up over a few seconds once it keeps the ball, not the instant it wins it
+            age = min(1.0, (self.clock - self.poss_since) / 5.0)
+            T = shape(False) + (shape(True) - shape(False)) * age
+        else:
+            T = shape(False)
 
         groups = f["att_groups"] if in_poss else f["def_groups"]
         if in_poss and not kickoff:
@@ -325,6 +334,8 @@ class Match:
             tau = np.where(U, 0.6, 2.7)[:, None]
             desired = (T - self.pos[k]) / tau
             cap = self.vmax[k] * tired
+            # repositioning off the ball is a hard run at most; only urgent jobs get a sprint
+            cap = np.where(U, cap, np.minimum(cap, 5.6))
             if self.mode == "carry" and self.carrier[0] == k:
                 s = self.carrier[1]
                 ahead = np.linalg.norm(self.pos[1 - k][self.active[1 - k]] - self.pos[k, s], axis=1).min()
@@ -349,6 +360,8 @@ class Match:
         """Player s of team k now has the ball at their feet."""
         if self.poss != k and self.mode != "dead":
             self.last_pass = None
+        if self.poss != k:
+            self.poss_since = self.clock
         self.poss = k
         self.mode = "carry"
         self.carrier = (k, s)
@@ -371,6 +384,8 @@ class Match:
     def dead_ball(self, k, pos, kind, delay):
         pos = np.array([np.clip(pos[0], 0, L), np.clip(pos[1], 0, W)], dtype=float)
         self.mode = "dead"
+        if self.poss != k:
+            self.poss_since = self.clock
         self.poss = k
         self.carrier = None
         if kind == "goal_kick":
@@ -459,6 +474,7 @@ class Match:
         dur = d / (13 + 0.22 * d)
         lead = (self.vel[k, t] if k == 0 else -self.vel[k, t]) * dur * 0.5
         end_rel = tp + lead
+        end_rel = np.array([np.clip(end_rel[0], 0.5, L - 0.5), np.clip(end_rel[1], 0.5, W - 0.5)])  # played into the pitch
         difficulty = round(min(1.0, (1 - p_ok) * 1.6 + max(0, d - 25) / 60), 2)
         start_abs = self.ball.copy()
         base = dict(start=start_abs, distance=round(d, 1), difficulty=difficulty,
@@ -614,6 +630,8 @@ class Match:
 
     def loose_ball(self, point, prev_team):
         """Ball sits loose; the nearest player of each team chases it (see loose_step)."""
+        if not (0 <= point[0] <= L and 0 <= point[1] <= W):
+            return self.out_of_play(point, last_team=prev_team)
         self.ball = point.copy()
         self.mode = "loose"
         self.carrier = None

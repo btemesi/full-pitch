@@ -84,3 +84,17 @@ def test_recaps_only_after_the_whistle(client):
     client.post(f"/api/session/{sid}/seek", params={"to": 60})
     assert client.get("/api/recap", params={"session": sid, "kind": "ht"}).status_code == 200
     assert client.get("/api/recap", params={"session": sid, "kind": "ft"}).status_code == 409
+
+
+def test_the_coaches_plan_is_never_sent(client):
+    """Formation changes are what we detect; the page only gets the public starting formations."""
+    info = client.get("/api/match").json()
+    assert "formation_log" not in info and "formations" not in info
+
+
+def test_replay_shows_the_score_of_its_moment(client):
+    sid = new_session(client, 96)
+    goals = goal_minutes()
+    if len(goals) >= 2:
+        r = client.get("/api/replay", params={"session": sid, "kind": "goal", "minute": round(goals[1], 2)}).json()
+        assert sum(r["score"]) == 1  # the clip starts before the second goal

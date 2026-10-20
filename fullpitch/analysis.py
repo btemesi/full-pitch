@@ -18,6 +18,7 @@ import numpy as np
 L, W = 105.0, 68.0
 SPRINT = 7.0          # m/s  (25.2 km/h)
 SPRINT_MIN_S = 1.0    # a sprint must last at least this long
+SETTLED_S = 5.0       # possession counts as settled after this long
 HIGH_INTENSITY = 5.5  # m/s  (19.8 km/h)
 
 
@@ -110,6 +111,11 @@ def minute_metrics(md):
     keys = ["def_line", "line_adj", "n_back", "length", "width"]
     acc = {(k, ph, m): {key: [] for key in keys + ["pressers"]}
            for k in (0, 1) for ph in ("att", "def") for m in range(n_min)}
+    # how long the current possession has lasted: shape "with the ball" is read from settled possession
+    age = np.zeros(md.F)
+    for f in range(1, md.F):
+        age[f] = age[f - 1] + 1 if md.poss[f] == md.poss[f - 1] and md.poss[f] >= 0 else 0
+    settled = age >= SETTLED_S * md.hz
     step = 1
     for f in range(0, md.F, step):
         pk = md.poss[f]
@@ -121,6 +127,8 @@ def minute_metrics(md):
             s = frame_shape(teams[k][f], balls[k][f, 0], md.active[f, k * 11:(k + 1) * 11])
             a = acc[(k, ph, m)]
             for key in keys:
+                if ph == "att" and not settled[f]:
+                    continue  # a team needs a few seconds to open up after winning the ball
                 if key == "line_adj" and not (35 < balls[k][f, 0] < 85):
                     continue  # elsewhere the box or the coach's cap pins the line, hiding the instruction
                 a[key].append(s[key])
@@ -168,6 +176,8 @@ def player_physicals(md, window=None):
     Slots are mapped to player ids through substitution events.
     """
     f_from, f_to = window or (0, md.F)
+    if f_to - f_from < 2:
+        return {}
     occupancy = slot_occupancy(md)
     xy = md.xy[f_from:f_to, :22]
     # tracking providers smooth positions before measuring running; we use a 1 s moving average,
@@ -190,6 +200,7 @@ def player_physicals(md, window=None):
                 continue
             seg = vs[a2:b2, col]
             raw = v[a2:b2, col]
+            on = md.active[f_from + 1 + a2:f_from + 1 + b2, col]  # minutes on the pitch only
             starts = count_runs(seg > SPRINT, min_len)
             st = stats.setdefault(pid, {"distance_m": 0.0, "top_speed_kmh": 0.0, "sprints": 0,
                                         "hi_distance_m": 0.0, "minutes": 0.0})
@@ -197,11 +208,27 @@ def player_physicals(md, window=None):
             st["hi_distance_m"] += float(raw[seg > HIGH_INTENSITY].sum() / md.hz)
             st["top_speed_kmh"] = max(st["top_speed_kmh"], float(seg.max() * 3.6) if len(seg) else 0.0)
             st["sprints"] += starts
-            st["minutes"] += len(seg) / md.hz / 60
+            st["minutes"] += float(on.sum()) / md.hz / 60
     for st in stats.values():
         for key in ("distance_m", "hi_distance_m", "top_speed_kmh", "minutes"):
             st[key] = round(st[key], 1)
     return stats
+
+
+def lines_by_gaps(x, n_lines=3):
+    """Split players into lines by depth: cut at the (n_lines-1) largest gaps between neighbours.
+    Returns a line index per player (0 = deepest). Uses positions only, never the coach's plan."""
+    order = np.argsort(x)
+    xs = x[order]
+    gaps = np.diff(xs)
+    cuts = sorted(np.argsort(gaps)[-(n_lines - 1):]) if len(xs) > n_lines else []
+    label = np.zeros(len(x), dtype=int)
+    line = 0
+    for i, idx in enumerate(order):
+        label[idx] = line
+        if line < len(cuts) and i == cuts[line]:
+            line += 1
+    return label
 
 
 def count_runs(mask, min_len):

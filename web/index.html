@@ -55,9 +55,9 @@
 
   <aside class="feed">
     <div class="tabs" role="tablist" aria-label="Panels">
-      <button data-tab="insights" class="on" role="tab" aria-selected="true">Insights</button>
-      <button data-tab="stats" role="tab" aria-selected="false">Stats</button>
-      <button data-tab="player" role="tab" aria-selected="false">Player</button>
+      <button data-tab="insights" class="on" role="tab" aria-selected="true" data-hu="Elemzés">Insights</button>
+      <button data-tab="stats" role="tab" aria-selected="false" data-hu="Statisztika">Stats</button>
+      <button data-tab="player" role="tab" aria-selected="false" data-hu="Játékos">Player</button>
     </div>
     <div class="feed-head">
       <div class="seg" id="persona" role="group" aria-label="Viewer">
@@ -75,31 +75,31 @@
     </div>
     <div class="panel" id="panel-stats" hidden>
       <div class="statrows" id="statRows"></div>
-      <h4>Expected goals</h4>
+      <h4 data-hu="Várható gólok (xG)">Expected goals</h4>
       <svg id="xgChart" class="chart" viewBox="0 0 320 150" role="img" aria-label="Cumulative expected goals"></svg>
-      <h4>Pass network</h4>
+      <h4 data-hu="Passzháló">Pass network</h4>
       <div class="mini-controls">
         <div class="seg small" id="pnTeam"></div>
         <div class="seg small" id="pnWindow">
-          <button data-w="match" class="on">Match</button><button data-w="half">Half</button><button data-w="last15">Last 15'</button>
+          <button data-w="match" class="on" data-hu="Meccs">Match</button><button data-w="half" data-hu="Félidő">Half</button><button data-w="last15" data-hu="Utolsó 15'">Last 15'</button>
         </div>
       </div>
       <svg id="passNet" class="mini-pitch" viewBox="-2 -2 109 72" role="img" aria-label="Pass network"></svg>
       <p class="note" id="pnNote"></p>
     </div>
     <div class="panel" id="panel-player" hidden>
-      <div id="playerEmpty" class="empty">Tap a player on the pitch, or pick one from the list, to see their match.</div>
+      <div id="playerEmpty" class="empty" data-hu="Koppints egy játékosra a pályán, vagy válaszd ki a listából, és itt látod a meccsét.">Tap a player on the pitch, or pick one from the list, to see their match.</div>
       <div id="playerBody" hidden>
         <div class="p-head"><b id="pName"></b><span id="pTeam"></span></div>
         <div class="p-kpis" id="pKpis"></div>
-        <h4>Legs: every 15 minutes</h4>
+        <h4 data-hu="Lábak: negyedóránként">Legs: every 15 minutes</h4>
         <svg id="pSplits" class="chart" viewBox="0 0 320 120" role="img" aria-label="Running by 15-minute period"></svg>
         <p class="note" id="pFatigue"></p>
-        <h4>Where they played</h4>
+        <h4 data-hu="Hol játszott">Where they played</h4>
         <svg id="pHeat" class="mini-pitch" viewBox="-2 -2 109 72" role="img" aria-label="Heatmap"></svg>
-        <h4>Passes and shots</h4>
+        <h4 data-hu="Passzok és lövések">Passes and shots</h4>
         <svg id="pMap" class="mini-pitch" viewBox="-2 -2 109 72" role="img" aria-label="Pass and shot map"></svg>
-        <p class="note">Attacking to the right. Green: completed pass, red: lost. Circles: shots, size by xG.</p>
+        <p class="note" data-hu="Jobbra támad. Zöld: sikeres passz, piros: elvesztett. Körök: lövések, méretük az xG.">Attacking to the right. Green: completed pass, red: lost. Circles: shots, size by xG.</p>
       </div>
     </div>
   </aside>

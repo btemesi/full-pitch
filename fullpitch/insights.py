@@ -10,7 +10,7 @@ from collections import Counter, defaultdict
 import numpy as np
 
 from .analysis import BALL_SHIFT, L, W, attacks_plus_x, player_physicals, slot_occupancy, team_rel
-from .catchup import player_name
+from .catchup import player_name, score_at
 
 HEAT_BINS = (21, 14)          # 5 m x ~4.9 m cells
 PPDA_OWN_ZONE = 63.0          # opponent's build-up zone: their first 60% of the pitch
@@ -196,11 +196,13 @@ def player_profile(md, pid, frame_to, runs=None):
     goals = sum(1 for e in _evs(md, frame_to) if e["type"] == "goal" and e.get("player") == pid)
     assists = sum(1 for e in _evs(md, frame_to) if e["type"] == "goal" and e.get("assist") == pid)
     fatigue = None
-    if len(splits) >= 3:
-        first = np.mean([s["top_speed_kmh"] for s in splits[:2]])
-        lastv = splits[-1]["top_speed_kmh"]
+    full = [s for s in splits if s["minutes"] >= 8]  # a short period can't show a fair top speed
+    if len(full) >= 3:
+        first = np.mean([s["top_speed_kmh"] for s in full[:2]])
+        lastv = full[-1]["top_speed_kmh"]
         fatigue = {"top_speed_drop_kmh": round(float(first - lastv), 1),
-                   "km_per_90_drop": round(float(np.mean([s["km_per_90"] for s in splits[:2]]) - splits[-1]["km_per_90"]), 1)}
+                   "km_per_90_drop": round(float(np.mean([s["km_per_90"] for s in full[:2]]) - full[-1]["km_per_90"]), 1),
+                   "compared": [full[0]["from"], full[-1]["from"]]}
     return {"id": pid, "name": player_name(md, pid), "team": md.shorts[k],
             "heatmap": [[round(float(v), 2) for v in row] for row in heat], "heat_bins": HEAT_BINS,
             "passes": passes, "shots": shots, "splits": splits, "fatigue": fatigue,
@@ -265,6 +267,7 @@ def recap(md, kind, frame_to, changes, runs=None):
 # --------------------------------------------------------------- replay overlays
 def frames_payload(md, f_from, f_to):
     return [{"f": f, "c": md.clock_label(f), "p": int(md.poss[f]), "t": round(float(md.clock[f]), 1),
+             "per": int(md.period[f]),
              "m": round(float(md.tmin[f]), 3), "xy": [round(float(v), 1) for v in md.xy[f].ravel()]}
             for f in range(f_from, f_to)]
 
@@ -285,7 +288,8 @@ def replay(md, rows, kind, minute, team, now_minute, signal=None):
                          and e["team"] == goal["team"]), None)
             if shot:
                 overlay["xg"] = round(shot["xg"], 2)
-        return {"frames": frames_payload(md, f_from, max(f_from + 1, f_to)), "overlay": overlay}
+        return {"frames": frames_payload(md, f_from, max(f_from + 1, f_to)), "overlay": overlay,
+                "score": score_at(md, f_from)}
 
     # a shape change: 20 seconds of play after it began, with what to look at drawn on top
     k = md.shorts.index(team)
@@ -297,10 +301,12 @@ def replay(md, rows, kind, minute, team, now_minute, signal=None):
         return float(np.mean(v)) if v else None
     before, after = avg(m - 12, m), avg(m, m + 12)
     defending = signal not in ("n_back",)  # a back three shows best in possession, the rest out of it
-    f_from = min(int((m + 1) * 60 * hz), max(0, f_now - 20 * hz))
-    for cand in range(f_from, max(f_from + 1, f_now - 20 * hz), hz * 5):
-        want = (1 - k) if defending else k
-        if (md.poss[cand:cand + 20 * hz] == want).mean() > 0.6:
+    # the start minute is an estimate (it can be a few minutes early), so show play from 4 minutes after it
+    f_from = min(int((m + 4) * 60 * hz), max(0, f_now - 20 * hz))
+    want = (1 - k) if defending else k
+    for cand in range(f_from, max(f_from + 1, f_now - 20 * hz), hz):
+        # a settled spell: the same side has had the ball for 5 s before and keeps it through the clip
+        if (md.poss[max(0, cand - 5 * hz):cand + 20 * hz] == want).mean() > 0.85:
             f_from = cand
             break
     f_to = min(f_now, f_from + 20 * hz)
@@ -320,13 +326,22 @@ def replay(md, rows, kind, minute, team, now_minute, signal=None):
             d = np.linalg.norm(R[f, 1:] - B[f], axis=1)
             ring.append([int(s + 1) for s in range(10) if act[s] and d[s] < 10])
         elif signal in ("n_back", "n_back_def"):
-            deepest = x[act].min()
-            ring.append([int(s + 1) for s in range(10) if act[s] and x[s] < deepest + 5.0])
+            ring.append(None)  # filled below from the clip's average positions
         else:
             ring.append([])
+    if signal in ("n_back", "n_back_def"):
+        # the back line over the whole clip, by the same rule the card counts: average depth
+        # within 5 m of the deepest outfield player
+        fr_idx = np.arange(f_from, max(f_from + 1, f_to))
+        act = md.active[fr_idx, k * 11 + 1:(k + 1) * 11].all(axis=0)
+        slots = [s for s in range(10) if act[s]]
+        depth = R[fr_idx][:, 1:, 0].mean(axis=0)[slots]
+        back = [int(slots[i] + 1) for i in range(len(slots)) if depth[i] < depth.min() + 5.0]
+        ring = [back for _ in ring]
     overlay = {"type": "change", "team": team, "team_index": k, "signal": signal,
                "ghost": ghost if signal in ("line_adj", "def_line", None, "") else {},
                "ring": ring, "channel": signal == "left_share",
                "before_m": round(before, 1) if before is not None else None,
                "after_m": round(after, 1) if after is not None else None}
-    return {"frames": frames_payload(md, f_from, max(f_from + 1, f_to)), "overlay": overlay}
+    return {"frames": frames_payload(md, f_from, max(f_from + 1, f_to)), "overlay": overlay,
+            "score": score_at(md, f_from)}

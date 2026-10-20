@@ -41,11 +41,13 @@ The scenario (`fullpitch/scenario.py`) gives the coaches three decisions: Northg
 | | Full Pitch (16 matches) | Premier League reference |
 |---|---|---|
 | Ball in play | 58 min | about 57 min in 2024-25 ([The Analyst](https://theanalyst.com/articles/premier-league-ball-in-play-are-we-seeing-less-football-2025-26)) |
-| Goals per match | 2.3 | 2.93 in 2024-25 ([11v11](https://www.11v11.com/competitions/premier-league/2025/)): ours is lower |
-| Distance per outfield player | median 10.1 km, max 12.9 km | season leaders around 12 km ([Opta via 90min](https://www.90min.com/posts/5019706-player-who-has-covered-the-most-ground-on-average-per-premier-league-match-this-season-is-revealed)) |
-| Top speed | max 33 km/h | record 37.38 km/h ([Premier League](https://www.premierleague.com/news/4138354)) |
-| Per team: shots, passes, accuracy | 11, ~505, 81% | not sourced |
-| Per team: corners, offsides, subs | 5.5, 1.7, 3.5 | not sourced |
+| Goals per match | 2.5 | 2.93 in 2024-25 ([11v11](https://www.11v11.com/competitions/premier-league/2025/)): ours is a little lower |
+| Distance per outfield player | median 10.1 km, max 12.5 km | season leaders around 12 km ([Opta via 90min](https://www.90min.com/posts/5019706-player-who-has-covered-the-most-ground-on-average-per-premier-league-match-this-season-is-revealed)) |
+| Top speed | max 34 km/h | record 37.38 km/h ([Premier League](https://www.premierleague.com/news/4138354)) |
+| Per team: shots, passes, accuracy | 10, ~510, 82% | not sourced |
+| Per team: corners, offsides, subs | 4.5, 1.5, 3.6 | not sourced |
+
+Off the ball, players jog or run hard into position and only sprint for urgent jobs (pressing, marking, chasing the ball, runs in behind); a team opens up over a few seconds after winning the ball rather than instantly.
 
 ## 2. Shape & stats layer
 
@@ -60,13 +62,15 @@ The scenario (`fullpitch/scenario.py`) gives the coaches three decisions: Northg
 
 | | Unseen matches (25-60) | All 60 |
 |---|---|---|
-| coach decisions found | **66%** (71/108) | 70% (126/180) |
-| the all-out press (69') | 35/36 | 59/60 |
-| the low block (31') | 19/36 | 35/60 |
-| the back three (54') | 17/36 | 32/60 |
-| false alarms per match | 0.42 | 0.37 |
+| coach decisions found | **69%** (75/108) | 69% (125/180) |
+| the all-out press (69') | 35/36 | 58/60 |
+| the low block (31') | 19/36 | 31/60 |
+| the back three (54') | 23/36 | 38/60 |
+| false alarms per match | 0.36 | 0.33 |
 
-Live, a change is confirmed about 7 to 9 minutes after it starts, then dated back ("since 31'"). Once shown, a confirmed change stays on screen.
+Shape "with the ball" is read only from settled possession (5 seconds or more), the way an analyst would.
+
+Live, a change is confirmed a median 7.5 minutes after it starts (middle half: 7 to 10 minutes; a weak signal can take much longer, `scripts/confirm_delay.py`), then dated back ("since 31'"). Once shown, a confirmed change stays on screen.
 
 **Limits, stated plainly:** the detector and the scenario were built by the same team on the same simulator, so these numbers describe this synthetic world, not real matches. The scenario's changes are clear by design.
 
@@ -79,7 +83,7 @@ Live, a change is confirmed about 7 to 9 minutes after it starts, then dated bac
 
 `web/`, desktop and phone (the pitch stands upright on a phone):
 
-- **Full pitch or broadcast view.** The camera zooms onto the ball like TV ("On TV, you see N players"), then pulls back to all twenty-two. Team shape lines, direction of travel on every player, the ball's path and shadow.
+- **Full pitch or broadcast view.** The camera zooms onto the ball like TV ("On TV, you see N players"), then pulls back to all twenty-two. Team shape lines (drawn from positions: players sorted by depth and cut at the largest gaps; the page never receives the coach's formation changes), direction of travel on every player, the ball's path and shadow.
 - **Follow a player** by tapping or from the list: name on the pitch, live speed, distance, sprints. You are told when your player is substituted.
 - **Insights**, for a fan, an analyst or your player, in English or Hungarian: shape changes, goals, red cards, half-time and full-time recaps (with a transparent player-of-the-match rating). New moments slide in as a broadcast-style lower third.
 - **Replays that show the explanation.** Tap a goal or a shape change: the pitch replays that moment and draws what the card claims. For a deeper or higher line, a dashed ghost line shows where the back line would stand on the old instruction and a yellow line where it stands now; for a back three, the back-line players are ringed; for pressing, the players hunting the ball.
@@ -92,12 +96,13 @@ Live, a change is confirmed about 7 to 9 minutes after it starts, then dated bac
 
 ```bash
 python -m venv .venv && .venv/Scripts/pip install -r requirements.txt -r requirements-dev.txt
-python scripts/generate.py --seed 22                 # the demo match: RIV 3-3 NOR
+python scripts/generate.py --seed 3                  # the demo match: RIV 3-2 NOR
 uvicorn fullpitch.server:app --port 8010             # open http://localhost:8010/?t=50
 python -m pytest                                     # tests
 python scripts/analyze.py                            # detected changes vs truth for the current match
 python scripts/realism_report.py 101 116             # how football-like the engine is
 python scripts/eval_detection.py 1 60                # detection accuracy
+python scripts/fuzz_api.py 201 206                   # bug hunt: every endpoint, every minute, every player
 ```
 
 Pitch: 105 × 68 m. Home attacks +x in the first half and -x in the second.
