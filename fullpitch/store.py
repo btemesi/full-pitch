@@ -97,8 +97,10 @@ class MatchStore:
         out = []
         for c in self.live_changes_at(at_minute):
             out.append({"team": c["team"], "since": c["clock"], "since_minute": c["minute"],
+                        "confirmed_minute": c["confirmed_minute"],
                         "confidence": "high" if c["strength"] >= 4.5 else "medium",
-                        "signals": [{"what": h["label"], "before": h["before"], "after": h["after"], "unit": h["unit"]}
+                        "signals": [{"what": h["label"], "signal": h["signal"], "phase": h["phase"],
+                                     "before": h["before"], "after": h["after"], "unit": h["unit"]}
                                     for h in c["signals"][:3]]})
         return out
 
@@ -153,7 +155,7 @@ class MatchStore:
              "type": e["type"], "team": e.get("team")}
         if e.get("player"):
             v["player"] = player_name(self.md, e["player"])
-        for key in ("xg", "outcome", "card", "score"):
+        for key in ("xg", "outcome", "card", "score", "penalty"):
             if key in e:
                 v[key] = round(e[key], 2) if key == "xg" else e[key]
         if e["type"] == "goal" and e.get("assist"):

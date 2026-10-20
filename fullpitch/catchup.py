@@ -68,7 +68,7 @@ def window_facts(md, rows, frame_from, frame_to, follow=None, changes=None):
     stats = {}
     for k, short in enumerate(shorts):
         shots = [e for e in evs if e["type"] == "shot" and e["team"] == short]
-        ball = team_rel(md.xy[frame_from:frame_to, 22], k)
+        ball = team_rel(md.xy[frame_from:frame_to, 22], k, md.period[frame_from:frame_to])
         in_poss = poss == k
         stats[short] = {
             "possession_pct": round(float((live == k).mean() * 100), 0) if len(live) else None,
@@ -89,7 +89,8 @@ def window_facts(md, rows, frame_from, frame_to, follow=None, changes=None):
     from_min = md.tmin[frame_from]
     facts["shape_changes"] = [
         {"team": c["team"], "since": c["clock"],
-         "what": [{"signal": h["label"], "before": h["before"], "after": h["after"], "unit": h["unit"]}
+         "what": [{"signal": h["label"], "key": h["signal"], "phase": h["phase"],
+                   "before": h["before"], "after": h["after"], "unit": h["unit"]}
                   for h in c["signals"][:3]]}
         for c in detected if c["minute"] >= from_min - 3
     ]
@@ -106,6 +107,6 @@ def window_facts(md, rows, frame_from, frame_to, follow=None, changes=None):
             "passes": sum(1 for e in touches if e["type"] == "pass"),
             "passes_completed": sum(1 for e in touches if e["type"] == "pass" and e["outcome"] == "complete"),
             "shots": sum(1 for e in touches if e["type"] == "shot"),
-            "tackles_won": sum(1 for e in touches if e["type"] == "tackle"),
+            "tackles_won": sum(1 for e in touches if e["type"] == "tackle" and e.get("outcome") == "won"),
         }
     return facts

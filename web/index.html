@@ -27,37 +27,39 @@
     <div class="pitch-wrap">
       <canvas id="pitch" width="1400" height="906" aria-label="Live pitch view"></canvas>
       <div class="hook" id="hook"></div>
-      <div class="view-toggle" role="tablist">
-        <button data-view="tv" role="tab">Broadcast</button>
-        <button data-view="full" role="tab" class="on">Full pitch</button>
+      <div class="view-toggle" role="tablist" aria-label="View">
+        <button data-view="tv" role="tab" aria-selected="false">Broadcast</button>
+        <button data-view="full" role="tab" aria-selected="true" class="on">Full pitch</button>
       </div>
-      <div class="follow-card" id="followCard" hidden></div>
+      <div class="follow-card" id="followCard" hidden aria-live="polite"></div>
       <div class="hint" id="hint">Tap a player to follow them</div>
+      <div class="toast" id="toast" role="status" hidden></div>
     </div>
     <div class="timeline">
       <button id="play" class="play" aria-label="Pause">❚❚</button>
-      <div class="track" id="track"><div class="fill" id="fill"></div><div class="marks" id="marks"></div></div>
+      <div class="track" id="track" role="slider" tabindex="0" aria-label="Match timeline (arrow keys jump 2 minutes)"><div class="fill" id="fill"></div><div class="marks" id="marks"></div></div>
       <select id="speed" aria-label="Playback speed">
         <option value="1">1×</option><option value="4">4×</option><option value="8" selected>8×</option>
         <option value="16">16×</option><option value="32">32×</option>
       </select>
       <label class="chk"><input type="checkbox" id="shapes" checked> Shape</label>
     </div>
+    <select id="followSelect" class="follow-select" aria-label="Follow a player"></select>
   </section>
 
   <aside class="feed">
     <div class="feed-head">
-      <div class="seg" id="persona">
+      <div class="seg" id="persona" role="group" aria-label="Viewer">
         <button data-p="casual" class="on">Fan</button>
         <button data-p="analyst">Analyst</button>
         <button data-p="player">My player</button>
       </div>
-      <div class="seg small" id="lang">
+      <div class="seg small" id="lang" role="group" aria-label="Language">
         <button data-l="en" class="on">EN</button>
         <button data-l="hu">HU</button>
       </div>
     </div>
-    <div class="cards" id="cards"><p class="empty">Insights appear here as the match unfolds.</p></div>
+    <div class="cards" id="cards" aria-live="polite"><p class="empty">Insights appear here as the match unfolds.</p></div>
   </aside>
 </main>
 

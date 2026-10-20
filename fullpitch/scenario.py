@@ -5,18 +5,20 @@ truth.json for evaluation only; the live event stream never announces it, so the
 analysis layer has to discover the changes from movement, like a human would.
 """
 
+# Invented combinations. Surnames that belong to well-known professional players were replaced,
+# so no generated name points at a real footballer.
 FIRST_NAMES = [
     "Adam", "Bruno", "Callum", "Dario", "Emil", "Felix", "Gabriel", "Hugo", "Ivan",
     "Jonas", "Kai", "Luca", "Mateo", "Nils", "Oscar", "Pablo", "Quentin", "Rafael",
-    "Samir", "Theo", "Umar", "Viktor", "Wes", "Xavi", "Yannick", "Zoltan", "Arlo",
+    "Samir", "Theo", "Umar", "Viktor", "Wes", "Xander", "Yannick", "Zoltan", "Arlo",
     "Bastian", "Cyril", "Dominik", "Elias", "Florin",
 ]
 LAST_NAMES = [
-    "Ashby", "Brannigan", "Castell", "Dorsey", "Ekwueme", "Falk", "Garrow", "Holm",
-    "Ibarra", "Jessop", "Kovacic", "Lindqvist", "Marlowe", "Novak", "Okafor", "Pell",
-    "Quarry", "Renshaw", "Sauer", "Tavernier", "Ulloa", "Varga", "Whitlock", "Yates",
-    "Zelenko", "Abara", "Bellweather", "Crane", "Delacroix", "Esterhuizen", "Fennick",
-    "Grieve",
+    "Ashby", "Brannigan", "Castell", "Dorsey", "Ekwuno", "Falk", "Garrow", "Holmgrave",
+    "Ibarlo", "Jessop", "Kovanek", "Lindqvist", "Marlowe", "Novarek", "Okanwe", "Pell",
+    "Quarry", "Renshaw", "Sauerling", "Taverholt", "Ulvane", "Varnell", "Whitlock", "Yarrowby",
+    "Zelenko", "Abara", "Bellweather", "Cranwick", "Delacroix", "Esterhuizen", "Fennick",
+    "Grievson",
 ]
 
 # Base params: lines are metres from the team's own goal line.
@@ -37,14 +39,14 @@ DEFAULT_SCENARIO = {
             "formation": "4-3-3",
             "params": {"def_line": 41, "att_line": 54, "length_def": 33, "length_att": 47,
                        "width_def": 40, "width_att": 62, "press": 0.8, "tempo": 0.65,
-                       "quality": 0.9, "finish": 1.0, "channel": 0.15},
+                       "quality": 0.93, "finish": 1.05, "channel": 0.15},
         },
         {
             "name": "Northgate FC", "short": "NOR", "color": "#2f6fd6", "alt": "#ffffff",
             "formation": "4-2-3-1",
             "params": {"def_line": 33, "att_line": 50, "length_def": 30, "length_att": 45,
                        "width_def": 38, "width_att": 60, "press": 0.5, "tempo": 0.55,
-                       "quality": 0.9, "finish": 1.0, "channel": 0.0},
+                       "quality": 0.88, "finish": 1.0, "channel": 0.0},
         },
     ],
     "timeline": [

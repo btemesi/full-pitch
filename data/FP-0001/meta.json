@@ -2,13 +2,16 @@
   "match_id": "FP-0001",
   "competition": "Synthetic League",
   "venue": "Harbour Park",
-  "seed": 49,
+  "seed": 22,
   "hz": 5,
   "pitch": {
     "length": 105.0,
     "width": 68.0
   },
-  "home_attacks": "+x",
+  "home_attacks": {
+    "1": "+x",
+    "2": "-x"
+  },
   "teams": [
     {
       "name": "Riverside Athletic",
@@ -31,224 +34,224 @@
       "team": 0,
       "number": 1,
       "start_role": "GK",
-      "name": "Hugo Ulloa"
+      "name": "Xander Ashby"
     },
     {
       "id": "RIV-02",
       "team": 0,
-      "number": 28,
+      "number": 5,
       "start_role": "LB",
-      "name": "Kai Delacroix"
+      "name": "Nils Grievson"
     },
     {
       "id": "RIV-03",
       "team": 0,
-      "number": 7,
+      "number": 22,
       "start_role": "LCB",
-      "name": "Samir Ekwueme"
+      "name": "Bruno Sauerling"
     },
     {
       "id": "RIV-04",
       "team": 0,
-      "number": 26,
+      "number": 39,
       "start_role": "RCB",
-      "name": "Rafael Crane"
+      "name": "Yannick Holmgrave"
     },
     {
       "id": "RIV-05",
       "team": 0,
-      "number": 18,
+      "number": 7,
       "start_role": "RB",
-      "name": "Arlo Zelenko"
+      "name": "Dario Abara"
     },
     {
       "id": "RIV-06",
       "team": 0,
-      "number": 34,
+      "number": 16,
       "start_role": "LCM",
-      "name": "Viktor Tavernier"
+      "name": "Pablo Yarrowby"
     },
     {
       "id": "RIV-07",
       "team": 0,
-      "number": 29,
+      "number": 28,
       "start_role": "CM",
-      "name": "Bruno Grieve"
+      "name": "Florin Varnell"
     },
     {
       "id": "RIV-08",
       "team": 0,
-      "number": 12,
+      "number": 2,
       "start_role": "RCM",
-      "name": "Elias Okafor"
+      "name": "Felix Cranwick"
     },
     {
       "id": "RIV-09",
       "team": 0,
-      "number": 11,
+      "number": 21,
       "start_role": "LW",
-      "name": "Emil Falk"
+      "name": "Gabriel Esterhuizen"
     },
     {
       "id": "RIV-10",
       "team": 0,
-      "number": 21,
+      "number": 26,
       "start_role": "ST",
-      "name": "Florin Esterhuizen"
+      "name": "Theo Falk"
     },
     {
       "id": "RIV-11",
       "team": 0,
-      "number": 24,
+      "number": 12,
       "start_role": "RW",
-      "name": "Felix Garrow"
+      "name": "Viktor Ulvane"
     },
     {
       "id": "RIV-12",
       "team": 0,
-      "number": 39,
+      "number": 34,
       "start_role": "SUB",
-      "name": "Wes Novak"
+      "name": "Luca Castell"
     },
     {
       "id": "RIV-13",
       "team": 0,
-      "number": 17,
+      "number": 15,
       "start_role": "SUB",
-      "name": "Gabriel Holm"
+      "name": "Oscar Jessop"
     },
     {
       "id": "RIV-14",
       "team": 0,
-      "number": 27,
+      "number": 33,
       "start_role": "SUB",
-      "name": "Luca Sauer"
+      "name": "Quentin Brannigan"
     },
     {
       "id": "RIV-15",
       "team": 0,
-      "number": 38,
+      "number": 23,
       "start_role": "SUB",
-      "name": "Oscar Lindqvist"
+      "name": "Cyril Okanwe"
     },
     {
       "id": "RIV-16",
       "team": 0,
-      "number": 22,
+      "number": 24,
       "start_role": "SUB",
-      "name": "Zoltan Quarry"
+      "name": "Emil Zelenko"
     },
     {
       "id": "NOR-01",
       "team": 1,
       "number": 1,
       "start_role": "GK",
-      "name": "Xavi Jessop"
+      "name": "Wes Ekwuno"
     },
     {
       "id": "NOR-02",
       "team": 1,
-      "number": 16,
+      "number": 11,
       "start_role": "LB",
-      "name": "Yannick Fennick"
+      "name": "Hugo Kovanek"
     },
     {
       "id": "NOR-03",
       "team": 1,
       "number": 12,
       "start_role": "LCB",
-      "name": "Dominik Ashby"
+      "name": "Arlo Pell"
     },
     {
       "id": "NOR-04",
       "team": 1,
-      "number": 17,
+      "number": 3,
       "start_role": "RCB",
-      "name": "Dario Varga"
+      "name": "Jonas Ibarlo"
     },
     {
       "id": "NOR-05",
       "team": 1,
-      "number": 32,
+      "number": 18,
       "start_role": "RB",
-      "name": "Nils Yates"
+      "name": "Zoltan Taverholt"
     },
     {
       "id": "NOR-06",
       "team": 1,
-      "number": 3,
+      "number": 29,
       "start_role": "LDM",
-      "name": "Theo Brannigan"
+      "name": "Callum Delacroix"
     },
     {
       "id": "NOR-07",
       "team": 1,
-      "number": 13,
+      "number": 37,
       "start_role": "RDM",
-      "name": "Pablo Pell"
+      "name": "Rafael Dorsey"
     },
     {
       "id": "NOR-08",
       "team": 1,
-      "number": 39,
+      "number": 27,
       "start_role": "LAM",
-      "name": "Umar Ibarra"
+      "name": "Mateo Lindqvist"
     },
     {
       "id": "NOR-09",
       "team": 1,
-      "number": 38,
+      "number": 6,
       "start_role": "CAM",
-      "name": "Ivan Abara"
+      "name": "Ivan Bellweather"
     },
     {
       "id": "NOR-10",
       "team": 1,
-      "number": 23,
+      "number": 20,
       "start_role": "RAM",
-      "name": "Callum Dorsey"
+      "name": "Samir Renshaw"
     },
     {
       "id": "NOR-11",
       "team": 1,
-      "number": 29,
+      "number": 22,
       "start_role": "ST",
-      "name": "Cyril Castell"
+      "name": "Elias Novarek"
     },
     {
       "id": "NOR-12",
       "team": 1,
-      "number": 22,
+      "number": 38,
       "start_role": "SUB",
-      "name": "Adam Marlowe"
+      "name": "Kai Fennick"
     },
     {
       "id": "NOR-13",
       "team": 1,
-      "number": 37,
+      "number": 32,
       "start_role": "SUB",
-      "name": "Bastian Renshaw"
+      "name": "Dominik Quarry"
     },
     {
       "id": "NOR-14",
       "team": 1,
-      "number": 7,
+      "number": 19,
       "start_role": "SUB",
-      "name": "Mateo Bellweather"
+      "name": "Adam Marlowe"
     },
     {
       "id": "NOR-15",
       "team": 1,
-      "number": 20,
+      "number": 28,
       "start_role": "SUB",
-      "name": "Jonas Whitlock"
+      "name": "Umar Garrow"
     },
     {
       "id": "NOR-16",
       "team": 1,
-      "number": 28,
+      "number": 31,
       "start_role": "SUB",
-      "name": "Quentin Kovacic"
+      "name": "Bastian Whitlock"
     }
   ],
   "tracking_columns": [
@@ -419,7 +422,7 @@
     }
   ],
   "final_score": [
-    2,
-    1
+    3,
+    3
   ]
 }

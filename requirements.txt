@@ -2,4 +2,5 @@ numpy>=1.26
 fastapi>=0.110
 uvicorn[standard]>=0.29
 mcp>=2.0
-agent-framework>=1.20
+agent-framework-core>=1.20
+agent-framework-foundry>=1.15

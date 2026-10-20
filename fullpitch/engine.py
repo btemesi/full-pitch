@@ -28,6 +28,7 @@ HZ = 5
 DT = 1.0 / HZ
 POST = 3.66
 MIRROR = np.array([L, W])
+PARK = np.array([L / 2, -4.0])  # where a sent-off player waits (off the pitch, by the halfway line)
 HALF = 45 * 60
 
 
@@ -78,6 +79,11 @@ class Match:
         self.vel = np.zeros((2, 11, 2))
         self.noise = np.zeros((2, 11, 2))
         self.urgent = np.zeros((2, 11), dtype=bool)
+        self.active = np.ones((2, 11), dtype=bool)   # False once sent off
+        self.yellows = {}
+        self.pending_subs = [[], []]
+        self.subs_made = [0, 0]
+        self.subs_target = [int(x) for x in self.rng.integers(3, 6, size=2)]
         self.smooth_T = None
         self.run_timer = np.zeros((2, 11))
         self.vmax = self.rng.uniform(7.6, 8.9, size=(2, 11))
@@ -143,6 +149,8 @@ class Match:
             ev["player"] = self.pid(team, slot)
         for key, val in kw.items():
             if isinstance(val, np.ndarray):
+                if self.period == 2 and val.shape == (2,):
+                    val = MIRROR - val  # output frame: teams change ends at half-time
                 val = [round(float(v), 1) for v in val]
             elif isinstance(val, (float, np.floating)):
                 val = round(float(val), 3)
@@ -157,23 +165,39 @@ class Match:
             k = item["team"]
             self.params[k].update(item.get("set", {}))
             for sub in item.get("subs", []):
-                s = sub["slot"]
-                if not self.bench[k]:
-                    continue
-                on = self.bench[k].pop(0)
-                off = self.slot[k][s]
-                self.slot[k][s] = on
-                self.vmax[k, s] = self.rng.uniform(8.2, 9.0)  # fresh legs
-                self.emit("substitution", team=k, slot=s, off=off, on=on)
+                self.pending_subs[k].append(sub["slot"])
             if "formation" in item:
                 self.formation[k] = item["formation"]
                 self.formation_log.append({"t": self.clock, "team": k, "formation": item["formation"]})
             self.applied.append({**item, "applied_at": round(self.clock, 1)})
 
+    def make_subs(self, consider_new=True):
+        """Substitutions happen at a stoppage: queued tactical subs first, then tired legs after 60'."""
+        starters = {p["id"] for p in self.players if p["start_role"] != "SUB"}
+        for k in (0, 1):
+            if consider_new and self.clock > 60 * 60 \
+                    and self.subs_made[k] + len(self.pending_subs[k]) < self.subs_target[k] and self.rng.random() < 0.1:
+                tired = [s for s in range(1, 11) if self.active[k, s] and s not in self.pending_subs[k]
+                         and self.slot[k][s] in starters]
+                if tired:
+                    self.pending_subs[k].append(int(self.rng.choice(tired)))
+            while self.pending_subs[k] and self.bench[k] and self.subs_made[k] < 5:
+                s = self.pending_subs[k].pop(0)
+                if not self.active[k, s]:
+                    continue
+                on = self.bench[k].pop(0)
+                off = self.slot[k][s]
+                self.slot[k][s] = on
+                self.vmax[k, s] = self.rng.uniform(8.2, 9.0)  # fresh legs
+                self.subs_made[k] += 1
+                self.emit("substitution", team=k, slot=s, off=off, on=on)
+                if self.restart:
+                    self.restart["timer"] += 15  # a substitution takes time
+
     # ----------------------------------------------------------------- targets
     def offside_line(self, k):
         """Team-relative x of the second-last opponent (the offside line for team k)."""
-        opp = flip(k, self.pos[1 - k])
+        opp = flip(k, self.pos[1 - k][self.active[1 - k]])
         return max(np.sort(opp[:, 0])[-2], L / 2)
 
     def targets(self, k):
@@ -223,9 +247,9 @@ class Match:
 
         # goalkeeper
         if in_poss:
-            T[0] = (np.clip(8 + 0.12 * b[0], 6, 20), W / 2 + 0.15 * (b[1] - W / 2))
+            T[0] = (np.clip(8 + 0.16 * b[0], 6, 24), W / 2 + 0.25 * (b[1] - W / 2))
         else:
-            T[0] = (np.clip(3 + 0.07 * b[0], 2.5, 12), W / 2 + 0.25 * (b[1] - W / 2) * (b[0] < 40))
+            T[0] = (np.clip(3 + 0.09 * b[0], 2.5, 14), W / 2 + 0.3 * (b[1] - W / 2) * (1 if b[0] < 40 else 0.5))
 
         if kickoff:
             T[:, 0] = np.minimum(T[:, 0], L / 2 - 1.0)
@@ -237,6 +261,7 @@ class Match:
         # pressing: nearest defenders break out of the block
         if not in_poss and self.mode == "carry":
             d = np.linalg.norm(R[1:] - b, axis=1)
+            d[~self.active[k, 1:]] = 1e9
             order = np.argsort(d) + 1
             trigger = 7 + 16 * p["press"] + (8 if b[0] < 30 else 0)
             own_goal = np.array([0.0, W / 2])
@@ -246,8 +271,8 @@ class Match:
             danger = b[0] < 35
             if b[0] < 45:  # man-marking inside our box: free defenders pick up attackers goal-side
                 O = flip(k, self.pos[1 - k])
-                threats = [j for j in np.argsort(O[:, 0]) if O[j, 0] < 22 and j != 0]
-                free = [s for s in range(1, 11) if s not in order[:2]]
+                threats = [j for j in np.argsort(O[:, 0]) if O[j, 0] < 22 and j != 0 and self.active[1 - k, j]]
+                free = [s for s in range(1, 11) if s not in order[:2] and self.active[k, s]]
                 for j in threats:
                     if not free:
                         break
@@ -278,7 +303,9 @@ class Match:
         if self.mode == "dead" and self.restart["team"] == k and self.restart.get("taker") is not None:
             T[self.restart["taker"]] = flip(k, self.restart["pos"])
             U[self.restart["taker"]] = True
-        return flip(k, T)
+        out = flip(k, T)
+        out[~self.active[k]] = PARK
+        return out
 
     # ---------------------------------------------------------------- movement
     def move(self):
@@ -291,16 +318,16 @@ class Match:
             if self.smooth_T is None:
                 self.smooth_T = np.stack([self.pos[0].copy(), self.pos[1].copy()])
             U = self.urgent[k]
-            self.smooth_T[k][~U] += (T[~U] - self.smooth_T[k][~U]) * (DT / 2.2)
+            self.smooth_T[k][~U] += (T[~U] - self.smooth_T[k][~U]) * (DT / 1.9)
             self.smooth_T[k][U] = T[U]
             T = self.smooth_T[k]
             tired = fatigue - 0.06 * self.params[k]["press"] * (self.clock / (2 * HALF))
-            tau = np.where(U, 0.6, 3.2)[:, None]
+            tau = np.where(U, 0.6, 2.7)[:, None]
             desired = (T - self.pos[k]) / tau
             cap = self.vmax[k] * tired
             if self.mode == "carry" and self.carrier[0] == k:
                 s = self.carrier[1]
-                ahead = np.linalg.norm(self.pos[1 - k] - self.pos[k, s], axis=1).min()
+                ahead = np.linalg.norm(self.pos[1 - k][self.active[1 - k]] - self.pos[k, s], axis=1).min()
                 cap = cap.copy()
                 cap[s] = min(cap[s], 3.5 if ahead < 4 else 5.2)
             speed = np.linalg.norm(desired, axis=1)
@@ -311,8 +338,11 @@ class Match:
             acc *= np.minimum(1.0, 4.5 / np.maximum(amag, 1e-9))[:, None]
             self.vel[k] += acc * DT
             self.pos[k] += self.vel[k] * DT
+            self.pos[k][~self.active[k]] = PARK
+            self.vel[k][~self.active[k]] = 0
             self.pos[k, :, 0] = np.clip(self.pos[k, :, 0], -1, L + 1)
             self.pos[k, :, 1] = np.clip(self.pos[k, :, 1], -1, W + 1)
+            self.pos[k][~self.active[k]] = PARK
 
     # ------------------------------------------------------------ possession
     def give(self, k, s, hold=None):
@@ -325,7 +355,7 @@ class Match:
         self.pressured = False
         tempo = self.params[k]["tempo"]
         if hold is None:
-            hold = self.rng.gamma(2.2, 1.35) * (1.25 - 0.6 * tempo)
+            hold = self.rng.gamma(2.4, 1.45) * (1.25 - 0.6 * tempo)
             if s == 0:
                 hold += self.rng.uniform(1.0, 3.0)
         self.hold = hold
@@ -348,14 +378,17 @@ class Match:
         elif kind == "kickoff":
             roles = FORMATIONS[self.formation[k]]["roles"]
             taker = roles.index("ST") if "ST" in roles else roles.index("LST")
+        elif kind == "penalty":
+            taker = max((s for s in range(1, 11) if self.active[k, s]),
+                        key=lambda s: FORMATIONS[self.formation[k]]["att"][s][0])  # most attacking player
         else:
-            d = np.linalg.norm(self.pos[k, 1:] - pos, axis=1)
-            taker = int(np.argmin(d)) + 1
+            taker, _ = self.nearest(k, pos)
         self.restart = {"team": k, "pos": pos, "kind": kind, "timer": delay, "taker": taker}
 
     def nearest(self, k, point, exclude_gk=True):
         start = 1 if exclude_gk else 0
         d = np.linalg.norm(self.pos[k, start:] - point, axis=1)
+        d[~self.active[k, start:]] = 1e9
         i = int(np.argmin(d))
         return i + start, float(d[i])
 
@@ -365,7 +398,8 @@ class Match:
         opp = 1 - k
         p = self.params[k]
         c = flip(k, self.pos[k, s])
-        O = flip(k, self.pos[opp])
+        opp_slots = np.flatnonzero(self.active[opp])
+        O = flip(k, self.pos[opp][opp_slots])
         dmin = float(np.min(np.linalg.norm(O - c, axis=1)))
         goal = np.array([L, W / 2])
         dist = float(np.linalg.norm(goal - c))
@@ -377,7 +411,7 @@ class Match:
             xg = xg_model(dist, goal_angle(c))
             lane_d, lane_t = lane_distance(O[1:], c, goal)
             blockers = int(np.sum((lane_d < 1.2) & (lane_t > 0.02)))
-            p_shoot = 0.5 * min(0.5, (0.10 if dist < 26 else 0.02) + 1.2 * xg)
+            p_shoot = 0.68 * min(0.5, (0.10 if dist < 26 else 0.02) + 1.2 * xg)
             p_shoot *= (0.7 if dmin < 2 else 1.0) * (0.6 ** blockers)
             if self.rng.random() < p_shoot:
                 return self.shoot(xg, c, dist, dmin, blockers)
@@ -385,7 +419,7 @@ class Match:
         R = flip(k, self.pos[k])
         cand, scores, info = [], [], []
         for t in range(11):
-            if t == s or (t == 0 and c[0] > 32):
+            if t == s or (t == 0 and c[0] > 32) or not self.active[k, t]:
                 continue
             tp = R[t]
             d = float(np.linalg.norm(tp - c))
@@ -402,6 +436,8 @@ class Match:
                      + (0.6 if self.run_timer[k, t] > 0 and prog > 0 else 0.0))
             if c[0] > 60 and prog < -25:
                 score -= 1.5
+            if tp[0] > max(np.sort(O[:, 0])[-2], L / 2, c[0]) + 0.5:
+                score -= 1.6  # the passer usually sees the team-mate is offside
             cand.append(t)
             scores.append(score)
             info.append((tp, d, risk, lane))
@@ -428,19 +464,26 @@ class Match:
         base = dict(start=start_abs, distance=round(d, 1), difficulty=difficulty,
                     under_pressure=dmin < 3.0, receiver=self.pid(k, t))
 
+        off_line = max(np.sort(O[:, 0])[-2], L / 2, c[0])
+        if tp[0] > off_line + 0.5:
+            self.emit("pass", team=k, slot=s, end=flip(k, end_rel), outcome="offside", **base)
+            self.emit("offside", team=k, slot=t, at=flip(k, tp))
+            self.dead_ball(opp, flip(k, tp), "free_kick", self.rng.uniform(15, 25))
+            return
         if self.rng.random() < p_ok:
             end = flip(k, end_rel)
+            ev = self.emit("pass", team=k, slot=s, end=end, outcome="complete", **base)
             self.flight = {"start": start_abs, "end": end, "t": 0.0, "dur": dur, "kind": "pass",
-                           "result": "receive", "team": k, "slot": t, "chaser": (k, t), "passer": s}
-            self.emit("pass", team=k, slot=s, end=end, outcome="complete", **base)
+                           "result": "receive", "team": k, "slot": t, "chaser": (k, t), "passer": s, "event": ev}
         else:
             r = self.rng.random()
             dl, tl = lane_distance(O, c, tp)
-            jj = int(np.argmin(dl))
-            if r < 0.55 and dl[jj] < 6:
-                end_rel_i = c + (tp - c) * tl[jj]
+            jf = int(np.argmin(dl))
+            jj = int(opp_slots[jf])
+            if r < 0.55 and dl[jf] < 6:
+                end_rel_i = c + (tp - c) * tl[jf]
                 end = flip(k, end_rel_i)
-                self.flight = {"start": start_abs, "end": end, "t": 0.0, "dur": max(0.3, dur * tl[jj]),
+                self.flight = {"start": start_abs, "end": end, "t": 0.0, "dur": max(0.3, dur * tl[jf]),
                                "kind": "pass", "result": "intercept", "team": opp, "slot": jj,
                                "chaser": (opp, jj)}
                 self.emit("pass", team=k, slot=s, end=end, outcome="intercepted",
@@ -448,26 +491,32 @@ class Match:
             else:
                 over = unit(tp - c) * self.rng.uniform(8, 22) + self.rng.normal(0, 6, 2)
                 end_rel_o = tp + over
+                end_rel_o = np.array([np.clip(end_rel_o[0], -3, L + 3), np.clip(end_rel_o[1], -3, W + 3)])
                 end = flip(k, end_rel_o)
                 out = not (0 <= end[0] <= L and 0 <= end[1] <= W)
                 self.flight = {"start": start_abs, "end": end, "t": 0.0, "dur": dur * 1.25,
                                "kind": "pass", "result": "out" if out else "loose", "team": k}
                 self.emit("pass", team=k, slot=s, end=end, outcome="out" if out else "overhit", **base)
+        # no pass travels faster than a driven long ball (~28 m/s)
+        self.flight["dur"] = max(self.flight["dur"], float(np.linalg.norm(self.flight["end"] - self.flight["start"])) / 28)
         self.mode = "flight"
 
     def clearance(self, c):
         """Under pressure near our own goal: no risks, kick it long and wide."""
         k, s = self.carrier
-        end_rel = np.array([self.rng.uniform(40, 70), c[1] + self.rng.normal(0, 18)])
+        if self.rng.random() < 0.15:
+            end_rel = np.array([-2.0, W / 2 + self.rng.choice([-1, 1]) * self.rng.uniform(12, 30)])
+        else:
+            end_rel = np.array([self.rng.uniform(40, 70), np.clip(c[1] + self.rng.normal(0, 18), -3, W + 3)])
         end = flip(k, end_rel)
-        out = not (0 <= end[1] <= W)
+        out = not (0 <= end[0] <= L and 0 <= end[1] <= W)
         self.emit("clearance", team=k, slot=s, start=self.ball.copy(), end=end, outcome="out" if out else "loose")
         dist = float(np.linalg.norm(end - self.ball))
         self.flight = {"start": self.ball.copy(), "end": end, "t": 0.0, "dur": dist / 24,
                        "kind": "pass", "result": "out" if out else "loose", "team": k}
         self.mode = "flight"
 
-    def shoot(self, xg, c, dist, dmin, blockers=0):
+    def shoot(self, xg, c, dist, dmin, blockers=0, penalty=False):
         k, s = self.carrier
         opp = 1 - k
         finish = self.params[k]["finish"]
@@ -493,7 +542,8 @@ class Match:
         end = flip(k, end_rel)
         speed = self.rng.uniform(22, 31)
         self.emit("shot", team=k, slot=s, start=self.ball.copy(), end=end, xg=xg, outcome=outcome,
-                  distance=round(dist, 1), shot_speed_kmh=round(speed * 3.6, 1), under_pressure=dmin < 2.0)
+                  distance=round(dist, 1), shot_speed_kmh=round(speed * 3.6, 1), under_pressure=dmin < 2.0,
+                  penalty=penalty)
         self.flight = {"start": self.ball.copy(), "end": end, "t": 0.0,
                        "dur": max(0.25, float(np.linalg.norm(end - self.ball)) / speed),
                        "kind": "shot", "result": outcome, "team": k, "slot": s}
@@ -523,7 +573,7 @@ class Match:
             if self.last_pass and self.last_pass[0] == k and self.clock - self.last_pass[3] < 12:
                 assist = self.pid(k, self.last_pass[1])
             self.emit("goal", team=k, slot=f["slot"], assist=assist, score=list(self.score))
-            self.dead_ball(1 - k, np.array([L / 2, W / 2]), "kickoff", self.rng.uniform(35, 50))
+            self.dead_ball(1 - k, np.array([L / 2, W / 2]), "kickoff", self.rng.uniform(55, 80))
         elif res == "saved":
             opp = 1 - k
             self.emit("save", team=opp, slot=0)
@@ -536,10 +586,10 @@ class Match:
             opp = 1 - k
             gx = 5.5 if opp == 0 else L - 5.5
             self.dead_ball(opp, np.array([gx, W / 2 + self.rng.uniform(-8, 8)]), "goal_kick",
-                           self.rng.uniform(12, 20))
+                           self.rng.uniform(18, 28))
         elif res == "blocked":
             self.emit("block", team=1 - k, slot=self.nearest(1 - k, end)[0])
-            if self.rng.random() < 0.3:
+            if self.rng.random() < 0.35:
                 self.corner(k)
             else:
                 self.loose_ball(end, prev_team=k)
@@ -550,7 +600,7 @@ class Match:
         x = L if k == 0 else 0.0
         y = 0.0 if self.rng.random() < 0.5 else W
         self.emit("out", team=1 - k, at=np.array([x, y]), restart="corner")
-        self.dead_ball(k, np.array([x, y]), "corner", self.rng.uniform(14, 22))
+        self.dead_ball(k, np.array([x, y]), "corner", self.rng.uniform(25, 35))
 
     def collect(self, k, s, point):
         """Ball arrives at point: the intended player takes it if close, else it's a loose ball."""
@@ -558,6 +608,8 @@ class Match:
         if np.linalg.norm(self.pos[k, s] - point) < 2.5:
             self.give(k, s)
         else:
+            if self.flight and self.flight.get("event"):
+                self.flight["event"]["outcome"] = "overhit"  # logged as complete, but never reached him
             self.loose_ball(point, prev_team=k)
 
     def loose_ball(self, point, prev_team):
@@ -598,7 +650,28 @@ class Match:
                 kind = "corner"
                 pos = (L if x > L / 2 else 0.0, 0.0 if y < W / 2 else W)
         self.emit("out", team=last_team, at=np.array(point), restart=kind)
-        self.dead_ball(k, np.array(pos), kind, self.rng.uniform(9, 16) if kind != "corner" else self.rng.uniform(16, 25))
+        delay = {"throw_in": (12, 20), "goal_kick": (18, 28), "corner": (25, 35)}[kind]
+        self.dead_ball(k, np.array(pos), kind, self.rng.uniform(*delay))
+
+    def book(self, k, s):
+        """Yellow card for some fouls; a second yellow is a red and the player leaves the pitch."""
+        if self.rng.random() >= 0.2:
+            return
+        pid = self.pid(k, s)
+        self.yellows[pid] = self.yellows.get(pid, 0) + 1
+        if self.yellows[pid] >= 2:
+            self.emit("card", team=k, slot=s, card="red", reason="second yellow")
+            self.active[k, s] = False
+            self.pending_subs[k] = [x for x in self.pending_subs[k] if x != s]
+        else:
+            self.emit("card", team=k, slot=s, card="yellow")
+
+    def maybe_stoppage(self):
+        """Occasional treatment stoppages (~3 a match), restarted with a drop ball."""
+        if self.mode == "carry" and self.rng.random() < 0.0012 * DT:
+            k = self.carrier[0]
+            self.emit("stoppage", reason="treatment")
+            self.dead_ball(k, self.ball.copy(), "drop_ball", self.rng.uniform(40, 100))
 
     # -------------------------------------------------------------- ball loop
     def ball_step(self):
@@ -608,6 +681,7 @@ class Match:
             self.ball = self.pos[k, s] + unit(v) * 0.5
             opp = 1 - k
             d = np.linalg.norm(self.pos[opp] - self.pos[k, s], axis=1)
+            d[~self.active[opp]] = 1e9
             j = int(np.argmin(d))
             dmin = float(d[j])
             if dmin < 3.0 and not self.pressured:
@@ -616,16 +690,21 @@ class Match:
             if dmin < 1.7 and s != 0:
                 hazard = 0.2 * (0.5 + 0.5 * self.params[opp]["press"])
                 if self.rng.random() < hazard * DT:
-                    if self.rng.random() < 0.15:
+                    cb = flip(k, self.ball)
+                    in_box = cb[0] > L - 16.5 and abs(cb[1] - W / 2) < 20.16
+                    if self.rng.random() < (0.025 if in_box else 0.15):  # defenders are careful in the box
                         self.emit("foul", team=opp, slot=j, on=self.pid(k, s), at=self.ball.copy())
-                        if self.rng.random() < 0.13:
-                            self.emit("card", team=opp, slot=j, card="yellow")
-                        self.dead_ball(k, self.ball.copy(), "free_kick", self.rng.uniform(12, 22))
+                        self.book(opp, j)
+                        if in_box:
+                            self.dead_ball(k, flip(k, np.array([L - 11.0, W / 2])), "penalty",
+                                           self.rng.uniform(45, 70))
+                        else:
+                            self.dead_ball(k, self.ball.copy(), "free_kick", self.rng.uniform(20, 35))
                     elif self.rng.random() < 0.22:
                         # tackle knocks it out of play: throw-in to the carrier's team
                         self.emit("tackle", team=opp, slot=j, on=self.pid(k, s), at=self.ball.copy(), outcome="out")
                         side = 0.0 if self.ball[1] < W / 2 else W
-                        self.dead_ball(k, np.array([self.ball[0], side]), "throw_in", self.rng.uniform(8, 14))
+                        self.dead_ball(k, np.array([self.ball[0], side]), "throw_in", self.rng.uniform(12, 20))
                     else:
                         self.emit("tackle", team=opp, slot=j, on=self.pid(k, s), at=self.ball.copy(), outcome="won")
                         self.give(opp, j)
@@ -646,22 +725,30 @@ class Match:
             self.loose_step()
         elif self.mode == "dead":
             r = self.restart
-            self.ball = r["pos"].copy()
+            to = r["pos"] - self.ball
+            dist = np.linalg.norm(to)  # the ball is carried to the spot, it doesn't teleport
+            self.ball = r["pos"].copy() if dist < 1.0 else self.ball + to / dist * min(dist, 9.0 * DT)
             r["timer"] -= DT
             k = r["team"]
-            if r["kind"] in ("throw_in", "free_kick", "corner"):
-                r["taker"] = int(np.argmin(np.linalg.norm(self.pos[k, 1:] - r["pos"], axis=1))) + 1
+            self.make_subs(consider_new=not r.get("subs_checked"))
+            r["subs_checked"] = True
+            if r["kind"] in ("throw_in", "free_kick", "corner", "drop_ball"):
+                r["taker"], _ = self.nearest(k, r["pos"])
             s = r["taker"]
             close = np.linalg.norm(self.pos[k, s] - r["pos"]) < 1.5
-            if r["timer"] <= 0 and (close or r["timer"] < -15):
+            if r["timer"] <= 0 and (close or r["timer"] < -15) and np.linalg.norm(self.ball - r["pos"]) < 1.0:
                 self.pos[k, s] = r["pos"].copy()
-                self.emit("restart", team=k, slot=s, kind=r["kind"], at=r["pos"])
+                kind = r["kind"]
+                self.emit("restart", team=k, slot=s, kind=kind, at=r["pos"])
                 self.restart = None
                 self.give(k, s, hold=self.rng.uniform(0.3, 0.9))
+                if kind == "penalty":
+                    self.shoot(0.76, flip(k, self.pos[k, s]), 11.0, 9.0, penalty=True)
 
     # ------------------------------------------------------------------- run
     def kickoff_positions(self, k):
         self.mode = "dead"
+        self.ball = np.array([L / 2, W / 2])
         self.dead_ball(k, np.array([L / 2, W / 2]), "kickoff", 1.0)
         for kk in (0, 1):
             self.pos[kk] = self.targets(kk)
@@ -678,6 +765,7 @@ class Match:
             self.emit("period_start")
             while self.clock < end or self.mode == "flight":
                 self.apply_timeline()
+                self.maybe_stoppage()
                 self.move()
                 self.ball_step()
                 self.record()
@@ -687,6 +775,8 @@ class Match:
 
     def record(self):
         frame = np.vstack([self.pos[0], self.pos[1], self.ball[None, :]])
+        if self.period == 2:
+            frame = MIRROR - frame
         self.frames.append(frame.astype(np.float32))
         self.frame_clock.append(self.clock)
         self.frame_period.append(self.period)
@@ -701,7 +791,7 @@ class Match:
             "match_id": self.sc["match_id"], "competition": self.sc.get("competition"),
             "venue": self.sc.get("venue"), "seed": self.seed, "hz": HZ,
             "pitch": {"length": L, "width": W},
-            "home_attacks": "+x",
+            "home_attacks": {"1": "+x", "2": "-x"},
             "teams": teams,
             "players": self.players,
             "tracking_columns": [f"{self.sc['teams'][0]['short']}:slot{s}" for s in range(11)]
