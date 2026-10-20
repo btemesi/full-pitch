@@ -15,7 +15,10 @@ import os
 import sys
 import urllib.request
 
-from mcp.server import MCPServer
+try:  # MCP Python SDK 2.x
+    from mcp.server import MCPServer
+except ImportError:  # 1.x (what Microsoft Agent Framework currently pins)
+    from mcp.server.fastmcp import FastMCP as MCPServer
 
 from .store import load
 
