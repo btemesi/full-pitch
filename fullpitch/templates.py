@@ -121,7 +121,7 @@ def change_card(change, team_names, persona="casual", lang="en"):
             text += " " + ("with the ball" if lang == "en" else "labdabirtoklásnál")
         lines.append(text)
     body = "; ".join(dict.fromkeys(lines))
-    return {"kind": "change", "team": change["team"], "title": title,
+    return {"kind": "change", "team": change["team"], "title": title, "signal": key,
             "subtitle": WORDS[lang]["since"].format(clock=change["since"]),
             "body": _num(body[:1].upper() + body[1:] + ".", lang), "confidence": change.get("confidence"),
             "source": "template"}
@@ -213,3 +213,36 @@ def catch_up_text(facts, persona="casual", lang="en"):
         else:
             out.append(w["player_short"].format(name=fp["name"], km=fp["distance_m"] / 1000, sprints=fp["sprints"]))
     return {"lines": [_num(x, lang) for x in out], "source": "template"}
+
+
+RECAP = {
+    "en": {"ht": "Half-time", "ft": "Full-time", "goals": "Goals", "none": "No goals", "xg": "xG",
+           "shots": "shots", "poss": "possession", "changed": "Shape changes", "potm": "Player of the match",
+           "half_best": "Best so far", "miss": "Biggest miss"},
+    "hu": {"ht": "Félidő", "ft": "Vége", "goals": "Gólok", "none": "Nincs gól", "xg": "xG",
+           "shots": "lövés", "poss": "labdabirtoklás", "changed": "Taktikai váltások", "potm": "A meccs embere",
+           "half_best": "Eddig a legjobb", "miss": "Legnagyobb kihagyott helyzet"},
+}
+
+
+def recap_text(r, lang="en"):
+    """Half-time / full-time recap as a title and a few lines, straight from the facts."""
+    w = RECAP[lang]
+    a, b = list(r["score"].keys())
+    st = r["stats"]
+    lines = [f"{a} {r['score'][a]}–{r['score'][b]} {b}"]
+    if r["goals"]:
+        lines.append(f"{w['goals']}: " + ", ".join(f"{g['clock']} {g['scorer']} ({g['team']})" for g in r["goals"]))
+    else:
+        lines.append(w["none"])
+    lines.append(f"{w['xg']} {st[a]['xg']:.2f}–{st[b]['xg']:.2f} · {st[a]['shots']}–{st[b]['shots']} {w['shots']} · "
+                 f"{w['poss']} {st[a]['possession_pct']}%–{st[b]['possession_pct']}%")
+    if r["big_misses"]:
+        m = r["big_misses"][0]
+        lines.append(f"{w['miss']}: {m['clock']} {m['player']} ({m['team']}), xG {m['xg']:.2f}")
+    if r["changes"]:
+        lines.append(f"{w['changed']}: " + ", ".join(f"{c['team']} {c['since']}" for c in r["changes"]))
+    p = r["player_of_the_match"]
+    if p and p["name"]:
+        lines.append(f"{w['potm'] if r['kind'] == 'ft' else w['half_best']}: {p['name']} ({p['team']})")
+    return {"title": f"{w[r['kind']]}: {a} {r['score'][a]}–{r['score'][b]} {b}", "lines": [_num(x, lang) for x in lines]}

@@ -11,7 +11,7 @@ Full Pitch is a live second screen for football fans. Next to the broadcast it s
 - [x] Synthetic match engine (tracking + events)
 - [x] Shape & stats layer, tactical change detection (measured, see below)
 - [x] Server-held live clock, MCP server for agents, live replay API
-- [x] Web app (desktop + phone), EN / HU
+- [x] Web app (desktop + phone), EN / HU: replays with drawn explanations, team and player stats, recaps
 - [x] Tests (`pytest`)
 - [ ] Agents on Microsoft Foundry (Microsoft Agent Framework)
 - [ ] Azure Container Apps deployment
@@ -77,7 +77,16 @@ Live, a change is confirmed about 7 to 9 minutes after it starts, then dated bac
 
 ## 4. Web app
 
-`web/`: full pitch or broadcast view (the camera zooms onto the ball, "On TV, you see N players"), team shape lines, follow a player (tap or pick from the list; you are told when your player is substituted), insight cards for fans, analysts or your player, in English or Hungarian, a timeline with goals and shape changes, and "What did I miss?". On a phone the pitch stands upright.
+`web/`, desktop and phone (the pitch stands upright on a phone):
+
+- **Full pitch or broadcast view.** The camera zooms onto the ball like TV ("On TV, you see N players"), then pulls back to all twenty-two. Team shape lines, direction of travel on every player, the ball's path and shadow.
+- **Follow a player** by tapping or from the list: name on the pitch, live speed, distance, sprints. You are told when your player is substituted.
+- **Insights**, for a fan, an analyst or your player, in English or Hungarian: shape changes, goals, red cards, half-time and full-time recaps (with a transparent player-of-the-match rating). New moments slide in as a broadcast-style lower third.
+- **Replays that show the explanation.** Tap a goal or a shape change: the pitch replays that moment and draws what the card claims. For a deeper or higher line, a dashed ghost line shows where the back line would stand on the old instruction and a yellow line where it stands now; for a back three, the back-line players are ringed; for pressing, the players hunting the ball.
+- **Stats**: possession, shots, xG, passes and accuracy, possession in the final third, pressing intensity (PPDA), corners, fouls, offsides, cards; a cumulative xG timeline with goals and shape changes marked; a pass network (average positions and passing links) for the whole match, the current half or the last 15 minutes.
+- **Player**: goals, assists, xG, pass accuracy, runs in behind the last line (detected from tracking, the movement TV rarely shows), running per 15 minutes with a fatigue read-out, heatmap, pass and shot map.
+- **What did I miss?**: the last 5 to 30 minutes in a few lines.
+- **Presentation mode** (`P` or `?present=1`): just the pitch and the scoreboard, for recording.
 
 ## Run it
 

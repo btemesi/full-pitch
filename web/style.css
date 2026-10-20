@@ -91,3 +91,65 @@ select,.chk{background:var(--panel);border:1px solid var(--line);border-radius:8
 .missed-window{color:var(--mute);font-size:13px;margin:0 0 8px}
 .missed-lines li::marker{color:var(--accent)}
 .source{color:var(--mute);font-size:11px;margin:14px 0 0}
+
+/* ---- tabs and panels */
+.tabs{display:flex;gap:4px;margin-bottom:10px;border-bottom:1px solid var(--line)}
+.tabs button{border:0;background:none;padding:8px 12px;font-weight:600;color:var(--mute);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+.panel{overflow:auto;padding-right:2px}
+.panel[hidden]{display:none}
+.panel h4{margin:16px 0 6px;font:600 12px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.note{color:var(--mute);font-size:12px;margin:6px 0 0}
+.mini-controls{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+
+/* ---- stat rows: two-sided bars */
+.statrow{display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center;margin:7px 0;font-variant-numeric:tabular-nums}
+.statrow .v{font:600 15px/1 var(--cond)}
+.statrow .v.r{text-align:right}
+.statrow .mid{display:flex;flex-direction:column;gap:3px}
+.statrow .lbl{font-size:11px;color:var(--mute);text-align:center;letter-spacing:.04em}
+.statrow .bars{display:flex;height:6px;gap:2px}
+.statrow .bars span{display:block;border-radius:3px}
+.statrow .bars span:first-child{margin-left:auto}
+
+/* ---- charts and mini pitches */
+.chart{width:100%;height:auto;display:block;background:var(--panel-2);border-radius:8px}
+.mini-pitch{width:100%;height:auto;display:block;background:#1b5631;border-radius:8px}
+
+/* ---- player panel */
+.p-head{display:flex;justify-content:space-between;align-items:baseline}
+.p-head b{font:700 22px/1.1 var(--cond)}
+.p-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.p-kpis div{background:var(--panel-2);border-radius:8px;padding:8px}
+.p-kpis small{display:block;color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.p-kpis b{font:600 20px/1.1 var(--cond)}
+
+/* ---- crests, replay, lower third */
+.crest svg{width:22px;height:26px;display:block}
+.card.clickable{cursor:pointer}
+.card.clickable:hover{background:#1d2822}
+.card .play-hint{float:right;font-size:11px;color:var(--accent)}
+.card.recap h3{color:var(--ink)}
+.card.recap{border-left-color:var(--accent)}
+.replay-bar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:rgba(11,15,13,.85);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;max-width:92%}
+.replay-bar[hidden]{display:none}
+.replay-bar .tag{font-weight:700;letter-spacing:.1em;color:#0b0f0d;background:var(--accent);border-radius:4px;padding:2px 6px;font-size:11px}
+.replay-bar button{border:0;background:var(--ink);color:#0b0f0d;border-radius:999px;padding:5px 12px;font-weight:600}
+.lower-third{position:absolute;left:16px;right:16px;bottom:16px;display:flex;align-items:stretch;background:rgba(11,15,13,.9);border-radius:8px;overflow:hidden;animation:lt .5s ease-out;max-width:560px}
+.lower-third[hidden]{display:none}
+.lower-third i{width:8px;flex:none}
+.lower-third div{padding:8px 14px}
+.lower-third small{display:block;color:var(--accent);font:700 11px/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase}
+.lower-third b{font:700 22px/1.15 var(--cond)}
+@keyframes lt{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.ghost-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:16px}
+
+/* ---- presentation mode: the pitch, big, for recording */
+body.present .feed,body.present .timeline,body.present .follow-select,body.present .missed,body.present .hint{display:none}
+body.present .layout{grid-template-columns:1fr;padding:12px 24px}
+body.present .bar{justify-content:center}
+body.present .scoreboard{transform:scale(1.25)}
+body.present .lower-third b{font-size:30px}
+body.present .hook{font-size:48px}
+
+.card.recap p{white-space:pre-line}

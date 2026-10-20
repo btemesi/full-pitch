@@ -60,3 +60,27 @@ def test_bad_input_is_rejected(client, path, params, code):
 
 def test_unknown_session(client):
     assert client.get("/api/state", params={"session": "nope"}).status_code == 404
+
+
+@pytest.mark.parametrize("at", [20.0, 50.0, 80.0])
+def test_deeper_endpoints_stay_in_the_past(client, at):
+    sid = new_session(client, at)
+    seen = len([m for m in goal_minutes() if m <= at])
+    st = client.get("/api/stats", params={"session": sid}).json()
+    assert sum(t["goals"] for t in st["teams"].values()) == seen
+    assert len(st["xg"]["goals"]) == seen and st["xg"]["now"] <= at + 0.01
+    for team in ("RIV", "NOR"):
+        assert client.get("/api/passnet", params={"session": sid, "team": team}).status_code == 200
+    prof = client.get("/api/profile", params={"session": sid, "id": "RIV-10"}).json()
+    assert all(m <= at for m in prof["off_ball_runs"])
+    future = [m for m in goal_minutes() if m > at]
+    if future:
+        assert client.get("/api/replay", params={"session": sid, "kind": "goal", "minute": future[0]}).status_code == 409
+
+
+def test_recaps_only_after_the_whistle(client):
+    sid = new_session(client, 30)
+    assert client.get("/api/recap", params={"session": sid, "kind": "ht"}).status_code == 409
+    client.post(f"/api/session/{sid}/seek", params={"to": 60})
+    assert client.get("/api/recap", params={"session": sid, "kind": "ht"}).status_code == 200
+    assert client.get("/api/recap", params={"session": sid, "kind": "ft"}).status_code == 409

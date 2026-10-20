@@ -28,7 +28,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .analysis import slot_occupancy
 from .store import load
-from .templates import catch_up_text, change_card, goal_card
+from .templates import catch_up_text, change_card, goal_card, recap_text
 
 MATCH_DIR = os.environ.get("FULLPITCH_MATCH", os.path.join(os.path.dirname(__file__), "..", "data", "FP-0001"))
 WEB_DIR = os.path.join(os.path.dirname(__file__), "..", "web")
@@ -142,6 +142,12 @@ def cards(sid: str = Query(alias="session"), persona: Persona = "casual", lang: 
         card["minute"] = c["since_minute"]
         card["confirmed_minute"] = c["confirmed_minute"]
         out.append(card)
+    for kind in ("ht", "ft"):
+        r = s.recap(kind, at)
+        if r:
+            t = recap_text(r, lang)
+            out.append({"kind": "recap", "recap": kind, "team": None, "minute": 45.0 if kind == "ht" else s.length_min,
+                        "subtitle": r["clock"], "title": t["title"], "body": "\n".join(t["lines"][1:]), "source": "template"})
     for e in s.key_moments(at):
         if e["type"] == "goal":
             card = goal_card(e, lang)
@@ -192,6 +198,60 @@ def catchup(sid: str = Query(alias="session"), away: float = Query(10, ge=1, le=
         raise HTTPException(404, "unknown player")
     facts = s.catch_up(max(0.0, at - away), at, at_minute=at, follow_player=follow)
     return {"facts": facts, "text": catch_up_text(facts, persona, lang)}
+
+
+# ---------------------------------------------------------------- deeper numbers, recaps, replays
+
+
+@app.get("/api/stats")
+def stats(sid: str = Query(alias="session")):
+    s, at = store(), now(sid)
+    return {"teams": s.team_stats(at), "xg": s.xg_timeline(at)}
+
+
+@app.get("/api/passnet")
+def passnet(team: str, window: Literal["match", "half", "last15"] = "match", sid: str = Query(alias="session")):
+    s, at = store(), now(sid)
+    if team not in s.md.shorts:
+        raise HTTPException(404, "unknown team")
+    if window == "last15":
+        start = max(0.0, at - 15)
+    elif window == "half":
+        f = s.frame(at)
+        start = 0.0 if int(s.md.period[f]) == 1 else float(s.md.tmin[int((s.md.period == 2).argmax())])
+    else:
+        start = 0.0
+    return s.pass_network(team, start, at)
+
+
+@app.get("/api/profile")
+def profile(id: str, sid: str = Query(alias="session")):
+    s = store()
+    if id not in {p["id"] for p in s.md.meta["players"]}:
+        raise HTTPException(404, "unknown player")
+    return s.player_profile(id, now(sid))
+
+
+@app.get("/api/recap")
+def recap(kind: Literal["ht", "ft"], sid: str = Query(alias="session"), lang: Lang = "en"):
+    """Half-time / full-time recap, only once that moment has been reached."""
+    r = store().recap(kind, now(sid))
+    if r is None:
+        raise HTTPException(409, "not reached yet")
+    r["text"] = recap_text(r, lang)
+    return r
+
+
+@app.get("/api/replay")
+def replay(kind: Literal["goal", "change"], minute: float, team: str | None = None, signal: str | None = None,
+           sid: str = Query(alias="session")):
+    """Frames around a past moment plus what to draw on top. Never beyond the live minute."""
+    s, at = store(), now(sid)
+    if minute > at:
+        raise HTTPException(409, "that moment hasn't happened yet")
+    if kind == "change" and team not in s.md.shorts:
+        raise HTTPException(422, "team required for a change replay")
+    return s.replay(kind, minute, team, at, signal)
 
 
 # ---------------------------------------------------------------- live stream

@@ -12,6 +12,7 @@ import numpy as np
 
 from .analysis import MatchData, detect_changes, minute_metrics, player_physicals
 from .catchup import player_name, score_at, window_facts
+from . import insights
 
 
 class MatchStore:
@@ -23,6 +24,7 @@ class MatchStore:
         self.rows = minute_metrics(self.md)  # per-minute; only rows[:at_minute] are ever exposed
         self.length_min = float(self.md.tmin[-1])
         self.live_changes = self._replay_detection()
+        self.runs = insights.off_ball_runs(self.md, self.md.F)  # each run only depends on frames up to it
 
     def _replay_detection(self):
         """Run the detector minute by minute exactly as it would run live, and remember every
@@ -138,6 +140,25 @@ class MatchStore:
         to_minute = min(to_minute, at_minute)
         return window_facts(self.md, self.rows, self.frame(from_minute), self.frame(to_minute), follow=follow_player,
                             changes=self.live_changes_at(to_minute))
+
+    # ---------------------------------------------------------------- deeper numbers
+    def team_stats(self, at_minute):
+        return insights.team_stats(self.md, self.frame(at_minute) + 1)
+
+    def xg_timeline(self, at_minute):
+        return insights.xg_timeline(self.md, self.frame(at_minute) + 1, self.live_changes_at(at_minute))
+
+    def pass_network(self, team, from_minute, at_minute):
+        return insights.pass_network(self.md, team, self.frame(min(from_minute, at_minute)), self.frame(at_minute) + 1)
+
+    def player_profile(self, pid, at_minute):
+        return insights.player_profile(self.md, pid, self.frame(at_minute) + 1, self.runs)
+
+    def recap(self, kind, at_minute):
+        return insights.recap(self.md, kind, self.frame(at_minute) + 1, self.live_changes_at(at_minute), self.runs)
+
+    def replay(self, kind, minute, team, at_minute, signal=None):
+        return insights.replay(self.md, self.rows, kind, min(minute, at_minute), team, at_minute, signal)
 
     def key_moments(self, at_minute):
         f = self.frame(at_minute)
