@@ -39,7 +39,9 @@ using the match-data tools, which only show what has happened so far. Call the t
 (tactical_changes, match_state, shape_timeline, key_moments, catch_up, player_report, positions_at_moment, positions_at,
 attack_channels, leaders, match_info for player ids).
 Then return ONLY JSON: {"observations": ["short factual sentence with the numbers you saw", ...]}
-with 3 to 6 observations. Copy numbers exactly as the tools give them. Never guess or invent a number."""
+with 3 to 6 observations. Copy numbers exactly as the tools give them. Never guess or invent a number.
+The tools' "minute" fields are continuous minutes for calling other tools; when you write about time, use the
+"clock" label next to them (66', 45+2'), never "67.33 minutes"."""
 
 TACTICIAN = """You are the Tactician in a football broadcast team. You receive measured facts and the
 Analyst's observations about one moment. Explain cause and effect like a sharp pundit: what changed,
@@ -85,8 +87,8 @@ Then choose what the pitch should show next to the answer:
 moment to replay, or null to show the present.
 In the answer text name moments by their clock label ("47'", "45+2'"), never by a continuous minute like 48.24.
 When you describe where players stood at a goal or chance, use only positions looked up for that exact moment.
-Say where players stood the way a fan pictures it: metres from the goal they attack ("4 m from goal") or from
-their own goal ("on their own six-yard line"), never a bare "101 m from goal".
+Say where players stood the way a fan pictures it: by the nearer goal, naming whose goal it is ("4 m from
+Northgate FC's goal"), as the data's "metres_from_goal" gives it; never "101 m from goal".
 Return ONLY JSON: {"answer": "...", "players": [], "team": null, "channel": null, "minute": null}"""
 
 TRANSLATOR = """You translate one checked on-screen football card from English into Hungarian, the way a
@@ -337,6 +339,78 @@ def fact_check(text, allowed):
 FOREIGN = re.compile(r"https?://|www\.|\b[\w.-]+\.(com|org|net|io|hu|uk|ly)\b|@\w|<[a-z/]", re.I)
 
 
+PLAYER_ID = re.compile(r"\b[A-Z]{3}-\d{2}\b")
+OWN_GOAL_FAR = re.compile(r"(\d+(?:[.,]\d+)?)\s*(?:m|metres|meters)\b[^.]{0,12}?\bfrom\s+(?:his|her|their|its)\s+own\s+goal", re.I)
+
+
+def ids_to_names(text, names_by_id):
+    # ids are for the pitch, not the viewer: "Umar Dorsey (RIV-10)" -> "Umar Dorsey",
+    # "defenders (NOR-02, NOR-03)" -> "defenders (Name, Name)", a bare "RIV-10" -> "Umar Dorsey"
+    def paren(m):
+        names = [names_by_id.get(i, i) for i in PLAYER_ID.findall(m.group(0))]
+        if len(names) == 1 and text[:m.start()].rstrip().endswith(names[0].split()[-1]):
+            return ""
+        return " (" + ", ".join(names) + ")"
+    text = re.sub(r"\s*\((?:\s*[A-Z]{3}-\d{2}\s*,?)+\s*\)", paren, text)
+    return PLAYER_ID.sub(lambda m: names_by_id.get(m.group(0), m.group(0)), text)
+
+
+def far_from_own_goal(text):
+    # beyond halfway, a fan pictures the distance to the goal the player attacks
+    return [m for m in OWN_GOAL_FAR.findall(text) if float(m.replace(",", ".")) > 52.5]
+
+
+GOAL_DISTANCE = re.compile(
+    r"(\d+(?:\.\d+)?)\s?(?:m|metres|meters)\b(?:\s+(?:away|out))?\s+from\s+(?:the\s+)?"
+    r"(?:(his|her|their)(?:\s+own)?|([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+)?)(?:'s?)?)\s+goal")
+
+
+def positions_in(looked_up):
+    """{surname: (own team name, {team name: metres from that goal})} from positions the Analyst looked up."""
+    out = {}
+
+    def walk(o):
+        if isinstance(o, dict):
+            if isinstance(o.get("metres_from_goal"), dict) and o.get("name"):
+                out[o["name"].split()[-1]] = (o.get("team"), o["metres_from_goal"])
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+        elif isinstance(o, str) and o.strip()[:1] in "{[":
+            try:
+                walk(json.loads(o))
+            except ValueError:
+                pass
+    for x in looked_up:
+        walk(x)
+    return out
+
+
+def wrong_distances(text, positions, teams):
+    """'Holmgrave (6.2 m from Riverside's goal)' when he stood 3.7 m from it: each distance to a goal is checked
+    against the player named just before it in the same sentence."""
+    bad = []
+    for sentence in re.split(r"(?<=[.!?;])\s+", text):
+        for m in GOAL_DISTANCE.finditer(sentence):
+            before = sentence[:m.start()]
+            named = [(before.rfind(n), n) for n in positions if before.rfind(n) >= 0]
+            if not named:
+                continue
+            surname = max(named)[1]
+            team_code, goals = positions[surname]
+            if m.group(2):  # "his own goal": the player's own team
+                goal = teams.get(team_code)
+            else:
+                goal = next((g for g in goals if g.split()[0] == m.group(3).split()[0]), None)
+            if goal is None or goal not in goals:
+                continue
+            if abs(goals[goal] - float(m.group(1))) > 0.3:
+                bad.append(f"{surname} {m.group(1)} m from {goal}'s goal (data: {goals[goal]} m)")
+    return bad
+
+
 def foreign_content(text):
     # a viewer's question is free text: whatever it smuggles in (a link, an address, markup) never reaches the page
     return bool(FOREIGN.search(text))
@@ -396,6 +470,7 @@ class AgentTeam:
         self.inflight = {}  # card key -> task, so English and Hungarian don't write the same card twice
         md = store.md
         self.players = sorted({p["name"] for p in md.meta["players"]}, key=len, reverse=True)
+        self.names_by_id = {p["id"]: p["name"] for p in md.meta["players"]}
         self.names = ({w for t in md.meta["teams"] for w in t["name"].split()} | set(md.shorts)
                       | {w for p in md.meta["players"] for w in p["name"].split()} | {"I", "VAR", "xG"})
 
@@ -508,12 +583,14 @@ class AgentTeam:
             except ValueError:
                 notes = {"observations": []}
             allowed = allowed_numbers(facts, tool_results)
-            problems = self._check_notes(notes.get("observations", []), allowed, trace)
+            clocks = fact_minutes({"facts": facts, "looked_up": [str(x) for x in tool_results]})
+            problems = self._check_notes(notes.get("observations", []), allowed, trace, clocks)
             if not problems:
                 break
             ask += f"\n\nYour previous notes had {problems}. Investigate again; use only names and numbers from the data."
         else:
             notes = {"observations": []}  # unchecked notes are never passed on
+            clocks = fact_minutes(facts)
         tell = json.dumps({"facts": facts, "analyst": notes}, ensure_ascii=False)
         tactic = None
         for _ in range(3):
@@ -522,7 +599,7 @@ class AgentTeam:
                 tactic = _json_from(tac_text)
             except ValueError:
                 continue
-            problems = self._check_notes(list(tactic.values()), allowed, trace)
+            problems = self._check_notes(list(tactic.values()), allowed, trace, clocks)
             if not problems:
                 break
             tell += f"\n\nYour previous answer had {problems}. Rewrite it with only names and numbers from the input."
@@ -535,17 +612,22 @@ class AgentTeam:
         self._save()
         return out
 
-    def _check_notes(self, sentences, allowed, trace):
+    def _check_notes(self, sentences, allowed, trace, minutes=None):
         """Fact-check the Analyst's notes or the Tactician's answer; '' when they hold."""
         teams = {t["short"]: t["name"] for t in self.store.md.meta["teams"]}
         text = " ".join(str(x).strip().rstrip(".") + "." for x in sentences)
         bad = fact_check(text, allowed)
+        off_clock = wrong_minutes(text, minutes) if minutes else []
+        off_clock += re.findall(r"\b\d+\.\d+\s*(?=minutes?\b)", text)  # "67.33 minutes": a tool's minute, not the clock
         names_bad = unknown_names(expand_codes(text, teams), self.names)
-        trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(text)), "unsupported": bad,
-                      "unknown_names": names_bad, "passed": not (bad or names_bad)})
+        trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(text)), "unsupported": bad + off_clock,
+                      "unknown_names": names_bad, "passed": not (bad or off_clock or names_bad)})
         problems = []
         if bad:
             problems.append(f"numbers that are not in the data: {bad}")
+        if off_clock:
+            problems.append(f"minutes that are not on the match clock: {off_clock} (use the clock labels in the data, "
+                            "such as 66', never a continuous minute)")
         if names_bad:
             problems.append(f"names that are not in this match: {names_bad}")
         return "; ".join(problems)
@@ -703,12 +785,16 @@ class AgentTeam:
         s = self.store
         teams = {t["short"]: t["name"] for t in s.md.meta["teams"]}
         ids = {p["id"] for p in s.md.meta["players"]}
-        context = {"live_clock": s.clock(at), "live_minute": round(at, 2), "teams": teams, "state": s.match_state(at)}
+        # the goals so far, in order, so "the last goal" means the same thing to every agent and to the Editor
+        goals = [{"order": i + 1, "clock": e["clock"], "team": e["team"], "scorer": e.get("player"), "moment": e["moment"]}
+                 for i, e in enumerate(g for g in s.key_moments(at) if g["type"] == "goal")]
+        context = {"live_clock": s.clock(at), "live_minute": round(at, 2), "teams": teams,
+                   "goals_so_far": goals, "last_goal": goals[-1] if goals else None, "state": s.match_state(at)}
         trace = []
         ask = (f"A viewer watching live asks: {question!r}\nInvestigate with the tools (they only show the match up to "
                f"now) and report what answers it. Context:\n{json.dumps(context, ensure_ascii=False)}")
         tool_results, notes = [], {"observations": []}
-        for _ in range(2):
+        for _ in range(3):  # the same three tries as every other step; the checks stay as strict
             async with self.analyst_lock:  # the clock file is shared, so one investigation at a time
                 Path(self.clock_file).write_text(str(at), encoding="utf-8")
                 notes_text, tool_results = await self._run(self.analyst, ask, trace, "Analyst")
@@ -717,22 +803,27 @@ class AgentTeam:
             except ValueError:
                 notes = {"observations": []}
             allowed = allowed_numbers(context, tool_results)
-            problems = self._check_notes(notes.get("observations", []), allowed, trace)
+            clocks = fact_minutes({"context": context, "looked_up": [str(x) for x in tool_results]})
+            problems = self._check_notes(notes.get("observations", []), allowed, trace, clocks)
             if not problems:
                 break
             ask += f"\n\nYour previous notes had {problems}. Investigate again; use only names and numbers from the data."
         else:
-            return {"answer": None, "source": "failed", "trace": trace}
+            # the notes never passed: drop them, keep what the tools returned (that is the data itself), and let
+            # the Narrator answer from it, through the same checks
+            notes = {"observations": []}
         data = {"context": context, "looked_up": [str(x)[:4000] for x in tool_results]}
         minutes = fact_minutes(data)
         continuous = set(re.findall(r"minute\W{1,4}(\d+\.\d{2})\b", json.dumps(data)))
         looked_up_minutes = {float(m) for m in re.findall(r"minute\W{1,4}(\d+(?:\.\d+)?)", json.dumps(data))}
+        placed = positions_in([str(x) for x in tool_results])
         tell = json.dumps({"question": question, "analyst": notes, **data}, ensure_ascii=False)
         for _ in range(3):
             text, _ = await self._run(self.answerer, tell, trace, "Narrator (answer)")
             try:
                 out = _json_from(text)
-                answer = polish(expand_codes(str(out["answer"]).strip(), teams), "en", self.names)
+                answer = polish(expand_codes(ids_to_names(str(out["answer"]).strip(), self.names_by_id), teams), "en",
+                                self.names)
             except (ValueError, KeyError):
                 continue
             show = {"players": [p for p in (out.get("players") or []) if p in ids][:4],
@@ -755,14 +846,21 @@ class AgentTeam:
             cause_bad = certain_cause(answer)
             invented = [p for p in (out.get("players") or []) if p not in ids]
             foreign = foreign_content(answer)
+            far = far_from_own_goal(answer) + wrong_distances(answer, placed, teams)
             unplaced = out.get("minute") is not None and show["minute"] is None
             trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(answer)), "unsupported": bad,
                           "unknown_names": names_bad + invented, "unmeasured_pressure": press_bad,
                           "certain_cause": cause_bad, "foreign_content": foreign, "unknown_moment": unplaced,
-                          "passed": not (bad or names_bad or invented or press_bad or cause_bad or foreign or unplaced)})
+                          "far_from_own_goal": far,
+                          "passed": not (bad or names_bad or invented or press_bad or cause_bad or foreign or unplaced
+                                         or far)})
             problems = []
             if bad:
-                problems.append(f"numbers or minutes not in the data: {bad}")
+                problems.append(f"numbers or minutes not in the data: {bad} (minutes must be the clock labels in the "
+                                "data, such as 66')")
+            if far:
+                problems.append(f"distances that do not match the positions: {far} (metres_from_goal is the distance "
+                                "to each team's goal, metres_to_ball is the distance to the ball)")
             if names_bad or invented:
                 problems.append(f"names or player ids not in this match: {names_bad + invented}")
             if press_bad:

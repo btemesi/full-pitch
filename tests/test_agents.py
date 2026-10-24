@@ -282,3 +282,28 @@ def test_lines_are_spoken_like_a_commentator():
         "Holmgrave scored in minute 66. It is 2 1 after an 8-pass move."
     assert spoken("Dorsey makes it 1-0 at 90+5'.", "en") == "Dorsey makes it 1 nil at 90 plus 5."
     assert spoken("A 35' óta 2-1.", "hu") == "A 35. perc óta 2 1."
+
+
+def test_player_ids_never_reach_the_viewer():
+    from fullpitch.agents import ids_to_names
+    names = {"RIV-10": "Umar Dorsey", "NOR-02": "Ali Bray", "NOR-03": "Samir Yarrowby"}
+    assert ids_to_names("Umar Dorsey (RIV-10) scored.", names) == "Umar Dorsey scored."
+    assert ids_to_names("defenders (NOR-02, NOR-03) were close", names) == "defenders (Ali Bray, Samir Yarrowby) were close"
+    assert ids_to_names("RIV-10 scored.", names) == "Umar Dorsey scored."
+
+
+def test_a_striker_is_placed_from_the_goal_he_attacks():
+    from fullpitch.agents import far_from_own_goal
+    assert far_from_own_goal("Dorsey was 102.2 m from his own goal.") == ["102.2"]
+    assert far_from_own_goal("The keeper was 4.7 m from his own goal.") == []
+
+
+def test_distances_to_a_goal_are_checked_against_the_positions():
+    import json as _json
+    from fullpitch.agents import positions_in, wrong_distances
+    s = server.store()
+    pos = positions_in([_json.dumps({"data": s.positions_at_moment("goal-3", 72)})])
+    teams = {"RIV": "Riverside Athletic", "NOR": "Northgate FC"}
+    assert wrong_distances("Emil Holmgrave (6.2 m from Riverside's goal) scored.", pos, teams)
+    assert not wrong_distances("Emil Holmgrave scored 3.7 m from Riverside Athletic's goal.", pos, teams)
+    assert not wrong_distances("Cyril Ekwuno was 4.7 m from his own goal.", pos, teams)

@@ -15,6 +15,15 @@ from .catchup import player_name, score_at, window_facts
 from . import insights
 
 
+ROLE_WORDS = {"GK": "goalkeeper", "LB": "left back", "RB": "right back", "LCB": "centre back", "RCB": "centre back",
+              "CB": "centre back", "LWB": "left wing back", "RWB": "right wing back", "CDM": "defensive midfielder",
+              "LDM": "defensive midfielder", "RDM": "defensive midfielder", "CM": "central midfielder",
+              "LCM": "central midfielder", "RCM": "central midfielder", "CAM": "attacking midfielder",
+              "LAM": "attacking midfielder", "RAM": "attacking midfielder",
+              "LM": "left midfielder", "RM": "right midfielder", "LW": "left winger", "RW": "right winger",
+              "ST": "striker", "LST": "striker", "RST": "striker", "CF": "centre forward"}
+
+
 class MatchStore:
     def __init__(self, match_dir):
         d = Path(match_dir)
@@ -168,6 +177,8 @@ class MatchStore:
         md = self.md
         ball = md.xy[f, 22]
         # the minute of the frame actually shown, rounded down so it never reads later than now
+        names = {t["short"]: t["name"] for t in md.meta["teams"]}
+        starting_roles = {p["id"]: p["start_role"] for p in md.meta["players"]}
         out = {"clock": md.clock_label(f), "minute": float(np.floor(float(md.tmin[f]) * 100) / 100),
                "team_in_possession": md.shorts[int(md.poss[f])] if md.poss[f] >= 0 else None, "players": []}
         for k, short in enumerate(md.shorts):
@@ -178,8 +189,11 @@ class MatchStore:
                 rel = team_rel(md.xy[f, k * 11 + s], k, int(md.period[f]))
                 out["players"].append({
                     "id": pid, "name": player_name(md, pid), "team": short,
-                    "metres_from_own_goal": round(float(rel[0]), 1),
-                    "metres_from_goal_they_attack": round(float(L - rel[0]), 1),
+                    # the role of the slot at kick-off (a substitute takes over the slot); "goalkeeper" is certain
+                    "starting_position": ROLE_WORDS.get(starting_roles.get(f"{short}-{s + 1:02d}"), "outfield player"),
+                    # named goals: "the goal they attack" read back as a team name went wrong too often
+                    "metres_from_goal": {names[short]: max(0.0, round(float(rel[0]), 1)),
+                                         names[md.shorts[1 - k]]: max(0.0, round(float(L - rel[0]), 1))},
                     "channel": "left" if rel[1] > 45 else ("right" if rel[1] < 23 else "centre"),
                     "metres_to_ball": round(float(np.linalg.norm(md.xy[f, k * 11 + s] - ball)), 1)})
         out["players"].sort(key=lambda p: p["metres_to_ball"])
