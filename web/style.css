@@ -37,6 +37,7 @@ canvas{display:block;width:100%;touch-action:manipulation}
 .view-toggle button.on{background:var(--ink);color:#0b0f0d}
 .hook{position:absolute;left:0;right:0;bottom:22px;text-align:center;font:700 34px/1.1 var(--cond);letter-spacing:.02em;text-shadow:0 2px 12px rgba(0,0,0,.6);opacity:0;transition:opacity .6s;pointer-events:none}
 .hook.show{opacity:1}
+.pitch-wrap:has(.lower-third:not([hidden])) .hint{display:none}
 .hint{position:absolute;left:14px;bottom:12px;font-size:12px;color:rgba(255,255,255,.75);pointer-events:none}
 .toast{position:absolute;left:50%;top:56px;transform:translateX(-50%);background:rgba(11,15,13,.9);border:1px solid var(--accent);color:var(--ink);padding:8px 14px;border-radius:10px;font-size:13px;max-width:90%;text-align:center}
 .toast[hidden]{display:none}

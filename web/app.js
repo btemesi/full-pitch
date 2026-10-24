@@ -62,6 +62,7 @@
   async function afterJump() {
     S.frames = []; S.playhead = 0;
     S.lastCardMinute = -1; S.lastStatMinute = -1; S.lastPanelMinute = -1; S.cardSig = null;
+    S.quietCards = true;  // what happened before the jump is backlog: list it, don't announce it
     const [st, lineup, still] = await Promise.all([
       api("/api/state", withSession()), api("/api/lineup", withSession()), api("/api/frame", withSession()),
     ]);
@@ -123,6 +124,7 @@
     if (S.persona === "player" && S.follow) params.follow = S.follow;
     const cards = await api("/api/cards", withSession(params));
     if (req !== S.cardReq) return;
+    const quiet = S.quietCards; S.quietCards = false;
     // the agents are still writing some cards: ask again shortly, the template text shows meanwhile
     clearTimeout(S.pendingTimer);
     if (cards.some((c) => c.pending)) S.pendingTimer = setTimeout(() => refreshCards(currentMinute(), true), 3000);
@@ -133,7 +135,7 @@
     S.cardSig = sig;
     renderCards(); renderMarks();
     // announce new moments broadcast-style, but not the backlog after a jump
-    if (fresh.length && S.frames.length && !S.replay) {
+    if (!quiet && fresh.length && !S.replay) {
       const c = fresh.sort((a, b) => b.minute - a.minute)[0];
       lowerThird(c);
     }

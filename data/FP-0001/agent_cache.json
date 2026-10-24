@@ -3235,78 +3235,6 @@
    }
   ]
  },
- "change:NOR:50|player|en|": {
-  "title": "Northgate FC's shape change and the result",
-  "body": "At 35 minutes, Northgate FC adjusted their defensive line height from 30.5m to 24.4m. Riverside Athletic then maintained 60% possession and added more pressure, scoring through Umar Dorsey in the 47th minute.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 11.4,
-    "tools": [
-     "match_info",
-     "match_state",
-     "key_moments",
-     "tactical_changes"
-    ],
-    "tokens": 4845,
-    "output": "{\"observations\": [\"Northgate FC lowered their defensive line height from 30.5m to 24.4m starting at 35 minutes.\",\"Before the shape change (23' to 35'), Riverside Athletic had 62% possession, 3 shots, and 0.4 xG, while Northgate FC had 38% possession and no shots.\",\"Since the shape change (35' to 48'), Riverside Athletic maintained around 60% possession, made 4 shots with an xG of 1.28, and scored 1 goal.\",\"The goal was scored by Umar Dorsey at 47 minutes with an assist from Zoltan Ulvane.\",\"In the recent 3 minutes, Northgate FC's defensive line is at 14.9m with 3.7 players in the back line, wh"
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 1.7,
-    "tools": [],
-    "tokens": 1045,
-    "output": "{\n  \"headline\": \"Northgate FC's deeper defensive line invites greater pressure and leads to conceding first goal\",\n  \"why\": \"At 35 minutes, Northgate FC lowered their defensive line height significantly from 30.5m to 24.4m. This retreat reduced their ability to compress space and challenged their defensive compactness against Riverside Athletic's steady 60% possession.\",\n  \"consequence\": \"Following the shape change, Riverside Athletic increased their shots from 3 to 4 and more than tripled their expected goals from 0.4 to 1.28, culminating in Umar Dorsey's goal at 47 minutes. Northgate FC stil"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.4,
-    "tools": [],
-    "tokens": 1020,
-    "output": "```json\n{\"title\": \"Northgate FC's shape change impacts game\", \"body\": \"Northgate FC dropped their defensive line from 30.5m to 24.4m at 35 minutes. This allowed Riverside Athletic to increase pressure, leading to Umar Dorsey's goal at 47 minutes.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 4,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 1.5,
-    "tools": [],
-    "tokens": 956,
-    "output": "{\"ok\": false, \"problems\": [\"Causation issue: The card states that Northgate FC's shape change 'allowed Riverside Athletic to increase pressure, leading to Umar Dorsey's goal at 47 minutes.' While the shape change and subsequent goal occurred, direct causation is not confirmed by the facts.\"]}"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 3.0,
-    "tools": [],
-    "tokens": 1097,
-    "output": "```json\n{\"title\": \"Northgate FC's shape change and the result\", \"body\": \"At 35 minutes, Northgate FC adjusted their defensive line height from 30.5m to 24.4m. Riverside Athletic then maintained 60% possession and added more pressure, scoring through Umar Dorsey in the 47th minute.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 1.6,
-    "tools": [],
-    "tokens": 910,
-    "output": "{\"ok\": true, \"problems\": []}"
-   }
-  ]
- },
  "change:NOR:63|casual|en|": {
   "title": "Northgate FC changes defensive shape",
   "body": "By raising their defensive line since 53', Northgate FC gained more control but still trails 2-0.",
@@ -3882,77 +3810,6 @@
     "tools": [],
     "tokens": 1082,
     "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Riverside Athletic had more of the ball.\",\n      \"supported\": true,\n      \"why\": \"Riverside Athletic had 55% possession compared to 45% for NOR.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic had better chances.\",\n      \"supported\": true,\n      \"why\": \"Riverside Athletic's xG is 1.26, which is higher than NOR's 0.4.\"\n    },\n    {\n      \"claim\": \"It's still 0-0.\",\n      \"supported\": true,\n      \"why\": \"The score is 0-0 as confirmed by the facts.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey missed a big moment in the 36th minute.\",\n      \"supported\": "
-   }
-  ]
- },
- "recap:ft|analyst|en|": {
-  "title": "Riverside Athletic secure 3-2 win over Northgate",
-  "body": "Umar Dorsey scored twice at 47' and 53', giving Riverside Athletic a commanding lead. Despite late pressure from Northgate, including Emil Holmgrave's 90+5' goal, Riverside held on, powered by their 54% possession and 16 shots.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 3.3,
-    "tools": [
-     "tactical_changes",
-     "match_state",
-     "key_moments"
-    ],
-    "tokens": 4128,
-    "output": "{\"observations\": [\"Score at 90+5' is RIV 3 - 2 NOR\", \"Umar Dorsey scored two goals for RIV at 47' and 53'\", \"Emil Holmgrave scored two goals for NOR at 66' and 90+5'\", \"RIV had 54% possession, 16 shots with 6 on target and an xG of 2.79\", \"NOR's defensive line without the ball dropped from 30.5m to 24.4m since 35' but raised again to 33.0m since 53'\", \"In the last 3 minutes, NOR had 56% possession while RIV had 44%\"]}"
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.3,
-    "tools": [],
-    "tokens": 1115,
-    "output": "{\n  \"headline\": \"Umar Dorsey's early second-half brace sets the tone, but NOR’s late pressure nearly secures a point\",\n  \"why\": \"Umar Dorsey's goals at 47' and 53' gave RIV a strong 2-0 lead, leveraging their higher possession (54%) and shot volume (16) with a favorable xG of 2.79. NOR responded by dropping their defensive line after 35', tightening space and increasing pressure, allowing Emil Holmgrave to score at 66' and again at 90+5'. NOR’s defensive line adjustment correlated with a rise in possession to 56% in the final 3 minutes, indicating increased offensive urgency.\",\n  \"consequence\""
-   },
-   {
-    "agent": "Narrator (analyst)",
-    "seconds": 3.4,
-    "tools": [],
-    "tokens": 1187,
-    "output": "```json\n{\"title\": \"Full-time: Riverside Athletic 3–2 Northgate FC\", \"body\": \"Umar Dorsey’s two goals by 53' gave Riverside Athletic early control, leveraging 54% possession and 16 shots. Despite Emil Holmgrave’s 90+5' goal capping Northgate FC’s late push, Pablo Varnell’s 88' strike sealed Riverside’s win.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 8,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.9,
-    "tools": [],
-    "tokens": 1395,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Full-time: Riverside Athletic 3-2 Northgate FC\",\n      \"supported\": true,\n      \"why\": \"The facts confirm the final score is Riverside Athletic 3-2 Northgate FC at full time.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey’s two goals by 53' gave Riverside Athletic early control, leveraging 54% possession and 16 shots.\",\n      \"supported\": true,\n      \"why\": \"The facts show Umar Dorsey scored at 47' and 53', Riverside Athletic had 54% possession and 16 shots overall. 'Early control' is a fair interpretation given the timing of the goals and possession do"
-   },
-   {
-    "agent": "Narrator (analyst)",
-    "seconds": 1.3,
-    "tools": [],
-    "tokens": 1218,
-    "output": "{\"title\": \"Riverside Athletic secure 3-2 win over Northgate\", \"body\": \"Umar Dorsey scored twice at 47' and 53', giving Riverside Athletic a commanding lead. Despite late pressure from Northgate, including Emil Holmgrave's 90+5' goal, Riverside held on, powered by their 54% possession and 16 shots.\"}"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 8,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.3,
-    "tools": [],
-    "tokens": 1358,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Riverside Athletic secure 3-2 win over Northgate\",\n      \"supported\": true,\n      \"why\": \"The final score was 3-2 in favor of Riverside Athletic as stated in the facts.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey scored twice at 47' and 53', giving Riverside Athletic a commanding lead.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Umar Dorsey scored goals at 47' and 53' for Riverside Athletic.\"\n    },\n    {\n      \"claim\": \"Despite late pressure from Northgate, including Emil Holmgrave's 90+5' goal, Riverside held on.\",\n      \"suppor"
    }
   ]
  },
@@ -4921,84 +4778,6 @@
    }
   ]
  },
- "goal:67.33|analyst|en|": {
-  "title": "Emil Holmgrave scores after 8-pass move",
-  "body": "In the 66th minute, Emil Holmgrave scored for Northgate FC, assisted by Hugo Bellweather. The 5.1-meter strike with an xG of 0.51 came after strategic adjustments, including an 8-pass buildup.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 13.8,
-    "tools": [
-     "key_moments",
-     "tactical_changes",
-     "match_state"
-    ],
-    "tokens": 3023,
-    "output": "{\"observations\": [\"Northgate FC (NOR) scored a goal at 66' by Emil Holmgrave with an xG of 0.51 from 5.1 meters.\", \"The goal was assisted by Hugo Bellweather and came after 8 passes in the move.\", \"NOR's defensive line adjusted height twice: lowered from 30.5m to 24.4m around 35', then raised from 24.1m to 33.0m around 53'.\", \"Since 53', NOR increased players in the back line in possession from 2.2 to 2.9.\", \"In the last 3 minutes, NOR held 70% possession compared to RIV's 30%.\", \"By 66', the score was RIV 2 - NOR 1, with several recent events including a substitution for RIV and a shot by Kai"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 19,
-    "unsupported": [],
-    "unknown_names": [],
-    "passed": true
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.4,
-    "tools": [],
-    "tokens": 704,
-    "output": "{\"headline\": \"Northgate FC narrows the gap with Holmgrave's 66' goal after tactical defensive line tweaks\",\"why\": \"Northgate FC changed their defensive line height twice—initially lowering it around 35' to 24.4m, then raising it around 53' to 33.0m—and increased players in the back line in possession from 2.2 to 2.9. These adjustments likely improved ball circulation and defensive stability, enabling an 8-pass build-up culminating in Holmgrave's close-range, 0.51 xG goal assisted by Bellweather.\",\"consequence\": \"The goal reduced Riverfield VR's lead to 2-1 and shifted recent possession heavily"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 13,
-    "unsupported": [],
-    "unknown_names": [
-     "Riverfield"
-    ],
-    "passed": false
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.1,
-    "tools": [],
-    "tokens": 723,
-    "output": "{\"headline\": \"Emil Holmgrave's goal narrows the gap after strategic defensive adjustments by Northgate FC\", \"why\": \"Northgate FC (NOR) modified their defensive line height twice before the goal—first lowering it around 35' and then raising it around 53', while also increasing the number of players in the back line in possession from 2.2 to 2.9. These changes helped stabilize their buildup, culminating in an 8-pass move culminating in Emil Holmgrave's shot from 5.1 meters with an xG of 0.51.\", \"consequence\": \"After the goal at 66', NOR held 70% possession in the following 3 minutes, shifting mo"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 12,
-    "unsupported": [],
-    "unknown_names": [],
-    "passed": true
-   },
-   {
-    "agent": "Narrator (analyst)",
-    "seconds": 1.1,
-    "tools": [],
-    "tokens": 717,
-    "output": "```json\n{\"title\": \"Emil Holmgrave Scores After 8-Pass Move\",\"body\": \"In the 66th minute, Emil Holmgrave scored for Northgate FC, assisted by Hugo Bellweather. The 5.1-meter strike with an xG of 0.51 came after strategic adjustments, including an 8-pass buildup.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 3.1,
-    "tools": [],
-    "tokens": 985,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"In the 66th minute, Emil Holmgrave scored for Northgate FC, assisted by Hugo Bellweather.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Emil Holmgrave scored for Northgate FC in the 66th minute, and that Hugo Bellweather provided the assist.\"\n    },\n    {\n      \"claim\": \"The 5.1-meter strike with an xG of 0.51...\",\n      \"supported\": true,\n      \"why\": \"The facts state that the shot was 5.1 meters away with an xG of 0.51.\"\n    },\n    {\n      \"claim\": \"...came after strategic adjustments, including an 8-pass buildup.\",\n      \"suppo"
-   }
-  ]
- },
  "change:NOR:50|analyst|hu|": {
   "title": "Northgate FC átrendeződése és védekezési hatása",
   "body": "A 35. percben a Northgate FC csökkentette a védelmi vonalának magasságát 30,5 méterről 24,4 méterre. Azóta a Riverside Athletic növelte a várható góljait 0,4-ről 1,28-ra, és Umar Dorsey révén betalált a 47. percben. A Northgate FC növelte a labdabirtoklási arányát 38%-ról 40%-ra, de lövést nem tudtak felmutatni.",
@@ -5207,100 +4986,6 @@
     "tools": [],
     "tokens": 1247,
     "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A 35. perctől a Northgate FC mélyebbre helyezte a védelmi vonalát.\",\n      \"supported\": true,\n      \"why\": \"The facts show that starting at 35', Northgate FC adjusted their line height without the ball from 30.5m to 24.4m, indicating a deeper defensive line.\"\n    },\n    {\n      \"claim\": \"A Riverside Athletic a 47. percben Umar Dorsey révén gólt szerzett.\",\n      \"supported\": true,\n      \"why\": \"The facts state that Riverside Athletic scored in the 47th minute through Umar Dorsey.\"\n    }\n  ],\n  \"ok\": true,\n  \"problems\": []\n}\n```"
-   }
-  ]
- },
- "change:NOR:50|player|hu|": {
-  "title": "A Northgate FC átrendeződése és az eredmény",
-  "body": "A 35. percben a Northgate FC módosította a védelmi vonala magasságát 30,5 méterről 24,4 méterre. A Riverside Athletic ezután 60%-os labdabirtoklást tartott fenn és fokozta a nyomást, Umar Dorsey révén pedig a 47. percben gólt szerzett.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 11.4,
-    "tools": [
-     "match_info",
-     "match_state",
-     "key_moments",
-     "tactical_changes"
-    ],
-    "tokens": 4845,
-    "output": "{\"observations\": [\"Northgate FC lowered their defensive line height from 30.5m to 24.4m starting at 35 minutes.\",\"Before the shape change (23' to 35'), Riverside Athletic had 62% possession, 3 shots, and 0.4 xG, while Northgate FC had 38% possession and no shots.\",\"Since the shape change (35' to 48'), Riverside Athletic maintained around 60% possession, made 4 shots with an xG of 1.28, and scored 1 goal.\",\"The goal was scored by Umar Dorsey at 47 minutes with an assist from Zoltan Ulvane.\",\"In the recent 3 minutes, Northgate FC's defensive line is at 14.9m with 3.7 players in the back line, wh"
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 1.7,
-    "tools": [],
-    "tokens": 1045,
-    "output": "{\n  \"headline\": \"Northgate FC's deeper defensive line invites greater pressure and leads to conceding first goal\",\n  \"why\": \"At 35 minutes, Northgate FC lowered their defensive line height significantly from 30.5m to 24.4m. This retreat reduced their ability to compress space and challenged their defensive compactness against Riverside Athletic's steady 60% possession.\",\n  \"consequence\": \"Following the shape change, Riverside Athletic increased their shots from 3 to 4 and more than tripled their expected goals from 0.4 to 1.28, culminating in Umar Dorsey's goal at 47 minutes. Northgate FC stil"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.4,
-    "tools": [],
-    "tokens": 1020,
-    "output": "```json\n{\"title\": \"Northgate FC's shape change impacts game\", \"body\": \"Northgate FC dropped their defensive line from 30.5m to 24.4m at 35 minutes. This allowed Riverside Athletic to increase pressure, leading to Umar Dorsey's goal at 47 minutes.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 4,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 1.5,
-    "tools": [],
-    "tokens": 956,
-    "output": "{\"ok\": false, \"problems\": [\"Causation issue: The card states that Northgate FC's shape change 'allowed Riverside Athletic to increase pressure, leading to Umar Dorsey's goal at 47 minutes.' While the shape change and subsequent goal occurred, direct causation is not confirmed by the facts.\"]}"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 3.0,
-    "tools": [],
-    "tokens": 1097,
-    "output": "```json\n{\"title\": \"Northgate FC's shape change and the result\", \"body\": \"At 35 minutes, Northgate FC adjusted their defensive line height from 30.5m to 24.4m. Riverside Athletic then maintained 60% possession and added more pressure, scoring through Umar Dorsey in the 47th minute.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 1.6,
-    "tools": [],
-    "tokens": 910,
-    "output": "{\"ok\": true, \"problems\": []}"
-   },
-   {
-    "agent": "Translator",
-    "seconds": 1.8,
-    "tools": [],
-    "tokens": 460,
-    "output": "```json\n{\"title\": \"A Northgate FC átrendeződése és az eredmény\", \"body\": \"A 35. percben a Northgate FC módosította a védelmi vonala magasságát 30,5 méterről 24,4 méterre. A Riverside Athletic ezután 60%-os labdabirtoklást tartott fenn és fokozta a nyomást, Umar Dorsey révén pedig a 47. percben gólt szerzett.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.2,
-    "tools": [],
-    "tokens": 1366,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A 35. percben a Northgate FC módosította a védelmi vonala magasságát 30,5 méterről 24,4 méterre.\",\n      \"supported\": true,\n      \"why\": \"The facts indicate that in the 35th minute, Northgate FC changed their defensive line height from 30.5m to 24.4m.\"\n    },\n    {\n      \"claim\": \"A Riverside Athletic ezután 60%-os labdabirtoklást tartott fenn és fokozta a nyomást.\",\n      \"supported\": true,\n      \"why\": \"Since the change, Riverside Athletic had 60% possession and increased their xG from 0.4 to 1.28, indicating increased pressure.\"\n    },\n    {\n   "
    }
   ]
  },
@@ -6259,128 +5944,6 @@
    }
   ]
  },
- "goal:67.33|analyst|hu|": {
-  "title": "Emil Holmgrave betalált egy 8 passzos akció után",
-  "body": "A 66. percben Emil Holmgrave gólt szerzett a Northgate FC javára, Hugo Bellweather gólpasszából. Az 5,1 méteres lövés 0,51-es xG-vel született egy 8 passzos támadás végén.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 13.8,
-    "tools": [
-     "key_moments",
-     "tactical_changes",
-     "match_state"
-    ],
-    "tokens": 3023,
-    "output": "{\"observations\": [\"Northgate FC (NOR) scored a goal at 66' by Emil Holmgrave with an xG of 0.51 from 5.1 meters.\", \"The goal was assisted by Hugo Bellweather and came after 8 passes in the move.\", \"NOR's defensive line adjusted height twice: lowered from 30.5m to 24.4m around 35', then raised from 24.1m to 33.0m around 53'.\", \"Since 53', NOR increased players in the back line in possession from 2.2 to 2.9.\", \"In the last 3 minutes, NOR held 70% possession compared to RIV's 30%.\", \"By 66', the score was RIV 2 - NOR 1, with several recent events including a substitution for RIV and a shot by Kai"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 19,
-    "unsupported": [],
-    "unknown_names": [],
-    "passed": true
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.4,
-    "tools": [],
-    "tokens": 704,
-    "output": "{\"headline\": \"Northgate FC narrows the gap with Holmgrave's 66' goal after tactical defensive line tweaks\",\"why\": \"Northgate FC changed their defensive line height twice—initially lowering it around 35' to 24.4m, then raising it around 53' to 33.0m—and increased players in the back line in possession from 2.2 to 2.9. These adjustments likely improved ball circulation and defensive stability, enabling an 8-pass build-up culminating in Holmgrave's close-range, 0.51 xG goal assisted by Bellweather.\",\"consequence\": \"The goal reduced Riverfield VR's lead to 2-1 and shifted recent possession heavily"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 13,
-    "unsupported": [],
-    "unknown_names": [
-     "Riverfield"
-    ],
-    "passed": false
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.1,
-    "tools": [],
-    "tokens": 723,
-    "output": "{\"headline\": \"Emil Holmgrave's goal narrows the gap after strategic defensive adjustments by Northgate FC\", \"why\": \"Northgate FC (NOR) modified their defensive line height twice before the goal—first lowering it around 35' and then raising it around 53', while also increasing the number of players in the back line in possession from 2.2 to 2.9. These changes helped stabilize their buildup, culminating in an 8-pass move culminating in Emil Holmgrave's shot from 5.1 meters with an xG of 0.51.\", \"consequence\": \"After the goal at 66', NOR held 70% possession in the following 3 minutes, shifting mo"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 12,
-    "unsupported": [],
-    "unknown_names": [],
-    "passed": true
-   },
-   {
-    "agent": "Narrator (analyst)",
-    "seconds": 1.1,
-    "tools": [],
-    "tokens": 717,
-    "output": "```json\n{\"title\": \"Emil Holmgrave Scores After 8-Pass Move\",\"body\": \"In the 66th minute, Emil Holmgrave scored for Northgate FC, assisted by Hugo Bellweather. The 5.1-meter strike with an xG of 0.51 came after strategic adjustments, including an 8-pass buildup.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 3.1,
-    "tools": [],
-    "tokens": 985,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"In the 66th minute, Emil Holmgrave scored for Northgate FC, assisted by Hugo Bellweather.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Emil Holmgrave scored for Northgate FC in the 66th minute, and that Hugo Bellweather provided the assist.\"\n    },\n    {\n      \"claim\": \"The 5.1-meter strike with an xG of 0.51...\",\n      \"supported\": true,\n      \"why\": \"The facts state that the shot was 5.1 meters away with an xG of 0.51.\"\n    },\n    {\n      \"claim\": \"...came after strategic adjustments, including an 8-pass buildup.\",\n      \"suppo"
-   },
-   {
-    "agent": "Translator",
-    "seconds": 1.6,
-    "tools": [],
-    "tokens": 458,
-    "output": "```json\n{\"title\": \"Emil Holmgrave gólt szerez egy 8 passzos akció végén\", \"body\": \"A 66. percben Emil Holmgrave gólt szerzett a Northgate FC javára, Hugo Bellweather gólpasszából. Az 5,1 méteres lövés, melynek xG-je 0,51 volt, stratégiai átrendeződés után született, beleértve egy 8 passzos felépítést.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.8,
-    "tools": [],
-    "tokens": 1101,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A 66. percben Emil Holmgrave gólt szerzett a Northgate FC javára, Hugo Bellweather gólpasszából.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Emil Holmgrave scored for Northgate FC in the 66th minute with an assist by Hugo Bellweather.\"\n    },\n    {\n      \"claim\": \"Az 5,1 méteres lövés, melynek xG-je 0,51 volt.\",\n      \"supported\": true,\n      \"why\": \"The facts specify a shot distance of 5.1 meters and an xG value of 0.51.\"\n    },\n    {\n      \"claim\": \"Stratégiai átrendeződés után született, beleértve egy 8 passzos felépítést.\",\n"
-   },
-   {
-    "agent": "Translator",
-    "seconds": 1.4,
-    "tools": [],
-    "tokens": 495,
-    "output": "```json\n{\"title\": \"Emil Holmgrave betalált egy 8 passzos akció után\", \"body\": \"A 66. percben Emil Holmgrave gólt szerzett a Northgate FC javára, Hugo Bellweather gólpasszából. Az 5,1 méteres lövés 0,51-es xG-vel született egy 8 passzos támadás végén.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.4,
-    "tools": [],
-    "tokens": 1013,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A 66. percben Emil Holmgrave gólt szerzett a Northgate FC javára.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Emil Holmgrave scored a goal for Northgate FC in the 66th minute.\"\n    },\n    {\n      \"claim\": \"Hugo Bellweather gólpasszából.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Hugo Bellweather provided the assist for the goal.\"\n    },\n    {\n      \"claim\": \"Az 5,1 méteres lövés 0,51-es xG-vel született.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that the shot was taken from a distance of 5.1"
-   }
-  ]
- },
  "goal:89.30|casual|hu|": {
   "title": "Pablo Varnell gólt szerez a Riverside Athletic javára",
   "body": "Egy erőteljes, 9,2 méterről leadott lövés 3-1-re módosítja az állást a 88. percben, egy okos, 6 passzos csapatmozdulat után.",
@@ -7207,99 +6770,6 @@
    }
   ]
  },
- "recap:ft|analyst|hu|": {
-  "title": "A Riverside Athletic 3-2-re legyőzte a Northgate-et",
-  "body": "Umar Dorsey kétszer is betalált a 47. és az 53. percben, amivel jelentős előnyt szerzett a Riverside Athletic számára. A Northgate késői nyomása ellenére, beleértve Emil Holmgrave 90+5. percben szerzett gólját, a Riverside kitartott, köszönhetően 54%-os labdabirtoklásuknak és 16 lövésüknek.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 3.3,
-    "tools": [
-     "tactical_changes",
-     "match_state",
-     "key_moments"
-    ],
-    "tokens": 4128,
-    "output": "{\"observations\": [\"Score at 90+5' is RIV 3 - 2 NOR\", \"Umar Dorsey scored two goals for RIV at 47' and 53'\", \"Emil Holmgrave scored two goals for NOR at 66' and 90+5'\", \"RIV had 54% possession, 16 shots with 6 on target and an xG of 2.79\", \"NOR's defensive line without the ball dropped from 30.5m to 24.4m since 35' but raised again to 33.0m since 53'\", \"In the last 3 minutes, NOR had 56% possession while RIV had 44%\"]}"
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.3,
-    "tools": [],
-    "tokens": 1115,
-    "output": "{\n  \"headline\": \"Umar Dorsey's early second-half brace sets the tone, but NOR’s late pressure nearly secures a point\",\n  \"why\": \"Umar Dorsey's goals at 47' and 53' gave RIV a strong 2-0 lead, leveraging their higher possession (54%) and shot volume (16) with a favorable xG of 2.79. NOR responded by dropping their defensive line after 35', tightening space and increasing pressure, allowing Emil Holmgrave to score at 66' and again at 90+5'. NOR’s defensive line adjustment correlated with a rise in possession to 56% in the final 3 minutes, indicating increased offensive urgency.\",\n  \"consequence\""
-   },
-   {
-    "agent": "Narrator (analyst)",
-    "seconds": 3.4,
-    "tools": [],
-    "tokens": 1187,
-    "output": "```json\n{\"title\": \"Full-time: Riverside Athletic 3–2 Northgate FC\", \"body\": \"Umar Dorsey’s two goals by 53' gave Riverside Athletic early control, leveraging 54% possession and 16 shots. Despite Emil Holmgrave’s 90+5' goal capping Northgate FC’s late push, Pablo Varnell’s 88' strike sealed Riverside’s win.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 8,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.9,
-    "tools": [],
-    "tokens": 1395,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Full-time: Riverside Athletic 3-2 Northgate FC\",\n      \"supported\": true,\n      \"why\": \"The facts confirm the final score is Riverside Athletic 3-2 Northgate FC at full time.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey’s two goals by 53' gave Riverside Athletic early control, leveraging 54% possession and 16 shots.\",\n      \"supported\": true,\n      \"why\": \"The facts show Umar Dorsey scored at 47' and 53', Riverside Athletic had 54% possession and 16 shots overall. 'Early control' is a fair interpretation given the timing of the goals and possession do"
-   },
-   {
-    "agent": "Narrator (analyst)",
-    "seconds": 1.3,
-    "tools": [],
-    "tokens": 1218,
-    "output": "{\"title\": \"Riverside Athletic secure 3-2 win over Northgate\", \"body\": \"Umar Dorsey scored twice at 47' and 53', giving Riverside Athletic a commanding lead. Despite late pressure from Northgate, including Emil Holmgrave's 90+5' goal, Riverside held on, powered by their 54% possession and 16 shots.\"}"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 8,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.3,
-    "tools": [],
-    "tokens": 1358,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Riverside Athletic secure 3-2 win over Northgate\",\n      \"supported\": true,\n      \"why\": \"The final score was 3-2 in favor of Riverside Athletic as stated in the facts.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey scored twice at 47' and 53', giving Riverside Athletic a commanding lead.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Umar Dorsey scored goals at 47' and 53' for Riverside Athletic.\"\n    },\n    {\n      \"claim\": \"Despite late pressure from Northgate, including Emil Holmgrave's 90+5' goal, Riverside held on.\",\n      \"suppor"
-   },
-   {
-    "agent": "Translator",
-    "seconds": 1.8,
-    "tools": [],
-    "tokens": 487,
-    "output": "```json\n{\"title\": \"A Riverside Athletic 3-2-re legyőzte a Northgate-et\", \"body\": \"Umar Dorsey kétszer is betalált a 47. és az 53. percben, amivel jelentős előnyt szerzett a Riverside Athletic számára. A Northgate késői nyomása ellenére, beleértve Emil Holmgrave 90+5. percben szerzett gólját, a Riverside kitartott, köszönhetően 54%-os labdabirtoklásuknak és 16 lövésüknek.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 8,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 3.4,
-    "tools": [],
-    "tokens": 1642,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A Riverside Athletic 3-2-re legyőzte a Northgate-et\",\n      \"supported\": true,\n      \"why\": \"The final score is listed as 3-2 in favor of Riverside Athletic in the facts.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey kétszer is betalált a 47. és az 53. percben\",\n      \"supported\": true,\n      \"why\": \"The goals by Umar Dorsey in the 47th and 53rd minutes are correctly listed in the facts.\"\n    },\n    {\n      \"claim\": \"amivel jelentős előnyt szerzett a Riverside Athletic számára\",\n      \"supported\": true,\n      \"why\": \"The two goals by Dorsey gave Rivers"
-   }
-  ]
- },
  "recap:ft|casual|hu|": {
   "title": "A Riverside Athletic nyeri a késői thrillert",
   "body": "Umar Dorsey két gólja előnyt jelentett a Riverside Athletic számára, Pablo Varnell és Emil Holmgrave pedig késői gólváltásaikkal alakítottak a végeredményen, amely 3-2 lett.",
@@ -7747,6 +7217,558 @@
     "tools": [],
     "tokens": 1083,
     "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Emil Holmgrave betalál a Northgate FC-nek\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Emil Holmgrave scored for Northgate FC.\"\n    },\n    {\n      \"claim\": \"Holmgrave a 66. percben talált be\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that the goal was scored in the 66th minute.\"\n    },\n    {\n      \"claim\": \"5,1 méterről egy 8 passzos akció végén\",\n      \"supported\": true,\n      \"why\": \"The facts show that the goal was scored from 5.1 meters after an 8-pass sequence.\"\n    },\n    {\n      \"claim\": \"Ezzel a Northgate "
+   }
+  ]
+ },
+ "change:NOR:50|player|en|": {
+  "title": "Northgate FC lowers defensive line height",
+  "body": "At 35', Northgate FC dropped their line from 30.5m to 24.4m, inviting more Riverside Athletic pressure. Despite maintaining 40% possession since, they conceded Umar Dorsey's goal at 47'.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 11.4,
+    "tools": [
+     "match_info",
+     "match_state",
+     "key_moments",
+     "tactical_changes"
+    ],
+    "tokens": 4845,
+    "output": "{\"observations\": [\"Northgate FC lowered their defensive line height from 30.5m to 24.4m starting at 35 minutes.\",\"Before the shape change (23' to 35'), Riverside Athletic had 62% possession, 3 shots, and 0.4 xG, while Northgate FC had 38% possession and no shots.\",\"Since the shape change (35' to 48'), Riverside Athletic maintained around 60% possession, made 4 shots with an xG of 1.28, and scored 1 goal.\",\"The goal was scored by Umar Dorsey at 47 minutes with an assist from Zoltan Ulvane.\",\"In the recent 3 minutes, Northgate FC's defensive line is at 14.9m with 3.7 players in the back line, wh"
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 1.7,
+    "tools": [],
+    "tokens": 1045,
+    "output": "{\n  \"headline\": \"Northgate FC's deeper defensive line invites greater pressure and leads to conceding first goal\",\n  \"why\": \"At 35 minutes, Northgate FC lowered their defensive line height significantly from 30.5m to 24.4m. This retreat reduced their ability to compress space and challenged their defensive compactness against Riverside Athletic's steady 60% possession.\",\n  \"consequence\": \"Following the shape change, Riverside Athletic increased their shots from 3 to 4 and more than tripled their expected goals from 0.4 to 1.28, culminating in Umar Dorsey's goal at 47 minutes. Northgate FC stil"
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 3.3,
+    "tools": [],
+    "tokens": 1027,
+    "output": "```json\n{\n  \"title\": \"Northgate FC lowers defensive line height\",\n  \"body\": \"At 35', Northgate FC dropped their line from 30.5m to 24.4m, inviting more Riverside Athletic pressure. Despite maintaining 40% possession since, they conceded Umar Dorsey's goal at 47'.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.0,
+    "tools": [],
+    "tokens": 1351,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"At 35', Northgate FC dropped their line from 30.5m to 24.4m.\",\n      \"supported\": true,\n      \"why\": \"The facts clearly show that Northgate FC's defensive line height decreased from 30.5m to 24.4m at 35'.\"\n    },\n    {\n      \"claim\": \"They invited more Riverside Athletic pressure.\",\n      \"supported\": true,\n      \"why\": \"The facts show a higher xG (1.28 compared to 0.4), more shots (4 compared to 3), and more completed passes (85 compared to 60) for Riverside Athletic after 35', indicating increased attacking pressure.\"\n    },\n    {\n      \"claim\": "
+   }
+  ]
+ },
+ "goal:67.33|analyst|en|": {
+  "title": "Emil Holmgrave scores to narrow the gap",
+  "body": "In the 66th minute, Emil Holmgrave made it 2-1 with a close-range finish from 5.1 meters. The goal followed an 8-pass move, with an assist from Hugo Bellweather and a shot xG of 0.51.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 13.8,
+    "tools": [
+     "key_moments",
+     "tactical_changes",
+     "match_state"
+    ],
+    "tokens": 3023,
+    "output": "{\"observations\": [\"Northgate FC (NOR) scored a goal at 66' by Emil Holmgrave with an xG of 0.51 from 5.1 meters.\", \"The goal was assisted by Hugo Bellweather and came after 8 passes in the move.\", \"NOR's defensive line adjusted height twice: lowered from 30.5m to 24.4m around 35', then raised from 24.1m to 33.0m around 53'.\", \"Since 53', NOR increased players in the back line in possession from 2.2 to 2.9.\", \"In the last 3 minutes, NOR held 70% possession compared to RIV's 30%.\", \"By 66', the score was RIV 2 - NOR 1, with several recent events including a substitution for RIV and a shot by Kai"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 19,
+    "unsupported": [],
+    "unknown_names": [],
+    "passed": true
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.4,
+    "tools": [],
+    "tokens": 704,
+    "output": "{\"headline\": \"Northgate FC narrows the gap with Holmgrave's 66' goal after tactical defensive line tweaks\",\"why\": \"Northgate FC changed their defensive line height twice—initially lowering it around 35' to 24.4m, then raising it around 53' to 33.0m—and increased players in the back line in possession from 2.2 to 2.9. These adjustments likely improved ball circulation and defensive stability, enabling an 8-pass build-up culminating in Holmgrave's close-range, 0.51 xG goal assisted by Bellweather.\",\"consequence\": \"The goal reduced Riverfield VR's lead to 2-1 and shifted recent possession heavily"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 13,
+    "unsupported": [],
+    "unknown_names": [
+     "Riverfield"
+    ],
+    "passed": false
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.1,
+    "tools": [],
+    "tokens": 723,
+    "output": "{\"headline\": \"Emil Holmgrave's goal narrows the gap after strategic defensive adjustments by Northgate FC\", \"why\": \"Northgate FC (NOR) modified their defensive line height twice before the goal—first lowering it around 35' and then raising it around 53', while also increasing the number of players in the back line in possession from 2.2 to 2.9. These changes helped stabilize their buildup, culminating in an 8-pass move culminating in Emil Holmgrave's shot from 5.1 meters with an xG of 0.51.\", \"consequence\": \"After the goal at 66', NOR held 70% possession in the following 3 minutes, shifting mo"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 12,
+    "unsupported": [],
+    "unknown_names": [],
+    "passed": true
+   },
+   {
+    "agent": "Narrator (analyst)",
+    "seconds": 2.5,
+    "tools": [],
+    "tokens": 720,
+    "output": "```json\n{\"title\": \"Emil Holmgrave scores to narrow the gap\",\"body\": \"In the 66th minute, Emil Holmgrave made it 2-1 with a close-range finish from 5.1 meters. The goal followed an 8-pass move, with an assist from Hugo Bellweather and a shot xG of 0.51.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 6,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.3,
+    "tools": [],
+    "tokens": 1106,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Emil Holmgrave scores to narrow the gap\",\n      \"supported\": true,\n      \"why\": \"The goal made the score 2-1, which matches the 'narrow the gap' phrasing.\"\n    },\n    {\n      \"claim\": \"In the 66th minute, Emil Holmgrave made it 2-1\",\n      \"supported\": true,\n      \"why\": \"The clock reading is 66', and the score after the goal is confirmed as 2-1.\"\n    },\n    {\n      \"claim\": \"close-range finish from 5.1 meters\",\n      \"supported\": true,\n      \"why\": \"The shot distance was recorded as 5.1 meters, which supports 'close-range finish.'\"\n    },\n    {\n  "
+   }
+  ]
+ },
+ "change:NOR:50|player|hu|": {
+  "title": "A Northgate FC alacsonyabbra helyezi a védelmi vonalát",
+  "body": "A 35. percben a Northgate FC 30,5 méterről 24,4 méterre csökkentette a védelmi vonalának magasságát. Bár azóta 40 százalékos labdabirtoklást tartottak, a 47. percben Umar Dorsey gólját kapták.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 11.4,
+    "tools": [
+     "match_info",
+     "match_state",
+     "key_moments",
+     "tactical_changes"
+    ],
+    "tokens": 4845,
+    "output": "{\"observations\": [\"Northgate FC lowered their defensive line height from 30.5m to 24.4m starting at 35 minutes.\",\"Before the shape change (23' to 35'), Riverside Athletic had 62% possession, 3 shots, and 0.4 xG, while Northgate FC had 38% possession and no shots.\",\"Since the shape change (35' to 48'), Riverside Athletic maintained around 60% possession, made 4 shots with an xG of 1.28, and scored 1 goal.\",\"The goal was scored by Umar Dorsey at 47 minutes with an assist from Zoltan Ulvane.\",\"In the recent 3 minutes, Northgate FC's defensive line is at 14.9m with 3.7 players in the back line, wh"
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 1.7,
+    "tools": [],
+    "tokens": 1045,
+    "output": "{\n  \"headline\": \"Northgate FC's deeper defensive line invites greater pressure and leads to conceding first goal\",\n  \"why\": \"At 35 minutes, Northgate FC lowered their defensive line height significantly from 30.5m to 24.4m. This retreat reduced their ability to compress space and challenged their defensive compactness against Riverside Athletic's steady 60% possession.\",\n  \"consequence\": \"Following the shape change, Riverside Athletic increased their shots from 3 to 4 and more than tripled their expected goals from 0.4 to 1.28, culminating in Umar Dorsey's goal at 47 minutes. Northgate FC stil"
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 3.3,
+    "tools": [],
+    "tokens": 1027,
+    "output": "```json\n{\n  \"title\": \"Northgate FC lowers defensive line height\",\n  \"body\": \"At 35', Northgate FC dropped their line from 30.5m to 24.4m, inviting more Riverside Athletic pressure. Despite maintaining 40% possession since, they conceded Umar Dorsey's goal at 47'.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.0,
+    "tools": [],
+    "tokens": 1351,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"At 35', Northgate FC dropped their line from 30.5m to 24.4m.\",\n      \"supported\": true,\n      \"why\": \"The facts clearly show that Northgate FC's defensive line height decreased from 30.5m to 24.4m at 35'.\"\n    },\n    {\n      \"claim\": \"They invited more Riverside Athletic pressure.\",\n      \"supported\": true,\n      \"why\": \"The facts show a higher xG (1.28 compared to 0.4), more shots (4 compared to 3), and more completed passes (85 compared to 60) for Riverside Athletic after 35', indicating increased attacking pressure.\"\n    },\n    {\n      \"claim\": "
+   },
+   {
+    "agent": "Translator",
+    "seconds": 1.8,
+    "tools": [],
+    "tokens": 467,
+    "output": "```json\n{\"title\": \"A Northgate FC lejjebb viszi a védelmi vonal magasságát\", \"body\": \"A 35. percben a Northgate FC a védelmi vonalát 30,5 méterről 24,4 méterre vitte le, több nyomásra hívva meg a Riverside Athletic csapatát. Annak ellenére, hogy azóta 40%-os labdabirtoklással játszottak, Umar Dorsey gólját a 47. percben kapták.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.0,
+    "tools": [],
+    "tokens": 1512,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A 35. percben a Northgate FC a védelmi vonalát 30,5 méterről 24,4 méterre vitte le.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that, at 35', Northgate FC dropped their defensive line height from 30.5m to 24.4m.\"\n    },\n    {\n      \"claim\": \"Több nyomásra hívva meg a Riverside Athletic csapatát.\",\n      \"supported\": false,\n      \"why\": \"The facts do not provide direct evidence or measurement for the claim that lowering the line invited more pressure from Riverside Athletic.\"\n    },\n    {\n      \"claim\": \"Annak ellenére, hogy azóta 40%"
+   },
+   {
+    "agent": "Translator",
+    "seconds": 1.3,
+    "tools": [],
+    "tokens": 480,
+    "output": "```json\n{\"title\": \"A Northgate FC alacsonyabbra helyezi a védelmi vonalát\", \"body\": \"A 35. percben a Northgate FC 30,5 méterről 24,4 méterre csökkentette a védelmi vonalának magasságát. Bár azóta 40 százalékos labdabirtoklást tartottak, a 47. percben Umar Dorsey gólját kapták.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 1.6,
+    "tools": [],
+    "tokens": 1417,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A 35. percben a Northgate FC 30,5 méterről 24,4 méterre csökkentette a védelmi vonalának magasságát.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Northgate FC lowered their defensive line height from 30.5m to 24.4m starting at 35'.\"\n    },\n    {\n      \"claim\": \"Bár azóta 40 százalékos labdabirtoklást tartottak, a 47. percben Umar Dorsey gólját kapták.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that since the change, Northgate FC had 40% possession, and Umar Dorsey scored for Riverside Athletic at 47'.\"\n    }\n  ],\n"
+   }
+  ]
+ },
+ "goal:67.33|analyst|hu|": {
+  "title": "Emil Holmgrave szépít",
+  "body": "A 66. percben Emil Holmgrave 2-1-re módosította az állást egy 5,1 méterről szerzett közeli találattal. A gól egy 8 passzból álló akció után született, Hugo Bellweather gólpasszával és 0,51-es várható gólszámú lövéssel.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 13.8,
+    "tools": [
+     "key_moments",
+     "tactical_changes",
+     "match_state"
+    ],
+    "tokens": 3023,
+    "output": "{\"observations\": [\"Northgate FC (NOR) scored a goal at 66' by Emil Holmgrave with an xG of 0.51 from 5.1 meters.\", \"The goal was assisted by Hugo Bellweather and came after 8 passes in the move.\", \"NOR's defensive line adjusted height twice: lowered from 30.5m to 24.4m around 35', then raised from 24.1m to 33.0m around 53'.\", \"Since 53', NOR increased players in the back line in possession from 2.2 to 2.9.\", \"In the last 3 minutes, NOR held 70% possession compared to RIV's 30%.\", \"By 66', the score was RIV 2 - NOR 1, with several recent events including a substitution for RIV and a shot by Kai"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 19,
+    "unsupported": [],
+    "unknown_names": [],
+    "passed": true
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.4,
+    "tools": [],
+    "tokens": 704,
+    "output": "{\"headline\": \"Northgate FC narrows the gap with Holmgrave's 66' goal after tactical defensive line tweaks\",\"why\": \"Northgate FC changed their defensive line height twice—initially lowering it around 35' to 24.4m, then raising it around 53' to 33.0m—and increased players in the back line in possession from 2.2 to 2.9. These adjustments likely improved ball circulation and defensive stability, enabling an 8-pass build-up culminating in Holmgrave's close-range, 0.51 xG goal assisted by Bellweather.\",\"consequence\": \"The goal reduced Riverfield VR's lead to 2-1 and shifted recent possession heavily"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 13,
+    "unsupported": [],
+    "unknown_names": [
+     "Riverfield"
+    ],
+    "passed": false
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.1,
+    "tools": [],
+    "tokens": 723,
+    "output": "{\"headline\": \"Emil Holmgrave's goal narrows the gap after strategic defensive adjustments by Northgate FC\", \"why\": \"Northgate FC (NOR) modified their defensive line height twice before the goal—first lowering it around 35' and then raising it around 53', while also increasing the number of players in the back line in possession from 2.2 to 2.9. These changes helped stabilize their buildup, culminating in an 8-pass move culminating in Emil Holmgrave's shot from 5.1 meters with an xG of 0.51.\", \"consequence\": \"After the goal at 66', NOR held 70% possession in the following 3 minutes, shifting mo"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 12,
+    "unsupported": [],
+    "unknown_names": [],
+    "passed": true
+   },
+   {
+    "agent": "Narrator (analyst)",
+    "seconds": 2.5,
+    "tools": [],
+    "tokens": 720,
+    "output": "```json\n{\"title\": \"Emil Holmgrave scores to narrow the gap\",\"body\": \"In the 66th minute, Emil Holmgrave made it 2-1 with a close-range finish from 5.1 meters. The goal followed an 8-pass move, with an assist from Hugo Bellweather and a shot xG of 0.51.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 6,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.3,
+    "tools": [],
+    "tokens": 1106,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Emil Holmgrave scores to narrow the gap\",\n      \"supported\": true,\n      \"why\": \"The goal made the score 2-1, which matches the 'narrow the gap' phrasing.\"\n    },\n    {\n      \"claim\": \"In the 66th minute, Emil Holmgrave made it 2-1\",\n      \"supported\": true,\n      \"why\": \"The clock reading is 66', and the score after the goal is confirmed as 2-1.\"\n    },\n    {\n      \"claim\": \"close-range finish from 5.1 meters\",\n      \"supported\": true,\n      \"why\": \"The shot distance was recorded as 5.1 meters, which supports 'close-range finish.'\"\n    },\n    {\n  "
+   },
+   {
+    "agent": "Translator",
+    "seconds": 1.4,
+    "tools": [],
+    "tokens": 456,
+    "output": "```json\n{\"title\": \"Emil Holmgrave szépít\", \"body\": \"A 66. percben Emil Holmgrave 2-1-re módosította az állást egy 5,1 méterről szerzett közeli találattal. A gól egy 8 passzból álló akció után született, Hugo Bellweather gólpasszával és 0,51-es várható gólszámú lövéssel.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 6,
+    "unsupported": [],
+    "unknown_names": [],
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.7,
+    "tools": [],
+    "tokens": 1238,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Emil Holmgrave scored in the 66th minute.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Emil Holmgrave scored a goal in the 66th minute.\"\n    },\n    {\n      \"claim\": \"The score became 2-1 after the goal.\",\n      \"supported\": true,\n      \"why\": \"The facts state that the score after the goal was 2-1 in favor of RIV.\"\n    },\n    {\n      \"claim\": \"The goal was scored from 5.1 meters.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm the shot distance was 5.1 meters.\"\n    },\n    {\n      \"claim\": \"The goal was a close-range fin"
+   }
+  ]
+ },
+ "recap:ft|analyst|en|": {
+  "title": "Umar Dorsey stars in Riverside Athletic win",
+  "body": "Umar Dorsey’s brace at 47' and 53' helped Riverside Athletic take early control in a 3-2 victory over Northgate FC. Despite Emil Holmgrave’s two goals at 66' and 90+5' for Northgate FC, Pablo Varnell’s 88' strike ensured Riverside Athletic’s superior xG of 2.79 and 54% possession translated into the win.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 3.3,
+    "tools": [
+     "tactical_changes",
+     "match_state",
+     "key_moments"
+    ],
+    "tokens": 4128,
+    "output": "{\"observations\": [\"Score at 90+5' is RIV 3 - 2 NOR\", \"Umar Dorsey scored two goals for RIV at 47' and 53'\", \"Emil Holmgrave scored two goals for NOR at 66' and 90+5'\", \"RIV had 54% possession, 16 shots with 6 on target and an xG of 2.79\", \"NOR's defensive line without the ball dropped from 30.5m to 24.4m since 35' but raised again to 33.0m since 53'\", \"In the last 3 minutes, NOR had 56% possession while RIV had 44%\"]}"
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.3,
+    "tools": [],
+    "tokens": 1115,
+    "output": "{\n  \"headline\": \"Umar Dorsey's early second-half brace sets the tone, but NOR’s late pressure nearly secures a point\",\n  \"why\": \"Umar Dorsey's goals at 47' and 53' gave RIV a strong 2-0 lead, leveraging their higher possession (54%) and shot volume (16) with a favorable xG of 2.79. NOR responded by dropping their defensive line after 35', tightening space and increasing pressure, allowing Emil Holmgrave to score at 66' and again at 90+5'. NOR’s defensive line adjustment correlated with a rise in possession to 56% in the final 3 minutes, indicating increased offensive urgency.\",\n  \"consequence\""
+   },
+   {
+    "agent": "Narrator (analyst)",
+    "seconds": 1.2,
+    "tools": [],
+    "tokens": 1183,
+    "output": "```json\n{\n  \"title\": \"Riverside Athletic edge Northgate FC 3-2\",\n  \"body\": \"Umar Dorsey's goals at 47' and 53' set Riverside Athletic ahead, leveraging their 54% possession and 16 shots. Emil Holmgrave struck twice late for Northgate FC, but Pablo Varnell's 88' goal secured the win.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 7,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 3.0,
+    "tools": [],
+    "tokens": 1555,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey's goals at 47' and 53' set Riverside Athletic ahead.\",\n      \"supported\": true,\n      \"why\": \"The facts show Umar Dorsey scored for Riverside Athletic at 47' and 53', putting them ahead at 2-0.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic leveraged their 54% possession and 16 shots.\",\n      \"supported\": true,\n      \"why\": \"The stats confirm Riverside Athletic had 54% possession and 16 total shots.\"\n    },\n    {\n      \"claim\": \"Emil Holmgrave struck twice late for Northgate FC.\",\n      \"supported\": false,\n      \"why\": \"The facts show"
+   },
+   {
+    "agent": "Narrator (analyst)",
+    "seconds": 1.4,
+    "tools": [],
+    "tokens": 1259,
+    "output": "```json\n{\"title\": \"Riverside Athletic win hard-fought 3-2 thriller\", \"body\": \"Umar Dorsey's goals at 47' and 53' gave Riverside Athletic a strong start to the second half, supported by their 54% possession and 2.79 xG. Northgate FC’s Emil Holmgrave struck at 66' and 90+5', but Pablo Varnell’s 88' goal proved decisive in this close contest.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 10,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.4,
+    "tools": [],
+    "tokens": 1554,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey's goals at 47' and 53' gave Riverside Athletic a strong start to the second half.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Dorsey scored at 47' and 53', which can reasonably be described as a strong start to the second half.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic was supported by their 54% possession and 2.79 xG.\",\n      \"supported\": true,\n      \"why\": \"The stats confirm Riverside Athletic had 54% possession and 2.79 xG.\"\n    },\n    {\n      \"claim\": \"Northgate FC’s Emil Holmgrave struck at 66' and 90+5'."
+   },
+   {
+    "agent": "Narrator (analyst)",
+    "seconds": 1.4,
+    "tools": [],
+    "tokens": 1309,
+    "output": "```json\n{\"title\": \"Umar Dorsey stars in Riverside Athletic win\", \"body\": \"Umar Dorsey’s brace at 47' and 53' helped Riverside Athletic take early control in a 3-2 victory over Northgate FC. Despite Emil Holmgrave’s two goals at 66' and 90+5' for Northgate FC, Pablo Varnell’s 88' strike ensured Riverside Athletic’s superior xG of 2.79 and 54% possession translated into the win.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 10,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 3.7,
+    "tools": [],
+    "tokens": 1493,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey’s brace at 47' and 53' helped Riverside Athletic take early control in a 3-2 victory over Northgate FC.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Umar Dorsey scored at 47' and 53', and Riverside Athletic won 3-2. 'Early control' is subjective, but it is a fair reading of taking a 2-goal lead in the early second half.\"\n    },\n    {\n      \"claim\": \"Despite Emil Holmgrave’s two goals at 66' and 90+5' for Northgate FC, Pablo Varnell’s 88' strike ensured Riverside Athletic’s superior xG of 2.79 and 54% possession transl"
+   }
+  ]
+ },
+ "recap:ft|analyst|hu|": {
+  "title": "Umar Dorsey villogott a Riverside Athletic győzelmében",
+  "body": "Umar Dorsey duplája a 47. és az 53. percben korai előnyt szerzett a Riverside Athletic számára a Northgate FC elleni 3-2-re megnyert mérkőzésen. Bár Emil Holmgrave két gólja a 66. és a 90+5. percben közelebb hozta a Northgate FC-t, Pablo Varnell 88. percben lőtt találata megőrizte a Riverside Athletic előnyét. A mérkőzés során a Riverside Athletic 2,79-es xG-t ért el, és 54%-ban birtokolta a labdát.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 3.3,
+    "tools": [
+     "tactical_changes",
+     "match_state",
+     "key_moments"
+    ],
+    "tokens": 4128,
+    "output": "{\"observations\": [\"Score at 90+5' is RIV 3 - 2 NOR\", \"Umar Dorsey scored two goals for RIV at 47' and 53'\", \"Emil Holmgrave scored two goals for NOR at 66' and 90+5'\", \"RIV had 54% possession, 16 shots with 6 on target and an xG of 2.79\", \"NOR's defensive line without the ball dropped from 30.5m to 24.4m since 35' but raised again to 33.0m since 53'\", \"In the last 3 minutes, NOR had 56% possession while RIV had 44%\"]}"
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.3,
+    "tools": [],
+    "tokens": 1115,
+    "output": "{\n  \"headline\": \"Umar Dorsey's early second-half brace sets the tone, but NOR’s late pressure nearly secures a point\",\n  \"why\": \"Umar Dorsey's goals at 47' and 53' gave RIV a strong 2-0 lead, leveraging their higher possession (54%) and shot volume (16) with a favorable xG of 2.79. NOR responded by dropping their defensive line after 35', tightening space and increasing pressure, allowing Emil Holmgrave to score at 66' and again at 90+5'. NOR’s defensive line adjustment correlated with a rise in possession to 56% in the final 3 minutes, indicating increased offensive urgency.\",\n  \"consequence\""
+   },
+   {
+    "agent": "Narrator (analyst)",
+    "seconds": 1.2,
+    "tools": [],
+    "tokens": 1183,
+    "output": "```json\n{\n  \"title\": \"Riverside Athletic edge Northgate FC 3-2\",\n  \"body\": \"Umar Dorsey's goals at 47' and 53' set Riverside Athletic ahead, leveraging their 54% possession and 16 shots. Emil Holmgrave struck twice late for Northgate FC, but Pablo Varnell's 88' goal secured the win.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 7,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 3.0,
+    "tools": [],
+    "tokens": 1555,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey's goals at 47' and 53' set Riverside Athletic ahead.\",\n      \"supported\": true,\n      \"why\": \"The facts show Umar Dorsey scored for Riverside Athletic at 47' and 53', putting them ahead at 2-0.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic leveraged their 54% possession and 16 shots.\",\n      \"supported\": true,\n      \"why\": \"The stats confirm Riverside Athletic had 54% possession and 16 total shots.\"\n    },\n    {\n      \"claim\": \"Emil Holmgrave struck twice late for Northgate FC.\",\n      \"supported\": false,\n      \"why\": \"The facts show"
+   },
+   {
+    "agent": "Narrator (analyst)",
+    "seconds": 1.4,
+    "tools": [],
+    "tokens": 1259,
+    "output": "```json\n{\"title\": \"Riverside Athletic win hard-fought 3-2 thriller\", \"body\": \"Umar Dorsey's goals at 47' and 53' gave Riverside Athletic a strong start to the second half, supported by their 54% possession and 2.79 xG. Northgate FC’s Emil Holmgrave struck at 66' and 90+5', but Pablo Varnell’s 88' goal proved decisive in this close contest.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 10,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.4,
+    "tools": [],
+    "tokens": 1554,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey's goals at 47' and 53' gave Riverside Athletic a strong start to the second half.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Dorsey scored at 47' and 53', which can reasonably be described as a strong start to the second half.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic was supported by their 54% possession and 2.79 xG.\",\n      \"supported\": true,\n      \"why\": \"The stats confirm Riverside Athletic had 54% possession and 2.79 xG.\"\n    },\n    {\n      \"claim\": \"Northgate FC’s Emil Holmgrave struck at 66' and 90+5'."
+   },
+   {
+    "agent": "Narrator (analyst)",
+    "seconds": 1.4,
+    "tools": [],
+    "tokens": 1309,
+    "output": "```json\n{\"title\": \"Umar Dorsey stars in Riverside Athletic win\", \"body\": \"Umar Dorsey’s brace at 47' and 53' helped Riverside Athletic take early control in a 3-2 victory over Northgate FC. Despite Emil Holmgrave’s two goals at 66' and 90+5' for Northgate FC, Pablo Varnell’s 88' strike ensured Riverside Athletic’s superior xG of 2.79 and 54% possession translated into the win.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 10,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 3.7,
+    "tools": [],
+    "tokens": 1493,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey’s brace at 47' and 53' helped Riverside Athletic take early control in a 3-2 victory over Northgate FC.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Umar Dorsey scored at 47' and 53', and Riverside Athletic won 3-2. 'Early control' is subjective, but it is a fair reading of taking a 2-goal lead in the early second half.\"\n    },\n    {\n      \"claim\": \"Despite Emil Holmgrave’s two goals at 66' and 90+5' for Northgate FC, Pablo Varnell’s 88' strike ensured Riverside Athletic’s superior xG of 2.79 and 54% possession transl"
+   },
+   {
+    "agent": "Translator",
+    "seconds": 5.4,
+    "tools": [],
+    "tokens": 558,
+    "output": "```json\n{\"title\": \"Umar Dorsey brillírozott a Riverside Athletic győzelmében\", \"body\": \"Umar Dorsey duplája a 47. és az 53. percben segítette a Riverside Athletic-et, hogy korán átvegye az irányítást a Northgate FC elleni 3-2-re megnyert mérkőzésen. Annak ellenére, hogy Emil Holmgrave két gólja a 66. és a 90+5. percben született a Northgate FC javára, Pablo Varnell 88. percben elért találata biztosította, hogy a Riverside Athletic 2,79-es xG-je és 54%-os labdabirtoklása győzelemre vezessen.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 10,
+    "unsupported": [],
+    "unknown_names": [],
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 3.3,
+    "tools": [],
+    "tokens": 1760,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey duplája a 47. és az 53. percben segítette a Riverside Athletic-et, hogy korán átvegye az irányítást a Northgate FC elleni 3-2-re megnyert mérkőzésen.\",\n      \"supported\": true,\n      \"why\": \"Umar Dorsey scored at 47' and 53', which matches the facts. Riverside Athletic winning 3-2 is also correct.\"\n    },\n    {\n      \"claim\": \"Annak ellenére, hogy Emil Holmgrave két gólja a 66. és a 90+5. percben született a Northgate FC javára, Pablo Varnell 88. percben elért találata biztosította, hogy a Riverside Athletic 2,79-es xG-je és 54%-os labd"
+   },
+   {
+    "agent": "Translator",
+    "seconds": 2.5,
+    "tools": [],
+    "tokens": 604,
+    "output": "```json\n{\"title\": \"Umar Dorsey villogott a Riverside Athletic győzelmében\", \"body\": \"Umar Dorsey duplája a 47. és az 53. percben korai előnyt szerzett a Riverside Athletic számára a Northgate FC elleni 3-2-re megnyert mérkőzésen. Bár Emil Holmgrave két gólja a 66. és a 90+5. percben közelebb hozta a Northgate FC-t, Pablo Varnell 88. percben lőtt találata megőrizte a Riverside Athletic előnyét. A mérkőzés során a Riverside Athletic 2,79-es xG-t ért el, és 54%-ban birtokolta a labdát.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 10,
+    "unsupported": [],
+    "unknown_names": [],
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 3.1,
+    "tools": [],
+    "tokens": 1745,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey duplája a 47. és az 53. percben korai előnyt szerzett a Riverside Athletic számára a Northgate FC elleni 3-2-re megnyert mérkőzésen.\",\n      \"supported\": true,\n      \"why\": \"The facts show that Umar Dorsey scored at 47' and 53', giving Riverside a 2-0 lead early in the second half, and the match ended 3-2.\"\n    },\n    {\n      \"claim\": \"Bár Emil Holmgrave két gólja a 66. és a 90+5. percben közelebb hozta a Northgate FC-t, Pablo Varnell 88. percben lőtt találata megőrizte a Riverside Athletic előnyét.\",\n      \"supported\": true,\n      \"why"
    }
   ]
  }
