@@ -8,3 +8,5 @@ __pycache__
 preview.html
 tests
 scripts
+data/*/speech
+data/*/agent_cache.tmp

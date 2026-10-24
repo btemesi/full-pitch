@@ -63,6 +63,7 @@
     S.frames = []; S.playhead = 0;
     S.lastCardMinute = -1; S.lastStatMinute = -1; S.lastPanelMinute = -1; S.cardSig = null;
     S.quietCards = true;  // what happened before the jump is backlog: list it, don't announce it
+    S.liveOverlay = null;  // rings drawn for the old minute would land on whoever stands in those slots now
     const [st, lineup, still] = await Promise.all([
       api("/api/state", withSession()), api("/api/lineup", withSession()), api("/api/frame", withSession()),
     ]);
@@ -270,7 +271,8 @@
     g.fillRect(...rect(-1.2, W / 2 - 3.66, 0, W / 2 + 3.66)); g.fillRect(...rect(L, W / 2 - 3.66, L + 1.2, W / 2 + 3.66));
 
     const onPitch = (k, s) => !S.lineup || S.lineup[S.shorts[k]][s].on_pitch !== false;
-    const ov = S.replay && S.replay.overlay;
+    const ov = (S.replay && S.replay.overlay)
+      || (S.liveOverlay && performance.now() < S.liveOverlay.until ? S.liveOverlay.overlay : null);
     const ri = S.replay ? Math.min(S.replay.frames.length - 1, Math.floor(S.replay.i)) : 0;
 
     // replay: ghost lines (where the back line would stand with the old instruction vs where it stands now)
@@ -1001,6 +1003,8 @@
   function askCard(a) {
     const d = document.createElement("article");
     d.className = "card ask";
+    if (a.shown) d.style.animation = "none";  // slide in once, not on every rebuild of the list
+    a.shown = true;
     d.innerHTML = '<div class="k"><span></span><span></span></div><p class="q"></p><p class="a"></p>';
     const [k1, k2] = d.querySelectorAll(".k span");
     k1.textContent = hu() ? "Kérdésed" : "You asked";
@@ -1032,11 +1036,19 @@
     return d;
   }
   function playAsk(a) {
-    const clip = a.res && a.res.clip;
+    if (!a.res || !a.res.answer) return;
+    const overlay = { type: "ask", rings: a.res.show.rings, zone: a.res.show.zone };
+    if (!a.res.show.replay) {
+      // about the present: ring the players on the live picture for a while, the match keeps playing
+      S.liveOverlay = { overlay, until: performance.now() + 20000 };
+      return;
+    }
+    const clip = a.res.clip;
     if (!clip || !clip.frames.length) return;
+    S.liveOverlay = null;
     if (!S.replay) S.resumeMinute = currentMinute();
     if (S.es) { S.es.close(); S.es = null; }
-    S.replay = { frames: clip.frames, overlay: { type: "ask", rings: a.res.show.rings, zone: a.res.show.zone },
+    S.replay = { frames: clip.frames, overlay,
                  i: 0, doneAt: null, liveScore: S.replay ? S.replay.liveScore : S.score.slice() };
     if (clip.score) { S.score = clip.score.slice(); renderScore(); }
     $("replayTitle").textContent = a.question;

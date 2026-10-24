@@ -364,9 +364,9 @@ async def ask(sid: str = Query(alias="session"), q: str = Query(min_length=3, ma
         res = await asyncio.shield(ASK_INFLIGHT[key])
         if res is None:
             raise HTTPException(503, "the agents could not answer just now")
-    res = ASK_CACHE[key]
+        return res
     ASK_CACHE.move_to_end(key)
-    return res
+    return ASK_CACHE[key]
 
 
 async def _answer(key, q, at, lang):
@@ -381,12 +381,12 @@ async def _answer(key, q, at, lang):
     s, md = store(), store().md
     show = res.get("show") or {}
     f_now = s.frame(at)
-    if show.get("minute") is not None:  # the moment the answer is about, a little before and after
+    replay = show.get("minute") is not None
+    if replay:  # the moment the answer is about, a little before and after
         f_mid = s.frame(min(show["minute"], at))
         f_from, f_to = max(0, f_mid - 5 * md.hz), min(f_now, f_mid + 3 * md.hz)
-    else:  # the present: the last seconds of play
+    else:  # about the present: drawn over the live picture, nothing to replay
         f_mid = f_now
-        f_from, f_to = max(0, f_now - 8 * md.hz), f_now
     rings = []
     for pid in show.get("players", []):
         slot = s.slot_at(pid, f_mid)
@@ -397,9 +397,10 @@ async def _answer(key, q, at, lang):
     out = {"question": q, "answer": res.get("answer"), "source": res.get("source"),
            "speech": SPEECH.register(res["answer"], lang) if SPEECH and res.get("answer") else None,
            "steps": res.get("trace", []), "models": _models(),
-           "show": {"rings": rings, "zone": zone, "clock": md.clock_label(f_mid) if res.get("answer") else None},
+           "show": {"rings": rings, "zone": zone, "replay": replay,
+                    "clock": md.clock_label(f_mid) if res.get("answer") and replay else None},
            "clip": {"frames": frames_payload(md, f_from, max(f_from + 1, f_to)), "score": score_at(md, f_from)}
-           if res.get("answer") else None}
+           if res.get("answer") and replay else None}
     ASK_CACHE[key] = out
     while len(ASK_CACHE) > CATCHUP_CACHE_MAX:
         ASK_CACHE.popitem(last=False)

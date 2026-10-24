@@ -203,3 +203,82 @@ def test_speech_only_speaks_registered_lines(tmp_path):
     assert asyncio.run(sp.audio(sid)) == b"mp3"      # second play comes from the disk cache
     assert calls == [("Northgate pull one back.", "en")]
     assert asyncio.run(sp.audio("0123456789abcdef")) is None  # nothing that wasn't handed out
+
+
+def test_foreign_content_is_caught():
+    from fullpitch.agents import foreign_content
+    assert foreign_content("Visit https://example.com for more.")
+    assert foreign_content("write to fan@club.example")
+    assert foreign_content("see www.example.org")
+    assert foreign_content("<script>alert(1)</script>")
+    assert not foreign_content("Quentin Grievson has run 9.0 km, the most so far.")
+    assert not foreign_content("Riverside Athletic lead 2-1 at 70'.")
+
+
+def test_a_new_line_is_synthesised_once_however_many_ask(tmp_path):
+    from fullpitch.speech import Speech
+    sp = Speech("https://example.cognitiveservices.azure.com", tmp_path, credential=object())
+    calls = []
+
+    def slow(text, lang):
+        time.sleep(0.2)
+        calls.append(text)
+        return b"mp3"
+    sp._synthesise = slow
+    sid = sp.register("Holmgrave pulls one back.", "en")
+
+    async def three():
+        return await asyncio.gather(sp.audio(sid), sp.audio(sid), sp.audio(sid))
+    assert asyncio.run(three()) == [b"mp3"] * 3
+    assert calls == ["Holmgrave pulls one back."]
+
+
+class AskTeam(FakeTeam):
+    def __init__(self, store, answer):
+        super().__init__(store)
+        self.answer = answer
+
+    async def ask(self, question, at, lang):
+        self.calls += 1
+        return self.answer
+
+
+def test_ask_about_a_moment_replays_only_the_past(agent_client):
+    s = server.store()
+    goal = [e for e in s.key_moments(80) if e["type"] == "goal"][0]
+    server.TEAM = AskTeam(s, {"answer": "Dorsey was 2.9 m from goal.", "source": "agent", "trace": [],
+                              "show": {"players": ["RIV-10"], "team": None, "channel": None, "minute": goal["minute"]}})
+    sid = agent_client.post("/api/session", params={"from": 80}).json()["session"]
+    r = agent_client.get("/api/ask", params={"session": sid, "q": "Where was everyone at the first goal?"}).json()
+    assert r["show"]["replay"] and r["show"]["rings"][0]["name"] == "Umar Dorsey"
+    last = max(f["m"] for f in r["clip"]["frames"])
+    assert last <= 80 and abs(min(f["m"] for f in r["clip"]["frames"]) - goal["minute"]) < 0.2
+
+
+def test_ask_about_the_present_draws_on_live_play(agent_client):
+    s = server.store()
+    team = server.TEAM = AskTeam(s, {"answer": "Quentin Grievson has run the most.", "source": "agent", "trace": [],
+                                     "show": {"players": ["NOR-08"], "team": "NOR", "channel": "centre", "minute": None}})
+    sid = agent_client.post("/api/session", params={"from": 72}).json()["session"]
+    r = agent_client.get("/api/ask", params={"session": sid, "q": "Who has run the most?"}).json()
+    assert r["show"]["replay"] is False and r["clip"] is None
+    assert r["show"]["zone"] == {"team_index": 1, "channel": "centre"} and r["show"]["rings"]
+    agent_client.get("/api/ask", params={"session": sid, "q": "who has  run the MOST?"})
+    assert team.calls == 1  # the same question in the same minute is answered once
+
+
+def test_ask_rejects_bad_input(agent_client):
+    server.TEAM = AskTeam(server.store(), {"answer": None, "source": "failed", "trace": []})
+    sid = agent_client.post("/api/session", params={"from": 30}).json()["session"]
+    assert agent_client.get("/api/ask", params={"session": sid, "q": "hi"}).status_code == 422
+    assert agent_client.get("/api/ask", params={"session": sid, "q": "x" * 201}).status_code == 422
+    r = agent_client.get("/api/ask", params={"session": sid, "q": "Who will win?"}).json()
+    assert r["answer"] is None and r["clip"] is None and r["speech"] is None
+
+
+def test_lines_are_spoken_like_a_commentator():
+    from fullpitch.speech import spoken
+    assert spoken("Holmgrave scored at 66'. It is 2-1 after an 8-pass move.", "en") == \
+        "Holmgrave scored in minute 66. It is 2 1 after an 8-pass move."
+    assert spoken("Dorsey makes it 1-0 at 90+5'.", "en") == "Dorsey makes it 1 nil at 90 plus 5."
+    assert spoken("A 35' óta 2-1.", "hu") == "A 35. perc óta 2 1."

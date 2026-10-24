@@ -116,6 +116,28 @@ def one(seed):
             for e in s.key_moments(at):
                 if e["type"] == "goal":
                     check("goal_card", lambda: goal_card(e, "hu"))
+                # the tools behind 'ask the pitch': every moment so far, never one after now
+                pm = check(f"positions_at_moment {e['moment']}@{at}", lambda: s.positions_at_moment(e["moment"], at))
+                if pm and pm["minute"] > at + 1e-6:
+                    problems.append(f"seed {seed} positions_at_moment beyond now @{at}")
+                ev_frame = next(ev["frame"] for m, ev in s._key_events() if m == e["moment"])
+                if pm and len(pm["players"]) != int(s.md.active[ev_frame].sum()):
+                    problems.append(f"seed {seed} positions_at_moment lists {len(pm['players'])} players @{at}")
+            pa = check(f"positions_at future@{at}", lambda: s.positions_at(at + 20, at))
+            if pa and pa["minute"] > at + 1e-6:
+                problems.append(f"seed {seed} positions_at beyond now @{at}")
+            for team in s.md.shorts:
+                ac = check(f"attack_channels {team}@{at}", lambda: s.attack_channels(team, 0.0, at))
+                if ac and ac["share_pct"]["left"] is not None and not 98 <= sum(ac["share_pct"].values()) <= 102:
+                    problems.append(f"seed {seed} channel shares {ac['share_pct']} @{at}")
+            check(f"leaders@{at}", lambda: s.leaders(at))
+            if [m for m, e in s._key_events() if e["frame"] > s.frame(at)][:1]:
+                nxt = [m for m, e in s._key_events() if e["frame"] > s.frame(at)][0]
+                try:
+                    s.positions_at_moment(nxt, at)
+                    problems.append(f"seed {seed} positions_at_moment served a future moment {nxt} @{at}")
+                except ValueError:
+                    pass
         for at in (30, 70, s.length_min):
             for pid in players:
                 p = check(f"profile {pid}@{at}", lambda: s.player_profile(pid, at))
@@ -141,7 +163,7 @@ if __name__ == "__main__":
             print(f"seed {seed} {tags}: {len(problems)} problems", flush=True)
             seen = set()
             for p in problems:
-                key = p.split(":")[0].split("@")[0] + p.split(":")[1][:60]
+                key = p.split(":")[0].split("@")[0] + (p.split(":", 1)[1][:60] if ":" in p else "")
                 if key not in seen:
                     seen.add(key)
                     print("  " + p.strip().replace("\n", "\n    "))

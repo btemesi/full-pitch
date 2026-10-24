@@ -162,11 +162,13 @@ class MatchStore:
     def positions_at(self, minute, at_minute):
         """Where everyone stood at a moment (never later than now): metres from their own goal line,
         channel from their own view of the pitch, distance to the ball, and who had it."""
-        m = min(minute, at_minute)
-        f = self.frame(m)
+        return self._positions(self.frame(min(minute, at_minute)))
+
+    def _positions(self, f):
         md = self.md
         ball = md.xy[f, 22]
-        out = {"clock": self.clock(m), "minute": round(m, 2),
+        # the minute of the frame actually shown, rounded down so it never reads later than now
+        out = {"clock": md.clock_label(f), "minute": float(np.floor(float(md.tmin[f]) * 100) / 100),
                "team_in_possession": md.shorts[int(md.poss[f])] if md.poss[f] >= 0 else None, "players": []}
         for k, short in enumerate(md.shorts):
             for s in range(11):
@@ -270,7 +272,7 @@ class MatchStore:
         e = next((e for m, e in self._key_events() if m == moment), None)
         if e is None or e["frame"] > self.frame(at_minute):
             raise ValueError(f"no moment {moment!r} so far; key_moments lists them")
-        out = self.positions_at(float(self.md.tmin[e["frame"]]), at_minute)
+        out = self._positions(e["frame"])  # the event's own frame, not a minute converted back
         out["moment"] = dict(self._event_view(e), moment=moment)
         return out
 

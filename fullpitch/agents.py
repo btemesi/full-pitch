@@ -334,6 +334,14 @@ def fact_check(text, allowed):
     return bad
 
 
+FOREIGN = re.compile(r"https?://|www\.|\b[\w.-]+\.(com|org|net|io|hu|uk|ly)\b|@\w|<[a-z/]", re.I)
+
+
+def foreign_content(text):
+    # a viewer's question is free text: whatever it smuggles in (a link, an address, markup) never reaches the page
+    return bool(FOREIGN.search(text))
+
+
 def editor_verdict(text):
     """Problems the Editor found; an unreadable verdict doesn't block a card that passed the checks."""
     try:
@@ -718,6 +726,7 @@ class AgentTeam:
         data = {"context": context, "looked_up": [str(x)[:4000] for x in tool_results]}
         minutes = fact_minutes(data)
         continuous = set(re.findall(r"minute\W{1,4}(\d+\.\d{2})\b", json.dumps(data)))
+        looked_up_minutes = {float(m) for m in re.findall(r"minute\W{1,4}(\d+(?:\.\d+)?)", json.dumps(data))}
         tell = json.dumps({"question": question, "analyst": notes, **data}, ensure_ascii=False)
         for _ in range(3):
             text, _ = await self._run(self.answerer, tell, trace, "Narrator (answer)")
@@ -731,10 +740,13 @@ class AgentTeam:
                     "channel": out.get("channel") if out.get("channel") in ("left", "centre", "right") else None,
                     "minute": None}
             try:
-                if out.get("minute") is not None and 0 <= float(out["minute"]) <= at:
-                    show["minute"] = round(float(out["minute"]), 2)
+                wanted = float(out["minute"]) if out.get("minute") is not None else None
             except (TypeError, ValueError):
-                pass
+                wanted = None
+            # replay only a moment the Analyst looked up (a goal, a chance, a position check), never a guess
+            moment = next((m for m in looked_up_minutes if wanted is not None and abs(m - wanted) < 0.02), None)
+            if moment is not None and 0 <= moment <= at:
+                show["minute"] = round(moment, 2)
             bad = fact_check(answer, allowed) + wrong_minutes(answer, minutes)
             # a continuous minute ("48.24") is for the replay, the viewer reads clock labels ("47'")
             bad += [m for m in re.findall(r"\d+\.\d{2}\b", answer) if m in continuous]
@@ -742,10 +754,12 @@ class AgentTeam:
             press_bad = unmeasured_pressure(answer, data)
             cause_bad = certain_cause(answer)
             invented = [p for p in (out.get("players") or []) if p not in ids]
+            foreign = foreign_content(answer)
+            unplaced = out.get("minute") is not None and show["minute"] is None
             trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(answer)), "unsupported": bad,
                           "unknown_names": names_bad + invented, "unmeasured_pressure": press_bad,
-                          "certain_cause": cause_bad,
-                          "passed": not (bad or names_bad or invented or press_bad or cause_bad)})
+                          "certain_cause": cause_bad, "foreign_content": foreign, "unknown_moment": unplaced,
+                          "passed": not (bad or names_bad or invented or press_bad or cause_bad or foreign or unplaced)})
             problems = []
             if bad:
                 problems.append(f"numbers or minutes not in the data: {bad}")
@@ -755,6 +769,10 @@ class AgentTeam:
                 problems.append("talk of pressure or pressing, which the data does not measure here")
             if cause_bad:
                 problems.append("a change said to produce what followed")
+            if foreign:
+                problems.append("a link, address or markup, which has no place in a match answer")
+            if unplaced:
+                problems.append("a minute to replay that is not the 'minute' of a moment you looked up")
             if not problems:
                 verdict, _ = await self._run(self.editor, json.dumps(
                     {"facts": data, "card": {"title": question, "body": answer}, "language": "en"},
@@ -775,8 +793,10 @@ class AgentTeam:
                         polish(expand_codes(str(_json_from(text)["body"]).strip(), teams), "hu", self.names), self.players)
                 except (ValueError, KeyError):
                     continue
-                problems = fact_check(hu_answer, allowed) + wrong_minutes(hu_answer, minutes)
-                lang_bad = wrong_language(hu_answer, "hu") or unmeasured_pressure(hu_answer, data)
+                problems = (fact_check(hu_answer, allowed) + wrong_minutes(hu_answer, minutes)
+                            + unknown_names(hu_answer, self.names))
+                lang_bad = (wrong_language(hu_answer, "hu") or unmeasured_pressure(hu_answer, data)
+                            or foreign_content(hu_answer))
                 trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(hu_answer)),
                               "unsupported": problems, "wrong_language": lang_bad, "passed": not (problems or lang_bad)})
                 if not (problems or lang_bad):
