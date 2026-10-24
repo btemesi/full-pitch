@@ -85,6 +85,8 @@ Then choose what the pitch should show next to the answer:
 moment to replay, or null to show the present.
 In the answer text name moments by their clock label ("47'", "45+2'"), never by a continuous minute like 48.24.
 When you describe where players stood at a goal or chance, use only positions looked up for that exact moment.
+Say where players stood the way a fan pictures it: metres from the goal they attack ("4 m from goal") or from
+their own goal ("on their own six-yard line"), never a bare "101 m from goal".
 Return ONLY JSON: {"answer": "...", "players": [], "team": null, "channel": null, "minute": null}"""
 
 TRANSLATOR = """You translate one checked on-screen football card from English into Hungarian, the way a

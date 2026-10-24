@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .analysis import MatchData, detect_changes, minute_metrics, player_physicals, slot_occupancy, team_rel
+from .analysis import L, MatchData, detect_changes, minute_metrics, player_physicals, slot_occupancy, team_rel
 from .catchup import player_name, score_at, window_facts
 from . import insights
 
@@ -177,6 +177,7 @@ class MatchStore:
                 out["players"].append({
                     "id": pid, "name": player_name(md, pid), "team": short,
                     "metres_from_own_goal": round(float(rel[0]), 1),
+                    "metres_from_goal_they_attack": round(float(L - rel[0]), 1),
                     "channel": "left" if rel[1] > 45 else ("right" if rel[1] < 23 else "centre"),
                     "metres_to_ball": round(float(np.linalg.norm(md.xy[f, k * 11 + s] - ball)), 1)})
         out["players"].sort(key=lambda p: p["metres_to_ball"])
