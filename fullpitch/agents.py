@@ -63,6 +63,8 @@ Back-line player counts are averages: say "three" or "a back three",
 never "2.9 players". The title starts with a capital letter, names keep their capitals.
 If the moment has "card_is_about", the title is about that subject.
 Describe tactics (pressing, a deep block, a formation, line height) only when the facts measure them.
+Never say a change produced what followed ("this change increased possession"); say what happened since:
+"Since the change, possession went from 43% to 55%."
 You know only what has happened up to this moment: never call a goal the winner or say a match is decided
 unless the facts say it has ended. Do not use dashes as punctuation. Write in {language}.
 Return ONLY JSON: {{"title": "...", "body": "..."}}"""
@@ -78,7 +80,7 @@ case endings ("a Northgate FC-nek", "a Riverside Athletic javára"), the article
 suffixes after scores ("2-0-s vezetés", "1-0-ra"). Do not use dashes as punctuation.
 Words: "shape change" is "átrendeződés" (never "formációváltás" unless the English says formation),
 "defensive line" is "védelmi vonal", "expected goals" or "xG" is "xG" or "várható gólok", "back three" is
-"háromvédős hátsó sor", "final third" is "támadóharmad".
+"háromvédős hátsó sor", "final third" is "támadóharmad", a "late push" is a "hajrá" (never "nyomás").
 Return ONLY JSON: {"title": "...", "body": "..."}"""
 
 EDITOR = """You are the Editor of a football broadcast. You check one on-screen card against the measured facts.
@@ -95,6 +97,7 @@ instead of "várható gólok", "önmaga által tartott vonal").
 A clock like "45+2'" is the 2nd minute of first-half stoppage time; "47'" is the 2nd minute of the second half,
 which you may call "early in the second half" but never "the second minute".
 Window stats are counts inside that window. A goal's own "score_after" is the score it produced.
+Back-line counts are averages: about 3 (2.6 or more) supports "a back three", about 4 "a back four".
 A pundit's "may have", "helped" or "led to" about a goal that followed a change is fine; flag causation
 only when the card states it as certain.
 Work claim by claim: list every factual claim the card makes (numbers, minutes, names, events, tactics,
@@ -254,6 +257,42 @@ def wrong_minutes(text, minutes):
     return [m for m in TEXT_MINUTES.findall(text) if int(m) not in minutes]
 
 
+PRESSURE_WORDS = re.compile(r"pressur|\bpress(es|ed|ing)?\b|nyomás|nyomást|letámad|szorongat", re.I)
+
+
+def unmeasured_pressure(text, facts):
+    # "invited pressure", "despite the pressure": pressing is measured (the pressers signal), so a card may
+    # only talk about it when the facts of the moment carry that measurement
+    if not PRESSURE_WORDS.search(text):
+        return False
+    return "pressers" not in json.dumps(facts) and "press" not in json.dumps(facts).lower().replace("pressers", "")
+
+
+CAUSAL = re.compile(
+    r"\b(this|the|that|their|which)\s+(change|shift|adjustment|switch|move|tweak|deeper line|higher line)\b"
+    r"[^.]{0,40}?\b(tripled|doubled|halved|increased|boosted|raised|lifted|led to|caused|resulted in|produced|"
+    r"gave|created|cost|forced|allowed|enabled|shifted|moved|swung|pushed|took|brought|improved|cut|reduced)\b"
+    r"|\b(resulted in|led to|caused)\b[^.]{0,30}\b(goal|possession|shots?|xg|chances?)\b"
+    r"|\b(this|that|which)\s+(tripled|doubled|halved|increased|boosted|raised|lifted|led to|caused|resulted in|"
+    r"produced|gave|created|cost|shifted|moved|swung|pushed|took|brought|improved|cut|reduced)\b"
+    r"|,\s*(boosting|increasing|raising|lifting|tripling|doubling|giving|creating|producing)\b"
+    r"|\b(line|change|shift|adjustment)\s+(brings|brought|gives|gave|creates|created|delivers|delivered)\b", re.I)
+
+
+def certain_cause(text):
+    # the facts never prove that a change produced what followed ("this change tripled their xG")
+    return bool(CAUSAL.search(text))
+
+
+def drop_article_before_players(text, players):
+    # Hungarian puts no article before a person's name: "az Umar Dorsey révén" -> "Umar Dorsey révén"
+    # (team names keep theirs: "a Riverside Athletic")
+    capital = text[:1].isupper()
+    for name in players:
+        text = re.sub(rf"\b(?:[Aa]z?) (?={re.escape(name)}\b)", "", text)
+    return text[:1].upper() + text[1:] if capital else text
+
+
 def expand_codes(text, teams):
     # "RIV dominate" -> "Riverside Athletic dominate": viewers know the names, not the codes
     for short, name in teams.items():
@@ -325,6 +364,7 @@ class AgentTeam:
         self.translator = Agent(client=writer, name="Translator", instructions=TRANSLATOR)
         self.inflight = {}  # card key -> task, so English and Hungarian don't write the same card twice
         md = store.md
+        self.players = sorted({p["name"] for p in md.meta["players"]}, key=len, reverse=True)
         self.names = ({w for t in md.meta["teams"] for w in t["name"].split()} | set(md.shorts)
                       | {w for p in md.meta["players"] for w in p["name"].split()} | {"I", "VAR", "xG"})
 
@@ -496,12 +536,13 @@ class AgentTeam:
             # Hungarian is translated from the checked English card: same facts in both languages,
             # and the model translates into Hungarian far better than it composes in it
             en = await self.narrate(card, persona, "en", follow)
-            if en.get("source") == "agent":
-                result = await self._translate(card, en, persona, follow)
-                if result:
-                    self.cache[key] = result
-                    self._save()
-                    return result
+            result = await self._translate(card, en, persona, follow) if en.get("source") == "agent" else None
+            # no checked English card (or no faithful translation): the Hungarian template stands too,
+            # so both languages always say the same thing
+            result = result or {"source": "template", "trace": list(en.get("trace", []))}
+            self.cache[key] = result
+            self._save()
+            return result
         exp = await self.explain(card)
         trace = list(exp["trace"])
         allowed = set(exp["allowed"])
@@ -532,11 +573,14 @@ class AgentTeam:
             n_numbers = len([x for x in NUM.findall(f"{title} {body}") if float(x.replace(",", ".")) not in SMALL_COUNTS])
             too_many = persona == "casual" and n_numbers > 2
             lang_bad = wrong_language(f"{title} {body}", lang)
+            press_bad = unmeasured_pressure(f"{title} {body}", exp["facts"])
+            cause_bad = certain_cause(f"{title} {body}")
             trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(f"{title} {body}")),
                           "unsupported": bad, "unknown_names": names_bad, "too_many_numbers": too_many,
-                          "wrong_language": lang_bad, "passed": not (bad or names_bad or too_many or lang_bad)})
+                          "wrong_language": lang_bad, "unmeasured_pressure": press_bad, "certain_cause": cause_bad,
+                          "passed": not (bad or names_bad or too_many or lang_bad or press_bad or cause_bad)})
             editor_problems = []
-            if not (bad or names_bad or too_many or lang_bad):
+            if not (bad or names_bad or too_many or lang_bad or press_bad or cause_bad):
                 verdict_text, _ = await self._run(
                     self.editor, json.dumps({"facts": exp["facts"], "card": {"title": title, "body": body},
                                              "language": lang}, ensure_ascii=False), trace, "Editor")
@@ -553,6 +597,10 @@ class AgentTeam:
                 problems.append("too many numbers for a casual fan")
             if lang_bad:
                 problems.append(f"it was not written in {LANGUAGE[lang]}")
+            if press_bad:
+                problems.append("it talks about pressure or pressing, which the facts of this moment do not measure")
+            if cause_bad:
+                problems.append("it says the change produced what followed; say it came after the change instead")
             if editor_problems:
                 problems.append("these errors found by the editor: " + "; ".join(editor_problems))
             prompt += "\n\nYour previous card had " + "; ".join(problems) + ". Rewrite it."
@@ -591,11 +639,13 @@ class AgentTeam:
                 card_text = _json_from(text)
                 title = polish(expand_codes(str(card_text["title"]).strip(), teams), "hu", self.names, title=True)
                 body = polish(expand_codes(str(card_text["body"]).strip(), teams), "hu", self.names)
+                title = drop_article_before_players(title, self.players)
+                body = drop_article_before_players(body, self.players)
             except (ValueError, KeyError):
                 continue
             bad = fact_check(f"{title} {body}", allowed) + wrong_minutes(f"{title} {body}", minutes)
             names_bad = unknown_names(body, self.names)
-            lang_bad = wrong_language(f"{title} {body}", "hu")
+            lang_bad = wrong_language(f"{title} {body}", "hu") or unmeasured_pressure(f"{title} {body}", exp["facts"])
             trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(f"{title} {body}")),
                           "unsupported": bad, "unknown_names": names_bad, "wrong_language": lang_bad,
                           "passed": not (bad or names_bad or lang_bad)})
@@ -649,16 +699,18 @@ class AgentTeam:
             return None
 
     # ---------------------------------------------------------------- catch-up (on demand)
-    def _check_lines(self, lines, lang, allowed, minutes, must, trace):
+    def _check_lines(self, lines, lang, allowed, minutes, must, trace, facts):
         """Deterministic checks on catch-up lines; a list of problems, empty when they hold."""
         joined = " ".join(lines)
         bad = fact_check(joined, allowed) + wrong_minutes(joined, minutes)
         names_bad = unknown_names(joined, self.names)
         missing = [what for what, word in must if word not in joined]
         lang_bad = wrong_language(joined, lang)
+        press_bad = unmeasured_pressure(joined, facts)
         trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(joined)), "unsupported": bad,
                       "unknown_names": names_bad, "missing": missing, "wrong_language": lang_bad,
-                      "passed": not (bad or names_bad or missing or lang_bad)})
+                      "unmeasured_pressure": press_bad,
+                      "passed": not (bad or names_bad or missing or lang_bad or press_bad)})
         problems = []
         if bad:
             problems.append(f"numbers not in the facts {bad}")
@@ -668,6 +720,8 @@ class AgentTeam:
             problems.append(f"left out {missing}")
         if lang_bad:
             problems.append(f"not written in {LANGUAGE[lang]}")
+        if press_bad:
+            problems.append("pressure or pressing, which the facts do not measure")
         return problems
 
     async def _edit_lines(self, facts, lines, lang, trace, source=None):
@@ -696,11 +750,12 @@ class AgentTeam:
             for _ in range(3):
                 text, _r = await self._run(self.translator, ask, trace, "Translator")
                 try:
-                    lines = [polish(expand_codes(str(x).strip(), teams), "hu", self.names)
+                    lines = [drop_article_before_players(polish(expand_codes(str(x).strip(), teams), "hu", self.names),
+                                                         self.players)
                              for x in _json_from(text)["lines"] if str(x).strip()]
                 except (ValueError, KeyError, TypeError):
                     continue
-                problems = self._check_lines(lines, "hu", allowed, minutes, must, trace)
+                problems = self._check_lines(lines, "hu", allowed, minutes, must, trace, facts)
                 if not problems and lines:
                     problems = await self._edit_lines(facts, lines, "hu", trace, source=en["lines"])
                     if not problems:
@@ -721,7 +776,7 @@ class AgentTeam:
                          for x in _json_from(text)["lines"] if str(x).strip()]
             except (ValueError, KeyError, TypeError):
                 continue
-            problems = self._check_lines(lines, lang, allowed, minutes, must, trace)
+            problems = self._check_lines(lines, lang, allowed, minutes, must, trace, facts)
             if not problems and lines:
                 problems = await self._edit_lines(facts, lines, lang, trace)
                 if not problems:

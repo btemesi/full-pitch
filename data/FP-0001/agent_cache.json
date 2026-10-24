@@ -3450,53 +3450,6 @@
    }
   ]
  },
- "change:RIV:76|player|en|": {
-  "title": "Riverside Athletic's shape change raises line",
-  "body": "Since 67', Riverside Athletic pushed their defensive line higher in and out of possession, increasing control with 55% possession and 67% final third time. However, no shots or clear chances have followed yet.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 3.5,
-    "tools": [
-     "match_state",
-     "key_moments"
-    ],
-    "tokens": 3024,
-    "output": "{\"observations\": [\"Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m starting at the 67th minute.\", \"Since the shape change at 67', Riverside Athletic's possession increased to 55% from the previous 43%.\", \"Riverside Athletic has had 0 shots with 0 xG since the formation change, while their opponent had 1 shot and 0.03 xG in the same period.\", \"As of the 74th minute, Riverside Athletic's defensive line is positioned at 53.8m, higher than their opponent's 13.2m.\", \"Riverside Athletic scored 2 goals before the 67th minute and their opponent scored 1 goal at "
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.1,
-    "tools": [],
-    "tokens": 980,
-    "output": "{\"headline\": \"Riverside Athletic pushed their defensive line higher at 67', shifting momentum despite limited shot impact\", \"why\": \"By raising their defensive line in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m, Riverside Athletic applied greater pressure higher up the pitch, which encouraged more possession (up from 43% to 55%) and increased their final third presence to 67%. This tactical shift aims to control the game through positioning and build-up rather than immediate shot creation.\", \"consequence\": \"Since the change, Riverside Athletic have had zero shots an"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.5,
-    "tools": [],
-    "tokens": 1031,
-    "output": "```json\n{\n  \"title\": \"Riverside Athletic's shape change raises line\",\n  \"body\": \"Since 67', Riverside Athletic pushed their defensive line higher in and out of possession, increasing control with 55% possession and 67% final third time. However, no shots or clear chances have followed yet.\"\n}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 3,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 0.8,
-    "tools": [],
-    "tokens": 859,
-    "output": "{\"ok\": true, \"problems\": []}"
-   }
-  ]
- },
  "recap:ht|analyst|en|": {
   "title": "Goalless half-time with Riverside Athletic dominating",
   "body": "Riverside Athletic lead in possession (55%) and shots (8, 3 on target) but have yet to convert their 1.26 xG. Northgate FC remain defensively solid despite producing just 1 shot and 0.4 xG.",
@@ -3567,56 +3520,6 @@
     "tools": [],
     "tokens": 804,
     "output": "```json\n{\n  \"ok\": true,\n  \"problems\": []\n}\n```"
-   }
-  ]
- },
- "recap:ht|player|en|": {
-  "title": "Riverside Athletic dominate possession but no goals yet",
-  "body": "At half-time, Riverside Athletic lead in possession (55%) and xG (1.26), with Umar Dorsey missing a key chance (xG 0.66). Despite the pressure, it's 0-0 against Northgate FC.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 4.5,
-    "tools": [
-     "tactical_changes",
-     "match_state",
-     "shape_timeline",
-     "shape_timeline",
-     "key_moments"
-    ],
-    "tokens": 16148,
-    "output": "{\"observations\":[\"At half-time, the score is 0-0 with RIV having 55% possession and 8 shots (3 on target) compared to NOR's 45% possession and 1 shot.\",\"RIV's xG at half-time is 1.26 while NOR's xG is 0.4, indicating RIV created more quality chances.\",\"Both teams have had no tactical changes so far, maintaining their initial formations and styles.\",\"In the last 5 minutes, RIV has had 60% possession and NOR 40%, with RIV's defensive line positioned significantly higher (46.7m) than NOR's (15.2m).\",\"Key moments include two notable off-target shots by Umar Dorsey (xG 0.66 at 36' and 0.35 at 23') "
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.3,
-    "tools": [],
-    "tokens": 990,
-    "output": "{\"headline\": \"RIV's high pressing and dominant possession frustrate NOR at half-time\", \"why\": \"RIV's defensive line is positioned significantly higher (46.7m) than NOR's (15.2m), enabling aggressive pressing and maintaining 55% possession with 8 shots, 3 on target, and a 1.26 xG. In contrast, NOR remains deep with less possession (45%) and fewer chances (1 shot, 0 on target, 0.4 xG). This aggressive posture allows RIV to control the midfield and apply pressure in NOR's half.\", \"consequence\": \"So far, the match remains goalless at 0-0 despite RIV's creation of higher quality chances, including "
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 2.7,
-    "tools": [],
-    "tokens": 979,
-    "output": "```json\n{\"title\": \"RIV dominate possession but no goals yet\", \"body\": \"At half-time, Riverside Athletic lead in possession (55%) and xG (1.26), with Umar Dorsey missing a key chance (xG 0.66). Despite the pressure, it's 0-0 against Northgate FC.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 0.7,
-    "tools": [],
-    "tokens": 793,
-    "output": "{\"ok\": true, \"problems\": []}"
    }
   ]
  },
@@ -3810,53 +3713,6 @@
     "tools": [],
     "tokens": 1082,
     "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Riverside Athletic had more of the ball.\",\n      \"supported\": true,\n      \"why\": \"Riverside Athletic had 55% possession compared to 45% for NOR.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic had better chances.\",\n      \"supported\": true,\n      \"why\": \"Riverside Athletic's xG is 1.26, which is higher than NOR's 0.4.\"\n    },\n    {\n      \"claim\": \"It's still 0-0.\",\n      \"supported\": true,\n      \"why\": \"The score is 0-0 as confirmed by the facts.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey missed a big moment in the 36th minute.\",\n      \"supported\": "
-   }
-  ]
- },
- "change:RIV:76|analyst|en|": {
-  "title": "Riverside Athletic's shape change since 67'",
-  "body": "Riverside Athletic raised their defensive line in possession from 32.3m to 42.9m at 67'. This shift increased possession (43% to 55%) and final third time (53% to 67%) but has not produced shots or xG so far.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 3.5,
-    "tools": [
-     "match_state",
-     "key_moments"
-    ],
-    "tokens": 3024,
-    "output": "{\"observations\": [\"Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m starting at the 67th minute.\", \"Since the shape change at 67', Riverside Athletic's possession increased to 55% from the previous 43%.\", \"Riverside Athletic has had 0 shots with 0 xG since the formation change, while their opponent had 1 shot and 0.03 xG in the same period.\", \"As of the 74th minute, Riverside Athletic's defensive line is positioned at 53.8m, higher than their opponent's 13.2m.\", \"Riverside Athletic scored 2 goals before the 67th minute and their opponent scored 1 goal at "
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.1,
-    "tools": [],
-    "tokens": 980,
-    "output": "{\"headline\": \"Riverside Athletic pushed their defensive line higher at 67', shifting momentum despite limited shot impact\", \"why\": \"By raising their defensive line in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m, Riverside Athletic applied greater pressure higher up the pitch, which encouraged more possession (up from 43% to 55%) and increased their final third presence to 67%. This tactical shift aims to control the game through positioning and build-up rather than immediate shot creation.\", \"consequence\": \"Since the change, Riverside Athletic have had zero shots an"
-   },
-   {
-    "agent": "Narrator (analyst)",
-    "seconds": 3.9,
-    "tools": [],
-    "tokens": 1033,
-    "output": "```json\n{\"title\": \"Riverside Athletic's shape change since 67'\", \"body\": \"Riverside Athletic raised their defensive line in possession from 32.3m to 42.9m at 67'. This shift increased possession (43% to 55%) and final third time (53% to 67%) but has not produced shots or xG so far.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 8,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 4.3,
-    "tools": [],
-    "tokens": 1321,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Riverside Athletic raised their defensive line in possession from 32.3m to 42.9m at 67'.\",\n      \"supported\": true,\n      \"why\": \"The facts state that Riverside's defensive line height in possession increased from 32.3m to 42.9m since 67'.\"\n    },\n    {\n      \"claim\": \"This shift increased possession (43% to 55%).\",\n      \"supported\": true,\n      \"why\": \"The possession percentage for Riverside increased from 43% before the change to 55% after the change, according to the facts.\"\n    },\n    {\n      \"claim\": \"This shift increased final third time (53"
    }
   ]
  },
@@ -5061,78 +4917,6 @@
    }
   ]
  },
- "change:NOR:63|analyst|hu|": {
-  "title": "A Northgate FC átrendeződik magasabb vonallal",
-  "body": "Az 53. perc óta a Northgate FC felemelte a védelmi vonalát 24,1 méterről 33,1 méterre, és labdabirtokláskor háromvédős hátsó sorra váltott. A labdabirtoklásukat 39%-ról 66%-ra javították, de 61 perc után továbbra is 2-0-ra vezet a Riverside Athletic.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 5.7,
-    "tools": [
-     "match_info",
-     "match_state",
-     "tactical_changes",
-     "key_moments",
-     "shape_timeline"
-    ],
-    "tokens": 11118,
-    "output": "{\"observations\":[\"Northgate FC increased their defensive line height from 24.1m to 33.1m starting at 53' into the match.\",\"The average number of players in Northgate FC's back line in possession increased from 2.3 to 2.9 after the shape change.\",\"In the 44' to 53' window before the change, Riverside Athletic had 61% possession with 2 shots and 1.16 xG, while Northgate FC had 39% possession with no shots or xG.\",\"After the shape change from 53' to 61', Northgate FC's possession increased to 66% with no shots or xG, and Riverside Athletic's possession dropped to 34%, also with no shots or xG.\",\""
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.2,
-    "tools": [],
-    "tokens": 997,
-    "output": "{\"headline\": \"Northgate FC pushes defensive line higher, gains possession but fails to create chances\",\"why\": \"By raising their defensive line from 24.1m to 33.1m starting at 53', Northgate FC compressed the field and increased the average number of defenders involved in possession from 2.3 to 2.9, enabling more control in build-up play.\",\"consequence\": \"This tactical shift dramatically swung possession in Northgate FC's favor from 39% to 66% and reduced Riverside Athletic's influence from 61% to 34%. However, despite better possession, Northgate FC did not translate it into shots or xG, nor d"
-   },
-   {
-    "agent": "Narrator (analyst)",
-    "seconds": 1.3,
-    "tools": [],
-    "tokens": 980,
-    "output": "```json\n{\"title\": \"Northgate FC adjusts shape with higher line\", \"body\": \"Since 53', Northgate FC raised their defensive line from 24.1m to 33.1m and moved to a back three in possession. They improved possession from 39% to 66%, but remain 2-0 down to Riverside Athletic after 61 minutes.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 8,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 0.8,
-    "tools": [],
-    "tokens": 866,
-    "output": "{\"ok\": true, \"problems\": []}"
-   },
-   {
-    "agent": "Translator",
-    "seconds": 1.6,
-    "tools": [],
-    "tokens": 476,
-    "output": "```json\n{\"title\": \"A Northgate FC átrendeződik magasabb vonallal\", \"body\": \"Az 53. perc óta a Northgate FC felemelte a védelmi vonalát 24,1 méterről 33,1 méterre, és labdabirtokláskor háromvédős hátsó sorra váltott. A labdabirtoklásukat 39%-ról 66%-ra javították, de 61 perc után továbbra is 2-0-ra vezet a Riverside Athletic.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 8,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 3.3,
-    "tools": [],
-    "tokens": 1395,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Az 53. perc óta a Northgate FC felemelte a védelmi vonalát 24,1 méterről 33,1 méterre.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Northgate FC adjusted their defensive line height from 24.1m to 33.1m starting from the 53rd minute.\"\n    },\n    {\n      \"claim\": \"Labdabirtokláskor háromvédős hátsó sorra váltottak.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm a change in the number of players in the back line during possession from 2.3 to 2.9, which reasonably indicates a shift to a three-player back line.\"\n    },\n   "
-   }
-  ]
- },
  "change:NOR:63|player|hu|": {
   "title": "A Northgate FC átrendeződése az 53. percben",
   "body": "A Northgate FC a védelmi vonalát 24,1 méterről 33,1 méterre húzta fel, több labdabirtoklást szerezve (66%) és javítva a felépítést átlagosan 2,9 védő bevonásával. Ennek ellenére nem alakítottak ki lövéseket vagy xG-t, az állás továbbra is 2-0 a Riverside Athletic javára.",
@@ -5289,144 +5073,6 @@
     "tools": [],
     "tokens": 1234,
     "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A 67. perctől a Riverside Athletic feljebb tolta a védelmi vonalát.\",\n      \"supported\": true,\n      \"why\": \"The facts indicate that Riverside Athletic's defensive line height increased in possession (from 32.3m to 42.9m) and without the ball (from 37.4m to 46.3m) from the 67th minute, confirming the claim.\"\n    },\n    {\n      \"claim\": \"Több labdabirtoklást értek el, de eddig még nem volt lövésük.\",\n      \"supported\": true,\n      \"why\": \"The facts show Riverside Athletic's possession increased from 43% before the change to 55% after it, and they ha"
-   }
-  ]
- },
- "change:RIV:76|analyst|hu|": {
-  "title": "A Riverside Athletic átrendeződése a 67. perctől",
-  "body": "A Riverside Athletic a 67. percben birtoklásban 32,3 méterről 42,9 méterre tolta fel a védelmi vonalát. Ez a változás növelte a labdabirtoklást (43%-ról 55%-ra) és a támadóharmadban töltött időt (53%-ról 67%-ra), de eddig nem eredményezett lövéseket vagy xG-t.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 3.5,
-    "tools": [
-     "match_state",
-     "key_moments"
-    ],
-    "tokens": 3024,
-    "output": "{\"observations\": [\"Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m starting at the 67th minute.\", \"Since the shape change at 67', Riverside Athletic's possession increased to 55% from the previous 43%.\", \"Riverside Athletic has had 0 shots with 0 xG since the formation change, while their opponent had 1 shot and 0.03 xG in the same period.\", \"As of the 74th minute, Riverside Athletic's defensive line is positioned at 53.8m, higher than their opponent's 13.2m.\", \"Riverside Athletic scored 2 goals before the 67th minute and their opponent scored 1 goal at "
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.1,
-    "tools": [],
-    "tokens": 980,
-    "output": "{\"headline\": \"Riverside Athletic pushed their defensive line higher at 67', shifting momentum despite limited shot impact\", \"why\": \"By raising their defensive line in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m, Riverside Athletic applied greater pressure higher up the pitch, which encouraged more possession (up from 43% to 55%) and increased their final third presence to 67%. This tactical shift aims to control the game through positioning and build-up rather than immediate shot creation.\", \"consequence\": \"Since the change, Riverside Athletic have had zero shots an"
-   },
-   {
-    "agent": "Narrator (analyst)",
-    "seconds": 3.9,
-    "tools": [],
-    "tokens": 1033,
-    "output": "```json\n{\"title\": \"Riverside Athletic's shape change since 67'\", \"body\": \"Riverside Athletic raised their defensive line in possession from 32.3m to 42.9m at 67'. This shift increased possession (43% to 55%) and final third time (53% to 67%) but has not produced shots or xG so far.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 8,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 4.3,
-    "tools": [],
-    "tokens": 1321,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Riverside Athletic raised their defensive line in possession from 32.3m to 42.9m at 67'.\",\n      \"supported\": true,\n      \"why\": \"The facts state that Riverside's defensive line height in possession increased from 32.3m to 42.9m since 67'.\"\n    },\n    {\n      \"claim\": \"This shift increased possession (43% to 55%).\",\n      \"supported\": true,\n      \"why\": \"The possession percentage for Riverside increased from 43% before the change to 55% after the change, according to the facts.\"\n    },\n    {\n      \"claim\": \"This shift increased final third time (53"
-   },
-   {
-    "agent": "Translator",
-    "seconds": 1.8,
-    "tools": [],
-    "tokens": 486,
-    "output": "```json\n{\"title\": \"A Riverside Athletic átrendeződése a 67. perctől\", \"body\": \"A Riverside Athletic a 67. percben birtoklásban 32,3 méterről 42,9 méterre tolta fel a védelmi vonalát. Ez a változás növelte a labdabirtoklást (43%-ról 55%-ra) és a támadóharmadban töltött időt (53%-ról 67%-ra), de eddig nem eredményezett lövéseket vagy xG-t.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 8,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 4.0,
-    "tools": [],
-    "tokens": 1403,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A Riverside Athletic a 67. percben birtoklásban 32,3 méterről 42,9 méterre tolta fel a védelmi vonalát.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that the defensive line height in possession increased from 32.3m to 42.9m starting from the 67th minute.\"\n    },\n    {\n      \"claim\": \"Ez a változás növelte a labdabirtoklást (43%-ról 55%-ra)\",\n      \"supported\": true,\n      \"why\": \"The possession percentage for Riverside Athletic increased from 43% before the change to 55% after the change.\"\n    },\n    {\n      \"claim\": \"Ez a változás nö"
-   }
-  ]
- },
- "change:RIV:76|player|hu|": {
-  "title": "A Riverside Athletic átrendeződése magasabbra tolja a vonalat",
-  "body": "A 67. perctől a Riverside Athletic magasabbra tolta a védelmi vonalát labdával és labda nélkül is, növelve az irányítást 55%-os labdabirtoklással és 67%-os támadóharmadban töltött idővel. Ugyanakkor lövés vagy komoly helyzet egyelőre nem követte ezt.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 3.5,
-    "tools": [
-     "match_state",
-     "key_moments"
-    ],
-    "tokens": 3024,
-    "output": "{\"observations\": [\"Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m starting at the 67th minute.\", \"Since the shape change at 67', Riverside Athletic's possession increased to 55% from the previous 43%.\", \"Riverside Athletic has had 0 shots with 0 xG since the formation change, while their opponent had 1 shot and 0.03 xG in the same period.\", \"As of the 74th minute, Riverside Athletic's defensive line is positioned at 53.8m, higher than their opponent's 13.2m.\", \"Riverside Athletic scored 2 goals before the 67th minute and their opponent scored 1 goal at "
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.1,
-    "tools": [],
-    "tokens": 980,
-    "output": "{\"headline\": \"Riverside Athletic pushed their defensive line higher at 67', shifting momentum despite limited shot impact\", \"why\": \"By raising their defensive line in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m, Riverside Athletic applied greater pressure higher up the pitch, which encouraged more possession (up from 43% to 55%) and increased their final third presence to 67%. This tactical shift aims to control the game through positioning and build-up rather than immediate shot creation.\", \"consequence\": \"Since the change, Riverside Athletic have had zero shots an"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.5,
-    "tools": [],
-    "tokens": 1031,
-    "output": "```json\n{\n  \"title\": \"Riverside Athletic's shape change raises line\",\n  \"body\": \"Since 67', Riverside Athletic pushed their defensive line higher in and out of possession, increasing control with 55% possession and 67% final third time. However, no shots or clear chances have followed yet.\"\n}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 3,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 0.8,
-    "tools": [],
-    "tokens": 859,
-    "output": "{\"ok\": true, \"problems\": []}"
-   },
-   {
-    "agent": "Translator",
-    "seconds": 2.3,
-    "tools": [],
-    "tokens": 456,
-    "output": "```json\n{\"title\": \"A Riverside Athletic átrendeződése magasabbra tolja a vonalat\", \"body\": \"A 67. perctől a Riverside Athletic magasabbra tolta a védelmi vonalát labdával és labda nélkül is, növelve az irányítást 55%-os labdabirtoklással és 67%-os támadóharmadban töltött idővel. Ugyanakkor lövés vagy komoly helyzet egyelőre nem követte ezt.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 3,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 3.7,
-    "tools": [],
-    "tokens": 1363,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A 67. perctől a Riverside Athletic magasabbra tolta a védelmi vonalát labdával és labda nélkül is.\",\n      \"supported\": true,\n      \"why\": \"The facts show a shape change in the 67th minute where the defensive line was pushed higher both in possession (from 32.3m to 42.9m) and without the ball (from 37.4m to 46.3m).\"\n    },\n    {\n      \"claim\": \"növelve az irányítást 55%-os labdabirtoklással és 67%-os támadóharmadban töltött idővel.\",\n      \"supported\": true,\n      \"why\": \"The 'since change' stats (67' to 74') confirm that Riverside Athletic had 55%"
    }
   ]
  },
@@ -6698,78 +6344,6 @@
    }
   ]
  },
- "recap:ht|player|hu|": {
-  "title": "A Riverside Athletic uralja a labdabirtoklást, de még nincs gól",
-  "body": "A félidőben a Riverside Athletic vezet labdabirtoklásban (55%) és xG-ben (1,26), Umar Dorsey pedig kihagyott egy kulcsfontosságú helyzetet (xG 0,66). A nyomás ellenére 0-0 az állás a Northgate FC ellen.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 4.5,
-    "tools": [
-     "tactical_changes",
-     "match_state",
-     "shape_timeline",
-     "shape_timeline",
-     "key_moments"
-    ],
-    "tokens": 16148,
-    "output": "{\"observations\":[\"At half-time, the score is 0-0 with RIV having 55% possession and 8 shots (3 on target) compared to NOR's 45% possession and 1 shot.\",\"RIV's xG at half-time is 1.26 while NOR's xG is 0.4, indicating RIV created more quality chances.\",\"Both teams have had no tactical changes so far, maintaining their initial formations and styles.\",\"In the last 5 minutes, RIV has had 60% possession and NOR 40%, with RIV's defensive line positioned significantly higher (46.7m) than NOR's (15.2m).\",\"Key moments include two notable off-target shots by Umar Dorsey (xG 0.66 at 36' and 0.35 at 23') "
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.3,
-    "tools": [],
-    "tokens": 990,
-    "output": "{\"headline\": \"RIV's high pressing and dominant possession frustrate NOR at half-time\", \"why\": \"RIV's defensive line is positioned significantly higher (46.7m) than NOR's (15.2m), enabling aggressive pressing and maintaining 55% possession with 8 shots, 3 on target, and a 1.26 xG. In contrast, NOR remains deep with less possession (45%) and fewer chances (1 shot, 0 on target, 0.4 xG). This aggressive posture allows RIV to control the midfield and apply pressure in NOR's half.\", \"consequence\": \"So far, the match remains goalless at 0-0 despite RIV's creation of higher quality chances, including "
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 2.7,
-    "tools": [],
-    "tokens": 979,
-    "output": "```json\n{\"title\": \"RIV dominate possession but no goals yet\", \"body\": \"At half-time, Riverside Athletic lead in possession (55%) and xG (1.26), with Umar Dorsey missing a key chance (xG 0.66). Despite the pressure, it's 0-0 against Northgate FC.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 0.7,
-    "tools": [],
-    "tokens": 793,
-    "output": "{\"ok\": true, \"problems\": []}"
-   },
-   {
-    "agent": "Translator",
-    "seconds": 1.9,
-    "tools": [],
-    "tokens": 453,
-    "output": "```json\n{\"title\": \"A Riverside Athletic uralja a labdabirtoklást, de még nincs gól\", \"body\": \"A félidőben a Riverside Athletic vezet labdabirtoklásban (55%) és xG-ben (1,26), Umar Dorsey pedig kihagyott egy kulcsfontosságú helyzetet (xG 0,66). A nyomás ellenére 0-0 az állás a Northgate FC ellen.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 3.1,
-    "tools": [],
-    "tokens": 1282,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A Riverside Athletic vezet labdabirtoklásban (55%).\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Riverside Athletic has 55% possession, which indeed means they are leading in possession.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic vezet xG-ben (1,26).\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Riverside Athletic has an xG of 1.26 compared to Northgate FC's xG of 0.4, so they are leading in xG.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey pedig kihagyott egy kulcsfontosságú helyzetet (xG 0,66).\",\n      \"supp"
-   }
-  ]
- },
  "recap:ft|casual|hu|": {
   "title": "A Riverside Athletic nyeri a késői thrillert",
   "body": "Umar Dorsey két gólja előnyt jelentett a Riverside Athletic számára, Pablo Varnell és Emil Holmgrave pedig késői gólváltásaikkal alakítottak a végeredményen, amely 3-2 lett.",
@@ -6858,119 +6432,6 @@
     "tools": [],
     "tokens": 1482,
     "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey két gólja előnyt jelentett a Riverside Athletic számára\",\n      \"supported\": true,\n      \"why\": \"Umar Dorsey scored in the 47th and 53rd minutes to put Riverside Athletic in the lead.\"\n    },\n    {\n      \"claim\": \"Pablo Varnell és Emil Holmgrave pedig késői gólváltásaikkal alakítottak a végeredményen\",\n      \"supported\": true,\n      \"why\": \"Pablo Varnell scored in the 88th minute for Riverside Athletic, and Emil Holmgrave scored in the 90+5' minute for Northern Forge, which affected the final score.\"\n    },\n    {\n      \"claim\": \"amely 3"
-   }
-  ]
- },
- "recap:ft|player|hu|": {
-  "title": "A Riverside Athletic 3-2-es győzelmet arat",
-  "body": "Umar Dorsey duplája a második félidő elején előnyhöz juttatta a Riverside Athleticet, míg Pablo Varnell 88. percben szerzett gólja megtartotta a vezetést. A Northgate FC késői nyomása, beleértve Emil Holmgrave 90+5. percben szerzett találatát, éppen csak kevésnek bizonyult.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 3.3,
-    "tools": [
-     "tactical_changes",
-     "match_state",
-     "key_moments"
-    ],
-    "tokens": 4128,
-    "output": "{\"observations\": [\"Score at 90+5' is RIV 3 - 2 NOR\", \"Umar Dorsey scored two goals for RIV at 47' and 53'\", \"Emil Holmgrave scored two goals for NOR at 66' and 90+5'\", \"RIV had 54% possession, 16 shots with 6 on target and an xG of 2.79\", \"NOR's defensive line without the ball dropped from 30.5m to 24.4m since 35' but raised again to 33.0m since 53'\", \"In the last 3 minutes, NOR had 56% possession while RIV had 44%\"]}"
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.3,
-    "tools": [],
-    "tokens": 1115,
-    "output": "{\n  \"headline\": \"Umar Dorsey's early second-half brace sets the tone, but NOR’s late pressure nearly secures a point\",\n  \"why\": \"Umar Dorsey's goals at 47' and 53' gave RIV a strong 2-0 lead, leveraging their higher possession (54%) and shot volume (16) with a favorable xG of 2.79. NOR responded by dropping their defensive line after 35', tightening space and increasing pressure, allowing Emil Holmgrave to score at 66' and again at 90+5'. NOR’s defensive line adjustment correlated with a rise in possession to 56% in the final 3 minutes, indicating increased offensive urgency.\",\n  \"consequence\""
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.2,
-    "tools": [],
-    "tokens": 1160,
-    "output": "```json\n{\"title\": \"Riverside Athletic secure 3-2 victory\", \"body\": \"Umar Dorsey's early second-half brace at 47' and 53' set the tone, while Pablo Varnell's late goal at 88' sealed the win despite Emil Holmgrave's two goals for Northgate FC.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 1.4,
-    "tools": [],
-    "tokens": 1009,
-    "output": "```json\n{\n  \"ok\": false,\n  \"problems\": [\n    \"Pablo Varnell's late goal at 88' is described as 'sealed the win,' which requires knowledge of the future.\"\n  ]\n}\n```"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.4,
-    "tools": [],
-    "tokens": 1207,
-    "output": "```json\n{\"title\": \"Riverside Athletic secure 3-2 victory\", \"body\": \"Umar Dorsey's early second-half goals at 47' and 53' gave Riverside Athletic the edge, and Pablo Varnell's strike at 88' ensured a crucial lead. Despite late pressure and two goals from Northgate FC, Riverside's control was decisive.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 1.8,
-    "tools": [],
-    "tokens": 1056,
-    "output": "```json\n{\n  \"ok\": false,\n  \"problems\": [\n    \"Claim that 'Pablo Varnell's strike at 88' ensured a crucial lead' needs knowledge of the future as a goal occurred later at 90+5'.\",\n    \"Claim that there were 'two goals from Northgate FC' is incorrect; Northgate scored only one late goal at 90+5'.\"\n  ]\n}\n```"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.6,
-    "tools": [],
-    "tokens": 1286,
-    "output": "```json\n{\"title\": \"Riverside Athletic secure 3-2 victory\", \"body\": \"Umar Dorsey's brace early in the second half powered Riverside Athletic to take control, while Pablo Varnell's 88' goal kept them ahead. Northgate FC's late push, including Emil Holmgrave's strike at 90+5', fell just short.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 0.7,
-    "tools": [],
-    "tokens": 978,
-    "output": "{\"ok\": true, \"problems\": []}"
-   },
-   {
-    "agent": "Translator",
-    "seconds": 3.9,
-    "tools": [],
-    "tokens": 472,
-    "output": "```json\n{\"title\": \"A Riverside Athletic 3-2-es győzelmet arat\", \"body\": \"Umar Dorsey duplája a második félidő elején előnyhöz juttatta a Riverside Athleticet, míg Pablo Varnell 88. percben szerzett gólja megtartotta a vezetést. A Northgate FC késői nyomása, beleértve Emil Holmgrave 90+5. percben szerzett találatát, éppen csak kevésnek bizonyult.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.7,
-    "tools": [],
-    "tokens": 1589,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey duplája a második félidő elején előnyhöz juttatta a Riverside Athleticet.\",\n      \"supported\": true,\n      \"why\": \"Dorsey scored two goals early in the second half (47' and 53'), which gave Riverside Athletic the lead.\"\n    },\n    {\n      \"claim\": \"Pablo Varnell 88. percben szerzett gólja megtartotta a vezetést.\",\n      \"supported\": true,\n      \"why\": \"Varnell's goal in the 88th minute made the score 3-1, maintaining Riverside Athletic's lead until Northgate's late goal.\"\n    },\n    {\n      \"claim\": \"A Northgate FC késői nyomása, beleér"
    }
   ]
  },
@@ -7220,55 +6681,6 @@
    }
   ]
  },
- "change:NOR:50|player|en|": {
-  "title": "Northgate FC lowers defensive line height",
-  "body": "At 35', Northgate FC dropped their line from 30.5m to 24.4m, inviting more Riverside Athletic pressure. Despite maintaining 40% possession since, they conceded Umar Dorsey's goal at 47'.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 11.4,
-    "tools": [
-     "match_info",
-     "match_state",
-     "key_moments",
-     "tactical_changes"
-    ],
-    "tokens": 4845,
-    "output": "{\"observations\": [\"Northgate FC lowered their defensive line height from 30.5m to 24.4m starting at 35 minutes.\",\"Before the shape change (23' to 35'), Riverside Athletic had 62% possession, 3 shots, and 0.4 xG, while Northgate FC had 38% possession and no shots.\",\"Since the shape change (35' to 48'), Riverside Athletic maintained around 60% possession, made 4 shots with an xG of 1.28, and scored 1 goal.\",\"The goal was scored by Umar Dorsey at 47 minutes with an assist from Zoltan Ulvane.\",\"In the recent 3 minutes, Northgate FC's defensive line is at 14.9m with 3.7 players in the back line, wh"
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 1.7,
-    "tools": [],
-    "tokens": 1045,
-    "output": "{\n  \"headline\": \"Northgate FC's deeper defensive line invites greater pressure and leads to conceding first goal\",\n  \"why\": \"At 35 minutes, Northgate FC lowered their defensive line height significantly from 30.5m to 24.4m. This retreat reduced their ability to compress space and challenged their defensive compactness against Riverside Athletic's steady 60% possession.\",\n  \"consequence\": \"Following the shape change, Riverside Athletic increased their shots from 3 to 4 and more than tripled their expected goals from 0.4 to 1.28, culminating in Umar Dorsey's goal at 47 minutes. Northgate FC stil"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 3.3,
-    "tools": [],
-    "tokens": 1027,
-    "output": "```json\n{\n  \"title\": \"Northgate FC lowers defensive line height\",\n  \"body\": \"At 35', Northgate FC dropped their line from 30.5m to 24.4m, inviting more Riverside Athletic pressure. Despite maintaining 40% possession since, they conceded Umar Dorsey's goal at 47'.\"\n}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.0,
-    "tools": [],
-    "tokens": 1351,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"At 35', Northgate FC dropped their line from 30.5m to 24.4m.\",\n      \"supported\": true,\n      \"why\": \"The facts clearly show that Northgate FC's defensive line height decreased from 30.5m to 24.4m at 35'.\"\n    },\n    {\n      \"claim\": \"They invited more Riverside Athletic pressure.\",\n      \"supported\": true,\n      \"why\": \"The facts show a higher xG (1.28 compared to 0.4), more shots (4 compared to 3), and more completed passes (85 compared to 60) for Riverside Athletic after 35', indicating increased attacking pressure.\"\n    },\n    {\n      \"claim\": "
-   }
-  ]
- },
  "goal:67.33|analyst|en|": {
   "title": "Emil Holmgrave scores to narrow the gap",
   "body": "In the 66th minute, Emil Holmgrave made it 2-1 with a close-range finish from 5.1 meters. The goal followed an 8-pass move, with an assist from Hugo Bellweather and a shot xG of 0.51.",
@@ -7344,99 +6756,6 @@
     "tools": [],
     "tokens": 1106,
     "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Emil Holmgrave scores to narrow the gap\",\n      \"supported\": true,\n      \"why\": \"The goal made the score 2-1, which matches the 'narrow the gap' phrasing.\"\n    },\n    {\n      \"claim\": \"In the 66th minute, Emil Holmgrave made it 2-1\",\n      \"supported\": true,\n      \"why\": \"The clock reading is 66', and the score after the goal is confirmed as 2-1.\"\n    },\n    {\n      \"claim\": \"close-range finish from 5.1 meters\",\n      \"supported\": true,\n      \"why\": \"The shot distance was recorded as 5.1 meters, which supports 'close-range finish.'\"\n    },\n    {\n  "
-   }
-  ]
- },
- "change:NOR:50|player|hu|": {
-  "title": "A Northgate FC alacsonyabbra helyezi a védelmi vonalát",
-  "body": "A 35. percben a Northgate FC 30,5 méterről 24,4 méterre csökkentette a védelmi vonalának magasságát. Bár azóta 40 százalékos labdabirtoklást tartottak, a 47. percben Umar Dorsey gólját kapták.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 11.4,
-    "tools": [
-     "match_info",
-     "match_state",
-     "key_moments",
-     "tactical_changes"
-    ],
-    "tokens": 4845,
-    "output": "{\"observations\": [\"Northgate FC lowered their defensive line height from 30.5m to 24.4m starting at 35 minutes.\",\"Before the shape change (23' to 35'), Riverside Athletic had 62% possession, 3 shots, and 0.4 xG, while Northgate FC had 38% possession and no shots.\",\"Since the shape change (35' to 48'), Riverside Athletic maintained around 60% possession, made 4 shots with an xG of 1.28, and scored 1 goal.\",\"The goal was scored by Umar Dorsey at 47 minutes with an assist from Zoltan Ulvane.\",\"In the recent 3 minutes, Northgate FC's defensive line is at 14.9m with 3.7 players in the back line, wh"
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 1.7,
-    "tools": [],
-    "tokens": 1045,
-    "output": "{\n  \"headline\": \"Northgate FC's deeper defensive line invites greater pressure and leads to conceding first goal\",\n  \"why\": \"At 35 minutes, Northgate FC lowered their defensive line height significantly from 30.5m to 24.4m. This retreat reduced their ability to compress space and challenged their defensive compactness against Riverside Athletic's steady 60% possession.\",\n  \"consequence\": \"Following the shape change, Riverside Athletic increased their shots from 3 to 4 and more than tripled their expected goals from 0.4 to 1.28, culminating in Umar Dorsey's goal at 47 minutes. Northgate FC stil"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 3.3,
-    "tools": [],
-    "tokens": 1027,
-    "output": "```json\n{\n  \"title\": \"Northgate FC lowers defensive line height\",\n  \"body\": \"At 35', Northgate FC dropped their line from 30.5m to 24.4m, inviting more Riverside Athletic pressure. Despite maintaining 40% possession since, they conceded Umar Dorsey's goal at 47'.\"\n}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.0,
-    "tools": [],
-    "tokens": 1351,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"At 35', Northgate FC dropped their line from 30.5m to 24.4m.\",\n      \"supported\": true,\n      \"why\": \"The facts clearly show that Northgate FC's defensive line height decreased from 30.5m to 24.4m at 35'.\"\n    },\n    {\n      \"claim\": \"They invited more Riverside Athletic pressure.\",\n      \"supported\": true,\n      \"why\": \"The facts show a higher xG (1.28 compared to 0.4), more shots (4 compared to 3), and more completed passes (85 compared to 60) for Riverside Athletic after 35', indicating increased attacking pressure.\"\n    },\n    {\n      \"claim\": "
-   },
-   {
-    "agent": "Translator",
-    "seconds": 1.8,
-    "tools": [],
-    "tokens": 467,
-    "output": "```json\n{\"title\": \"A Northgate FC lejjebb viszi a védelmi vonal magasságát\", \"body\": \"A 35. percben a Northgate FC a védelmi vonalát 30,5 méterről 24,4 méterre vitte le, több nyomásra hívva meg a Riverside Athletic csapatát. Annak ellenére, hogy azóta 40%-os labdabirtoklással játszottak, Umar Dorsey gólját a 47. percben kapták.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.0,
-    "tools": [],
-    "tokens": 1512,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A 35. percben a Northgate FC a védelmi vonalát 30,5 méterről 24,4 méterre vitte le.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that, at 35', Northgate FC dropped their defensive line height from 30.5m to 24.4m.\"\n    },\n    {\n      \"claim\": \"Több nyomásra hívva meg a Riverside Athletic csapatát.\",\n      \"supported\": false,\n      \"why\": \"The facts do not provide direct evidence or measurement for the claim that lowering the line invited more pressure from Riverside Athletic.\"\n    },\n    {\n      \"claim\": \"Annak ellenére, hogy azóta 40%"
-   },
-   {
-    "agent": "Translator",
-    "seconds": 1.3,
-    "tools": [],
-    "tokens": 480,
-    "output": "```json\n{\"title\": \"A Northgate FC alacsonyabbra helyezi a védelmi vonalát\", \"body\": \"A 35. percben a Northgate FC 30,5 méterről 24,4 méterre csökkentette a védelmi vonalának magasságát. Bár azóta 40 százalékos labdabirtoklást tartottak, a 47. percben Umar Dorsey gólját kapták.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 1.6,
-    "tools": [],
-    "tokens": 1417,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A 35. percben a Northgate FC 30,5 méterről 24,4 méterre csökkentette a védelmi vonalának magasságát.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Northgate FC lowered their defensive line height from 30.5m to 24.4m starting at 35'.\"\n    },\n    {\n      \"claim\": \"Bár azóta 40 százalékos labdabirtoklást tartottak, a 47. percben Umar Dorsey gólját kapták.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that since the change, Northgate FC had 40% possession, and Umar Dorsey scored for Riverside Athletic at 47'.\"\n    }\n  ],\n"
    }
   ]
  },
@@ -7769,6 +7088,839 @@
     "tools": [],
     "tokens": 1745,
     "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey duplája a 47. és az 53. percben korai előnyt szerzett a Riverside Athletic számára a Northgate FC elleni 3-2-re megnyert mérkőzésen.\",\n      \"supported\": true,\n      \"why\": \"The facts show that Umar Dorsey scored at 47' and 53', giving Riverside a 2-0 lead early in the second half, and the match ended 3-2.\"\n    },\n    {\n      \"claim\": \"Bár Emil Holmgrave két gólja a 66. és a 90+5. percben közelebb hozta a Northgate FC-t, Pablo Varnell 88. percben lőtt találata megőrizte a Riverside Athletic előnyét.\",\n      \"supported\": true,\n      \"why"
+   }
+  ]
+ },
+ "recap:ft|player|hu|": {
+  "title": "A Riverside Athletic 3-2-re győzött",
+  "body": "Umar Dorsey duplája a második félidő elején biztosította az irányítást a Riverside Athletic számára, míg Pablo Varnell 88. percben szerzett gólja megőrizte az előnyüket. A Northgate FC hajrája, beleértve Emil Holmgrave 90+5. percben szerzett találatát, éppen hogy kevésnek bizonyult.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 3.3,
+    "tools": [
+     "tactical_changes",
+     "match_state",
+     "key_moments"
+    ],
+    "tokens": 4128,
+    "output": "{\"observations\": [\"Score at 90+5' is RIV 3 - 2 NOR\", \"Umar Dorsey scored two goals for RIV at 47' and 53'\", \"Emil Holmgrave scored two goals for NOR at 66' and 90+5'\", \"RIV had 54% possession, 16 shots with 6 on target and an xG of 2.79\", \"NOR's defensive line without the ball dropped from 30.5m to 24.4m since 35' but raised again to 33.0m since 53'\", \"In the last 3 minutes, NOR had 56% possession while RIV had 44%\"]}"
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.3,
+    "tools": [],
+    "tokens": 1115,
+    "output": "{\n  \"headline\": \"Umar Dorsey's early second-half brace sets the tone, but NOR’s late pressure nearly secures a point\",\n  \"why\": \"Umar Dorsey's goals at 47' and 53' gave RIV a strong 2-0 lead, leveraging their higher possession (54%) and shot volume (16) with a favorable xG of 2.79. NOR responded by dropping their defensive line after 35', tightening space and increasing pressure, allowing Emil Holmgrave to score at 66' and again at 90+5'. NOR’s defensive line adjustment correlated with a rise in possession to 56% in the final 3 minutes, indicating increased offensive urgency.\",\n  \"consequence\""
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 1.2,
+    "tools": [],
+    "tokens": 1160,
+    "output": "```json\n{\"title\": \"Riverside Athletic secure 3-2 victory\", \"body\": \"Umar Dorsey's early second-half brace at 47' and 53' set the tone, while Pablo Varnell's late goal at 88' sealed the win despite Emil Holmgrave's two goals for Northgate FC.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 1.4,
+    "tools": [],
+    "tokens": 1009,
+    "output": "```json\n{\n  \"ok\": false,\n  \"problems\": [\n    \"Pablo Varnell's late goal at 88' is described as 'sealed the win,' which requires knowledge of the future.\"\n  ]\n}\n```"
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 1.4,
+    "tools": [],
+    "tokens": 1207,
+    "output": "```json\n{\"title\": \"Riverside Athletic secure 3-2 victory\", \"body\": \"Umar Dorsey's early second-half goals at 47' and 53' gave Riverside Athletic the edge, and Pablo Varnell's strike at 88' ensured a crucial lead. Despite late pressure and two goals from Northgate FC, Riverside's control was decisive.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 1.8,
+    "tools": [],
+    "tokens": 1056,
+    "output": "```json\n{\n  \"ok\": false,\n  \"problems\": [\n    \"Claim that 'Pablo Varnell's strike at 88' ensured a crucial lead' needs knowledge of the future as a goal occurred later at 90+5'.\",\n    \"Claim that there were 'two goals from Northgate FC' is incorrect; Northgate scored only one late goal at 90+5'.\"\n  ]\n}\n```"
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 1.6,
+    "tools": [],
+    "tokens": 1286,
+    "output": "```json\n{\"title\": \"Riverside Athletic secure 3-2 victory\", \"body\": \"Umar Dorsey's brace early in the second half powered Riverside Athletic to take control, while Pablo Varnell's 88' goal kept them ahead. Northgate FC's late push, including Emil Holmgrave's strike at 90+5', fell just short.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 0.7,
+    "tools": [],
+    "tokens": 978,
+    "output": "{\"ok\": true, \"problems\": []}"
+   },
+   {
+    "agent": "Translator",
+    "seconds": 1.4,
+    "tools": [],
+    "tokens": 490,
+    "output": "```json\n{\"title\": \"A Riverside Athletic 3-2-re győzött\", \"body\": \"Umar Dorsey duplája a második félidő elején biztosította az irányítást a Riverside Athletic számára, míg Pablo Varnell 88. percben szerzett gólja megőrizte az előnyüket. A Northgate FC hajrája, beleértve Emil Holmgrave 90+5. percben szerzett találatát, éppen hogy kevésnek bizonyult.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.6,
+    "tools": [],
+    "tokens": 1639,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A Riverside Athletic 3-2-re győzött.\",\n      \"supported\": true,\n      \"why\": \"The final score is 3-2 in favor of Riverside Athletic as per the facts.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey duplája a második félidő elején biztosította az irányítást a Riverside Athletic számára.\",\n      \"supported\": true,\n      \"why\": \"Umar Dorsey scored twice early in the second half (47' and 53'), and Riverside Athletic took control with these goals.\"\n    },\n    {\n      \"claim\": \"Pablo Varnell 88. percben szerzett gólja megőrizte az előnyüket.\",\n      \"supported"
+   }
+  ]
+ },
+ "change:NOR:50|player|en|": {
+  "title": "Northgate FC lowers defensive line height",
+  "body": "Since the change at 35 minutes, Northgate FC dropped their defensive line height from 30.5m to 24.4m. Riverside Athletic kept 60% possession and scored through Umar Dorsey in the 47th minute after generating 1.28 expected goals in the period.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 11.4,
+    "tools": [
+     "match_info",
+     "match_state",
+     "key_moments",
+     "tactical_changes"
+    ],
+    "tokens": 4845,
+    "output": "{\"observations\": [\"Northgate FC lowered their defensive line height from 30.5m to 24.4m starting at 35 minutes.\",\"Before the shape change (23' to 35'), Riverside Athletic had 62% possession, 3 shots, and 0.4 xG, while Northgate FC had 38% possession and no shots.\",\"Since the shape change (35' to 48'), Riverside Athletic maintained around 60% possession, made 4 shots with an xG of 1.28, and scored 1 goal.\",\"The goal was scored by Umar Dorsey at 47 minutes with an assist from Zoltan Ulvane.\",\"In the recent 3 minutes, Northgate FC's defensive line is at 14.9m with 3.7 players in the back line, wh"
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 1.7,
+    "tools": [],
+    "tokens": 1045,
+    "output": "{\n  \"headline\": \"Northgate FC's deeper defensive line invites greater pressure and leads to conceding first goal\",\n  \"why\": \"At 35 minutes, Northgate FC lowered their defensive line height significantly from 30.5m to 24.4m. This retreat reduced their ability to compress space and challenged their defensive compactness against Riverside Athletic's steady 60% possession.\",\n  \"consequence\": \"Following the shape change, Riverside Athletic increased their shots from 3 to 4 and more than tripled their expected goals from 0.4 to 1.28, culminating in Umar Dorsey's goal at 47 minutes. Northgate FC stil"
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 3.1,
+    "tools": [],
+    "tokens": 1027,
+    "output": "```json\n{\n  \"title\": \"Northgate FC's shape change at 35'\",\n  \"body\": \"Northgate FC lowered their defensive line from 30.5m to 24.4m after 35 minutes, inviting more pressure. Riverside Athletic capitalized with Umar Dorsey's goal at 47 minutes to take the lead.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": true,
+    "certain_cause": false,
+    "passed": false
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 1.3,
+    "tools": [],
+    "tokens": 1062,
+    "output": "```json\n{\"title\": \"Northgate FC's defensive line drops deeper\", \"body\": \"At 35', Northgate FC lowered their defensive line height from 30.5m to 24.4m, trying to limit space for Riverside Athletic. However, this allowed Riverside to increase their expected goals, with Umar Dorsey scoring at 47' for a 1–0 lead.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 6,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 6.7,
+    "tools": [],
+    "tokens": 1449,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"At 35', Northgate FC lowered their defensive line height from 30.5m to 24.4m.\",\n      \"supported\": true,\n      \"why\": \"The facts outline a shape change at 35', including a decrease in defensive line height from 30.5m to 24.4m.\"\n    },\n    {\n      \"claim\": \"This was trying to limit space for Riverside Athletic.\",\n      \"supported\": false,\n      \"why\": \"The facts do not measure or explicitly state Northgate FC's tactical intent behind the change.\"\n    },\n    {\n      \"claim\": \"This allowed Riverside to increase their expected goals.\",\n      \"supported"
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 1.3,
+    "tools": [],
+    "tokens": 1118,
+    "output": "```json\n{\"title\": \"Northgate FC lowers defensive line height\", \"body\": \"Since the change at 35 minutes, Northgate FC dropped their defensive line height from 30.5m to 24.4m. Riverside Athletic kept 60% possession and scored through Umar Dorsey in the 47th minute after generating 1.28 expected goals in the period.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 6,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 5.8,
+    "tools": [],
+    "tokens": 1402,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Northgate FC dropped their defensive line height from 30.5m to 24.4m since the change at 35 minutes.\",\n      \"supported\": true,\n      \"why\": \"The facts explicitly state a defensive line height adjustment for NOR from 30.5m to 24.4m after the change made at 35 minutes.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic kept 60% possession since the change.\",\n      \"supported\": true,\n      \"why\": \"The facts indicate that RIV had 60% possession in the window from 35' to 48'.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic scored through Umar Dorsey in "
+   }
+  ]
+ },
+ "change:NOR:50|player|hu|": {
+  "title": "A Northgate FC lejjebb vitte a védelmi vonal magasságát",
+  "body": "A 35. percben történt átrendeződés óta a Northgate FC a védelmi vonal magasságát 30,5 méterről 24,4 méterre csökkentette. A Riverside Athletic 60%-os labdabirtoklást tartott, és Umar Dorsey révén a 47. percben szerzett gólt, miután ebben az időszakban 1,28 várható gólt generáltak.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 11.4,
+    "tools": [
+     "match_info",
+     "match_state",
+     "key_moments",
+     "tactical_changes"
+    ],
+    "tokens": 4845,
+    "output": "{\"observations\": [\"Northgate FC lowered their defensive line height from 30.5m to 24.4m starting at 35 minutes.\",\"Before the shape change (23' to 35'), Riverside Athletic had 62% possession, 3 shots, and 0.4 xG, while Northgate FC had 38% possession and no shots.\",\"Since the shape change (35' to 48'), Riverside Athletic maintained around 60% possession, made 4 shots with an xG of 1.28, and scored 1 goal.\",\"The goal was scored by Umar Dorsey at 47 minutes with an assist from Zoltan Ulvane.\",\"In the recent 3 minutes, Northgate FC's defensive line is at 14.9m with 3.7 players in the back line, wh"
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 1.7,
+    "tools": [],
+    "tokens": 1045,
+    "output": "{\n  \"headline\": \"Northgate FC's deeper defensive line invites greater pressure and leads to conceding first goal\",\n  \"why\": \"At 35 minutes, Northgate FC lowered their defensive line height significantly from 30.5m to 24.4m. This retreat reduced their ability to compress space and challenged their defensive compactness against Riverside Athletic's steady 60% possession.\",\n  \"consequence\": \"Following the shape change, Riverside Athletic increased their shots from 3 to 4 and more than tripled their expected goals from 0.4 to 1.28, culminating in Umar Dorsey's goal at 47 minutes. Northgate FC stil"
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 3.1,
+    "tools": [],
+    "tokens": 1027,
+    "output": "```json\n{\n  \"title\": \"Northgate FC's shape change at 35'\",\n  \"body\": \"Northgate FC lowered their defensive line from 30.5m to 24.4m after 35 minutes, inviting more pressure. Riverside Athletic capitalized with Umar Dorsey's goal at 47 minutes to take the lead.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": true,
+    "certain_cause": false,
+    "passed": false
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 1.3,
+    "tools": [],
+    "tokens": 1062,
+    "output": "```json\n{\"title\": \"Northgate FC's defensive line drops deeper\", \"body\": \"At 35', Northgate FC lowered their defensive line height from 30.5m to 24.4m, trying to limit space for Riverside Athletic. However, this allowed Riverside to increase their expected goals, with Umar Dorsey scoring at 47' for a 1–0 lead.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 6,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 6.7,
+    "tools": [],
+    "tokens": 1449,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"At 35', Northgate FC lowered their defensive line height from 30.5m to 24.4m.\",\n      \"supported\": true,\n      \"why\": \"The facts outline a shape change at 35', including a decrease in defensive line height from 30.5m to 24.4m.\"\n    },\n    {\n      \"claim\": \"This was trying to limit space for Riverside Athletic.\",\n      \"supported\": false,\n      \"why\": \"The facts do not measure or explicitly state Northgate FC's tactical intent behind the change.\"\n    },\n    {\n      \"claim\": \"This allowed Riverside to increase their expected goals.\",\n      \"supported"
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 1.3,
+    "tools": [],
+    "tokens": 1118,
+    "output": "```json\n{\"title\": \"Northgate FC lowers defensive line height\", \"body\": \"Since the change at 35 minutes, Northgate FC dropped their defensive line height from 30.5m to 24.4m. Riverside Athletic kept 60% possession and scored through Umar Dorsey in the 47th minute after generating 1.28 expected goals in the period.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 6,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 5.8,
+    "tools": [],
+    "tokens": 1402,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Northgate FC dropped their defensive line height from 30.5m to 24.4m since the change at 35 minutes.\",\n      \"supported\": true,\n      \"why\": \"The facts explicitly state a defensive line height adjustment for NOR from 30.5m to 24.4m after the change made at 35 minutes.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic kept 60% possession since the change.\",\n      \"supported\": true,\n      \"why\": \"The facts indicate that RIV had 60% possession in the window from 35' to 48'.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic scored through Umar Dorsey in "
+   },
+   {
+    "agent": "Translator",
+    "seconds": 3.9,
+    "tools": [],
+    "tokens": 512,
+    "output": "```json\n{\"title\": \"A Northgate FC lejjebb vitte a védelmi vonal magasságát\", \"body\": \"A 35. percben történt átrendeződés óta a Northgate FC a védelmi vonal magasságát 30,5 méterről 24,4 méterre csökkentette. A Riverside Athletic 60%-os labdabirtoklást tartott, és Umar Dorsey révén az 47. percben szerzett gólt, miután ebben az időszakban 1,28 várható gólt generáltak.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 6,
+    "unsupported": [],
+    "unknown_names": [],
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 3.6,
+    "tools": [],
+    "tokens": 1544,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Northgate FC dropped their defensive line height from 30.5m to 24.4m after the change at 35 minutes.\",\n      \"supported\": true,\n      \"why\": \"The facts explicitly state that Northgate FC changed their defensive line height from 30.5m to 24.4m after 35'.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic kept 60% possession in the period since the change at 35 minutes.\",\n      \"supported\": true,\n      \"why\": \"The facts indicate that Riverside Athletic maintained 60% possession in the window from 35' to 48'.\"\n    },\n    {\n      \"claim\": \"Riverside Athl"
+   }
+  ]
+ },
+ "recap:ht|player|en|": {
+  "title": "Umar Dorsey misses highlight Riverside Athletic's dominance",
+  "body": "Riverside Athletic's Umar Dorsey missed a big chance (xG 0.66) in the 36th minute as Riverside Athletic dominated with 55% possession and 8 shots. Despite their control, the score remains 0-0 at half-time.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 4.5,
+    "tools": [
+     "tactical_changes",
+     "match_state",
+     "shape_timeline",
+     "shape_timeline",
+     "key_moments"
+    ],
+    "tokens": 16148,
+    "output": "{\"observations\":[\"At half-time, the score is 0-0 with RIV having 55% possession and 8 shots (3 on target) compared to NOR's 45% possession and 1 shot.\",\"RIV's xG at half-time is 1.26 while NOR's xG is 0.4, indicating RIV created more quality chances.\",\"Both teams have had no tactical changes so far, maintaining their initial formations and styles.\",\"In the last 5 minutes, RIV has had 60% possession and NOR 40%, with RIV's defensive line positioned significantly higher (46.7m) than NOR's (15.2m).\",\"Key moments include two notable off-target shots by Umar Dorsey (xG 0.66 at 36' and 0.35 at 23') "
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.3,
+    "tools": [],
+    "tokens": 990,
+    "output": "{\"headline\": \"RIV's high pressing and dominant possession frustrate NOR at half-time\", \"why\": \"RIV's defensive line is positioned significantly higher (46.7m) than NOR's (15.2m), enabling aggressive pressing and maintaining 55% possession with 8 shots, 3 on target, and a 1.26 xG. In contrast, NOR remains deep with less possession (45%) and fewer chances (1 shot, 0 on target, 0.4 xG). This aggressive posture allows RIV to control the midfield and apply pressure in NOR's half.\", \"consequence\": \"So far, the match remains goalless at 0-0 despite RIV's creation of higher quality chances, including "
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 2.7,
+    "tools": [],
+    "tokens": 987,
+    "output": "```json\n{\"title\": \"Umar Dorsey misses highlight RIV's dominance\", \"body\": \"Riverside Athletic's Umar Dorsey missed a big chance (xG 0.66) in the 36th minute as RIV dominated with 55% possession and 8 shots. Despite their control, the score remains 0-0 at half-time.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 6,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 1.8,
+    "tools": [],
+    "tokens": 1198,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey missed a big chance (xG 0.66) in the 36th minute.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Umar Dorsey missed a big chance with an xG of 0.66 in the 36th minute.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic dominated with 55% possession and 8 shots.\",\n      \"supported\": true,\n      \"why\": \"The team stats show that Riverside Athletic had 55% possession and 8 shots, indicating dominance.\"\n    },\n    {\n      \"claim\": \"The score remains 0-0 at half-time.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm t"
+   }
+  ]
+ },
+ "recap:ht|player|hu|": {
+  "title": "Umar Dorsey kihagyott helyzete kiemeli a Riverside Athletic fölényét",
+  "body": "A Riverside Athletic játékosa, Umar Dorsey kihagyott egy nagy helyzetet (xG 0,66) a 36. percben, miközben a Riverside Athletic 55%-os labdabirtoklással és 8 lövéssel uralta a mérkőzést. Az irányítás ellenére az állás továbbra is 0-0 a félidőben.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 4.5,
+    "tools": [
+     "tactical_changes",
+     "match_state",
+     "shape_timeline",
+     "shape_timeline",
+     "key_moments"
+    ],
+    "tokens": 16148,
+    "output": "{\"observations\":[\"At half-time, the score is 0-0 with RIV having 55% possession and 8 shots (3 on target) compared to NOR's 45% possession and 1 shot.\",\"RIV's xG at half-time is 1.26 while NOR's xG is 0.4, indicating RIV created more quality chances.\",\"Both teams have had no tactical changes so far, maintaining their initial formations and styles.\",\"In the last 5 minutes, RIV has had 60% possession and NOR 40%, with RIV's defensive line positioned significantly higher (46.7m) than NOR's (15.2m).\",\"Key moments include two notable off-target shots by Umar Dorsey (xG 0.66 at 36' and 0.35 at 23') "
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.3,
+    "tools": [],
+    "tokens": 990,
+    "output": "{\"headline\": \"RIV's high pressing and dominant possession frustrate NOR at half-time\", \"why\": \"RIV's defensive line is positioned significantly higher (46.7m) than NOR's (15.2m), enabling aggressive pressing and maintaining 55% possession with 8 shots, 3 on target, and a 1.26 xG. In contrast, NOR remains deep with less possession (45%) and fewer chances (1 shot, 0 on target, 0.4 xG). This aggressive posture allows RIV to control the midfield and apply pressure in NOR's half.\", \"consequence\": \"So far, the match remains goalless at 0-0 despite RIV's creation of higher quality chances, including "
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 2.7,
+    "tools": [],
+    "tokens": 987,
+    "output": "```json\n{\"title\": \"Umar Dorsey misses highlight RIV's dominance\", \"body\": \"Riverside Athletic's Umar Dorsey missed a big chance (xG 0.66) in the 36th minute as RIV dominated with 55% possession and 8 shots. Despite their control, the score remains 0-0 at half-time.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 6,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 1.8,
+    "tools": [],
+    "tokens": 1198,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey missed a big chance (xG 0.66) in the 36th minute.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Umar Dorsey missed a big chance with an xG of 0.66 in the 36th minute.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic dominated with 55% possession and 8 shots.\",\n      \"supported\": true,\n      \"why\": \"The team stats show that Riverside Athletic had 55% possession and 8 shots, indicating dominance.\"\n    },\n    {\n      \"claim\": \"The score remains 0-0 at half-time.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm t"
+   },
+   {
+    "agent": "Translator",
+    "seconds": 1.6,
+    "tools": [],
+    "tokens": 496,
+    "output": "```json\n{\n  \"title\": \"Umar Dorsey kihagyott helyzete kiemeli a Riverside Athletic fölényét\",\n  \"body\": \"A Riverside Athletic játékosa, Umar Dorsey kihagyott egy nagy helyzetet (xG 0,66) a 36. percben, miközben a Riverside Athletic 55%-os labdabirtoklással és 8 lövéssel uralta a mérkőzést. Az irányítás ellenére az állás továbbra is 0-0 a félidőben.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 6,
+    "unsupported": [],
+    "unknown_names": [],
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.2,
+    "tools": [],
+    "tokens": 1400,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey kihagyott egy nagy helyzetet (xG 0,66) a 36. percben.\",\n      \"supported\": true,\n      \"why\": \"The facts list a big miss by Umar Dorsey with an xG of 0.66 in the 36th minute.\"\n    },\n    {\n      \"claim\": \"A Riverside Athletic 55%-os labdabirtoklással uralta a mérkőzést.\",\n      \"supported\": true,\n      \"why\": \"The facts show Riverside Athletic had 55% possession at half-time, which supports 'dominated' as a fair interpretation.\"\n    },\n    {\n      \"claim\": \"A Riverside Athletic 8 lövéssel uralta a mérkőzést.\",\n      \"supported\": true,\n "
+   }
+  ]
+ },
+ "change:RIV:76|analyst|en|": {
+  "title": "Riverside Athletic shape change lifts line height",
+  "body": "Since 67', Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m. Possession increased from 43% to 55%, and final third time climbed to 67%, but no shots or xG have followed yet.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 3.5,
+    "tools": [
+     "match_state",
+     "key_moments"
+    ],
+    "tokens": 3024,
+    "output": "{\"observations\": [\"Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m starting at the 67th minute.\", \"Since the shape change at 67', Riverside Athletic's possession increased to 55% from the previous 43%.\", \"Riverside Athletic has had 0 shots with 0 xG since the formation change, while their opponent had 1 shot and 0.03 xG in the same period.\", \"As of the 74th minute, Riverside Athletic's defensive line is positioned at 53.8m, higher than their opponent's 13.2m.\", \"Riverside Athletic scored 2 goals before the 67th minute and their opponent scored 1 goal at "
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.1,
+    "tools": [],
+    "tokens": 980,
+    "output": "{\"headline\": \"Riverside Athletic pushed their defensive line higher at 67', shifting momentum despite limited shot impact\", \"why\": \"By raising their defensive line in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m, Riverside Athletic applied greater pressure higher up the pitch, which encouraged more possession (up from 43% to 55%) and increased their final third presence to 67%. This tactical shift aims to control the game through positioning and build-up rather than immediate shot creation.\", \"consequence\": \"Since the change, Riverside Athletic have had zero shots an"
+   },
+   {
+    "agent": "Narrator (analyst)",
+    "seconds": 3.6,
+    "tools": [],
+    "tokens": 1082,
+    "output": "```json\n{\n  \"title\": \"Riverside Athletic shape change lifts line height\",\n  \"body\": \"Since 67', Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m. Possession increased from 43% to 55%, and final third time climbed to 67%, but no shots or xG have followed yet.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 8,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.8,
+    "tools": [],
+    "tokens": 1376,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Since 67', Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Riverside Athletic's line height in possession increased from 32.3m to 42.9m and line height without the ball rose from 37.4m to 46.3m since 67'.\"\n    },\n    {\n      \"claim\": \"Possession increased from 43% to 55%.\",\n      \"supported\": true,\n      \"why\": \"The facts show Riverside Athletic's possession percentage was 43% before the change and 55% si"
+   }
+  ]
+ },
+ "change:RIV:76|analyst|hu|": {
+  "title": "A Riverside Athletic átrendeződése magasabbra tolta a vonalakat",
+  "body": "A 67. perc óta a Riverside Athletic a védelmi vonal magasságát labdabirtoklásban 32,3 méterről 42,9 méterre emelte, labda nélkül pedig 37,4 méterről 46,3 méterre. A labdabirtoklási arányuk 43%-ról 55%-ra nőtt, a támadóharmadban töltött idő pedig 67%-ra emelkedett, de lövés vagy xG egyelőre nem született.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 3.5,
+    "tools": [
+     "match_state",
+     "key_moments"
+    ],
+    "tokens": 3024,
+    "output": "{\"observations\": [\"Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m starting at the 67th minute.\", \"Since the shape change at 67', Riverside Athletic's possession increased to 55% from the previous 43%.\", \"Riverside Athletic has had 0 shots with 0 xG since the formation change, while their opponent had 1 shot and 0.03 xG in the same period.\", \"As of the 74th minute, Riverside Athletic's defensive line is positioned at 53.8m, higher than their opponent's 13.2m.\", \"Riverside Athletic scored 2 goals before the 67th minute and their opponent scored 1 goal at "
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.1,
+    "tools": [],
+    "tokens": 980,
+    "output": "{\"headline\": \"Riverside Athletic pushed their defensive line higher at 67', shifting momentum despite limited shot impact\", \"why\": \"By raising their defensive line in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m, Riverside Athletic applied greater pressure higher up the pitch, which encouraged more possession (up from 43% to 55%) and increased their final third presence to 67%. This tactical shift aims to control the game through positioning and build-up rather than immediate shot creation.\", \"consequence\": \"Since the change, Riverside Athletic have had zero shots an"
+   },
+   {
+    "agent": "Narrator (analyst)",
+    "seconds": 3.6,
+    "tools": [],
+    "tokens": 1082,
+    "output": "```json\n{\n  \"title\": \"Riverside Athletic shape change lifts line height\",\n  \"body\": \"Since 67', Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m. Possession increased from 43% to 55%, and final third time climbed to 67%, but no shots or xG have followed yet.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 8,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 2.8,
+    "tools": [],
+    "tokens": 1376,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Since 67', Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Riverside Athletic's line height in possession increased from 32.3m to 42.9m and line height without the ball rose from 37.4m to 46.3m since 67'.\"\n    },\n    {\n      \"claim\": \"Possession increased from 43% to 55%.\",\n      \"supported\": true,\n      \"why\": \"The facts show Riverside Athletic's possession percentage was 43% before the change and 55% si"
+   },
+   {
+    "agent": "Translator",
+    "seconds": 2.6,
+    "tools": [],
+    "tokens": 540,
+    "output": "```json\n{\n  \"title\": \"A Riverside Athletic átrendeződése magasabbra tolta a vonalakat\",\n  \"body\": \"A 67. perc óta a Riverside Athletic a védelmi vonal magasságát labdabirtoklásban 32,3 méterről 42,9 méterre emelte, labda nélkül pedig 37,4 méterről 46,3 méterre. A labdabirtoklási arányuk 43%-ról 55%-ra nőtt, a támadóharmadban töltött idő pedig 67%-ra emelkedett, de lövés vagy xG egyelőre nem született.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 8,
+    "unsupported": [],
+    "unknown_names": [],
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 3.5,
+    "tools": [],
+    "tokens": 1604,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A Riverside Athletic a védelmi vonal magasságát labdabirtoklásban 32,3 méterről 42,9 méterre emelte.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m since the 67th minute.\"\n    },\n    {\n      \"claim\": \"Labda nélkül pedig 37,4 méterről 46,3 méterre emelte.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Riverside Athletic raised their defensive line height without the ball from 37.4m to 46.3m since the 67th minute.\"\n    },\n    {\n  "
+   }
+  ]
+ },
+ "change:RIV:76|player|en|": {
+  "title": "Riverside Athletic's shape change raises their line",
+  "body": "Since Riverside Athletic raised their defensive line height at 67', their possession went from 43% to 55%, and their final third presence increased to 67%. However, they have not created any shots or xG, while allowing just one low-quality shot (xG 0.03) from Northgate FC.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 3.5,
+    "tools": [
+     "match_state",
+     "key_moments"
+    ],
+    "tokens": 3024,
+    "output": "{\"observations\": [\"Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m starting at the 67th minute.\", \"Since the shape change at 67', Riverside Athletic's possession increased to 55% from the previous 43%.\", \"Riverside Athletic has had 0 shots with 0 xG since the formation change, while their opponent had 1 shot and 0.03 xG in the same period.\", \"As of the 74th minute, Riverside Athletic's defensive line is positioned at 53.8m, higher than their opponent's 13.2m.\", \"Riverside Athletic scored 2 goals before the 67th minute and their opponent scored 1 goal at "
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.1,
+    "tools": [],
+    "tokens": 980,
+    "output": "{\"headline\": \"Riverside Athletic pushed their defensive line higher at 67', shifting momentum despite limited shot impact\", \"why\": \"By raising their defensive line in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m, Riverside Athletic applied greater pressure higher up the pitch, which encouraged more possession (up from 43% to 55%) and increased their final third presence to 67%. This tactical shift aims to control the game through positioning and build-up rather than immediate shot creation.\", \"consequence\": \"Since the change, Riverside Athletic have had zero shots an"
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 2.1,
+    "tools": [],
+    "tokens": 1070,
+    "output": "```json\n{\n  \"title\": \"Shape change lifts Riverside Athletic's line\",\n  \"body\": \"Since 67', their defensive line height rose to 42.9m in possession and to 46.3m out of possession, increasing control with 55% possession and 67% time in the final third, though no shots followed.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": true,
+    "passed": false
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 3.2,
+    "tools": [],
+    "tokens": 1103,
+    "output": "```json\n{\"title\": \"Riverside Athletic shape change increases control\", \"body\": \"Since raising their defensive line at 67', Riverside Athletic's possession went from 43% to 55%, and their final third time rose to 67%. However, this hasn't led to shots or clear chances yet, while Northgate FC managed only one low-quality shot (xG 0.03).\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": true,
+    "passed": false
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 1.5,
+    "tools": [],
+    "tokens": 1134,
+    "output": "```json\n{\n  \"title\": \"Riverside Athletic's shape change raises their line\",\n  \"body\": \"Since Riverside Athletic raised their defensive line height at 67', their possession went from 43% to 55%, and their final third presence increased to 67%. However, they have not created any shots or xG, while allowing just one low-quality shot (xG 0.03) from Northgate FC.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 3.3,
+    "tools": [],
+    "tokens": 1437,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Riverside Athletic raised their defensive line height at 67'.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm a defensive line height increase for Riverside Athletic in both possession (from 32.3m to 42.9m) and without the ball (from 37.4m to 46.3m) starting at 67'.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic's possession went from 43% to 55%.\",\n      \"supported\": true,\n      \"why\": \"The facts state that Riverside's possession increased from 43.0% in the pre-change window to 55.0% in the post-change window.\"\n    },\n    {\n      \"clai"
+   }
+  ]
+ },
+ "change:RIV:76|player|hu|": {
+  "title": "A Riverside Athletic átrendeződése feljebb hozza a vonalukat",
+  "body": "Amióta a Riverside Athletic a 67. percben feljebb tolta a védelmi vonalát, a labdabirtoklásuk 43%-ról 55%-ra nőtt, és a támadóharmadbeli jelenlétük 67%-ra emelkedett. Ennek ellenére nem hoztak létre sem lövést, sem xG-t, miközben csupán egy alacsony minőségű lövést (xG 0,03) engedtek a Northgate FC-nek.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 3.5,
+    "tools": [
+     "match_state",
+     "key_moments"
+    ],
+    "tokens": 3024,
+    "output": "{\"observations\": [\"Riverside Athletic raised their defensive line height in possession from 32.3m to 42.9m starting at the 67th minute.\", \"Since the shape change at 67', Riverside Athletic's possession increased to 55% from the previous 43%.\", \"Riverside Athletic has had 0 shots with 0 xG since the formation change, while their opponent had 1 shot and 0.03 xG in the same period.\", \"As of the 74th minute, Riverside Athletic's defensive line is positioned at 53.8m, higher than their opponent's 13.2m.\", \"Riverside Athletic scored 2 goals before the 67th minute and their opponent scored 1 goal at "
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.1,
+    "tools": [],
+    "tokens": 980,
+    "output": "{\"headline\": \"Riverside Athletic pushed their defensive line higher at 67', shifting momentum despite limited shot impact\", \"why\": \"By raising their defensive line in possession from 32.3m to 42.9m and without the ball from 37.4m to 46.3m, Riverside Athletic applied greater pressure higher up the pitch, which encouraged more possession (up from 43% to 55%) and increased their final third presence to 67%. This tactical shift aims to control the game through positioning and build-up rather than immediate shot creation.\", \"consequence\": \"Since the change, Riverside Athletic have had zero shots an"
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 2.1,
+    "tools": [],
+    "tokens": 1070,
+    "output": "```json\n{\n  \"title\": \"Shape change lifts Riverside Athletic's line\",\n  \"body\": \"Since 67', their defensive line height rose to 42.9m in possession and to 46.3m out of possession, increasing control with 55% possession and 67% time in the final third, though no shots followed.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": true,
+    "passed": false
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 3.2,
+    "tools": [],
+    "tokens": 1103,
+    "output": "```json\n{\"title\": \"Riverside Athletic shape change increases control\", \"body\": \"Since raising their defensive line at 67', Riverside Athletic's possession went from 43% to 55%, and their final third time rose to 67%. However, this hasn't led to shots or clear chances yet, while Northgate FC managed only one low-quality shot (xG 0.03).\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": true,
+    "passed": false
+   },
+   {
+    "agent": "Narrator (player)",
+    "seconds": 1.5,
+    "tools": [],
+    "tokens": 1134,
+    "output": "```json\n{\n  \"title\": \"Riverside Athletic's shape change raises their line\",\n  \"body\": \"Since Riverside Athletic raised their defensive line height at 67', their possession went from 43% to 55%, and their final third presence increased to 67%. However, they have not created any shots or xG, while allowing just one low-quality shot (xG 0.03) from Northgate FC.\"\n}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "unmeasured_pressure": false,
+    "certain_cause": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 3.3,
+    "tools": [],
+    "tokens": 1437,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Riverside Athletic raised their defensive line height at 67'.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm a defensive line height increase for Riverside Athletic in both possession (from 32.3m to 42.9m) and without the ball (from 37.4m to 46.3m) starting at 67'.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic's possession went from 43% to 55%.\",\n      \"supported\": true,\n      \"why\": \"The facts state that Riverside's possession increased from 43.0% in the pre-change window to 55.0% in the post-change window.\"\n    },\n    {\n      \"clai"
+   },
+   {
+    "agent": "Translator",
+    "seconds": 2.6,
+    "tools": [],
+    "tokens": 532,
+    "output": "```json\n{\"title\": \"A Riverside Athletic átrendeződése feljebb hozza a vonalukat\", \"body\": \"Amióta a Riverside Athletic az 67. percben feljebb tolta a védelmi vonalát, a labdabirtoklásuk 43%-ról 55%-ra nőtt, és a támadóharmadbeli jelenlétük 67%-ra emelkedett. Ennek ellenére nem hoztak létre sem lövést, sem xG-t, miközben csupán egy alacsony minőségű lövést (xG 0,03) engedtek a Northgate FC-nek.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 5,
+    "unsupported": [],
+    "unknown_names": [],
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 6.1,
+    "tools": [],
+    "tokens": 1592,
+    "output": "```json\n{\n    \"claims\": [\n        {\n            \"claim\": \"Riverside Athletic raised their defensive line height at 67'.\",\n            \"supported\": true,\n            \"why\": \"The facts indicate a shape change for Riverside Athletic starting at 67' with an increase in their defensive line height, both in and out of possession.\"\n        },\n        {\n            \"claim\": \"Their possession went from 43% to 55%.\",\n            \"supported\": true,\n            \"why\": \"The possession percentage for Riverside Athletic increased from 43% before the change (55' to 67') to 55% in the period after the change ("
+   }
+  ]
+ },
+ "change:NOR:63|analyst|hu|": {
+  "title": "A Northgate FC átrendeződik magasabb vonallal",
+  "body": "Az 53. perc óta a Northgate FC felemelte a védelmi vonalát 24,1 méterről 33,1 méterre, és labdabirtokláskor háromvédős hátsó sorra váltott. A labdabirtoklásukat 39%-ról 66%-ra javították, de 61 perc után továbbra is 2-0-ra vezet a Riverside Athletic.",
+  "source": "agent",
+  "trace": [
+   {
+    "agent": "Analyst",
+    "seconds": 5.7,
+    "tools": [
+     "match_info",
+     "match_state",
+     "tactical_changes",
+     "key_moments",
+     "shape_timeline"
+    ],
+    "tokens": 11118,
+    "output": "{\"observations\":[\"Northgate FC increased their defensive line height from 24.1m to 33.1m starting at 53' into the match.\",\"The average number of players in Northgate FC's back line in possession increased from 2.3 to 2.9 after the shape change.\",\"In the 44' to 53' window before the change, Riverside Athletic had 61% possession with 2 shots and 1.16 xG, while Northgate FC had 39% possession with no shots or xG.\",\"After the shape change from 53' to 61', Northgate FC's possession increased to 66% with no shots or xG, and Riverside Athletic's possession dropped to 34%, also with no shots or xG.\",\""
+   },
+   {
+    "agent": "Tactician",
+    "seconds": 2.2,
+    "tools": [],
+    "tokens": 997,
+    "output": "{\"headline\": \"Northgate FC pushes defensive line higher, gains possession but fails to create chances\",\"why\": \"By raising their defensive line from 24.1m to 33.1m starting at 53', Northgate FC compressed the field and increased the average number of defenders involved in possession from 2.3 to 2.9, enabling more control in build-up play.\",\"consequence\": \"This tactical shift dramatically swung possession in Northgate FC's favor from 39% to 66% and reduced Riverside Athletic's influence from 61% to 34%. However, despite better possession, Northgate FC did not translate it into shots or xG, nor d"
+   },
+   {
+    "agent": "Narrator (analyst)",
+    "seconds": 1.3,
+    "tools": [],
+    "tokens": 980,
+    "output": "```json\n{\"title\": \"Northgate FC adjusts shape with higher line\", \"body\": \"Since 53', Northgate FC raised their defensive line from 24.1m to 33.1m and moved to a back three in possession. They improved possession from 39% to 66%, but remain 2-0 down to Riverside Athletic after 61 minutes.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 8,
+    "unsupported": [],
+    "unknown_names": [],
+    "too_many_numbers": false,
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 0.8,
+    "tools": [],
+    "tokens": 866,
+    "output": "{\"ok\": true, \"problems\": []}"
+   },
+   {
+    "agent": "Translator",
+    "seconds": 1.6,
+    "tools": [],
+    "tokens": 476,
+    "output": "```json\n{\"title\": \"A Northgate FC átrendeződik magasabb vonallal\", \"body\": \"Az 53. perc óta a Northgate FC felemelte a védelmi vonalát 24,1 méterről 33,1 méterre, és labdabirtokláskor háromvédős hátsó sorra váltott. A labdabirtoklásukat 39%-ról 66%-ra javították, de 61 perc után továbbra is 2-0-ra vezet a Riverside Athletic.\"}\n```"
+   },
+   {
+    "agent": "Fact-checker",
+    "numbers_checked": 8,
+    "unsupported": [],
+    "unknown_names": [],
+    "wrong_language": false,
+    "passed": true
+   },
+   {
+    "agent": "Editor",
+    "seconds": 3.3,
+    "tools": [],
+    "tokens": 1395,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Az 53. perc óta a Northgate FC felemelte a védelmi vonalát 24,1 méterről 33,1 méterre.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Northgate FC adjusted their defensive line height from 24.1m to 33.1m starting from the 53rd minute.\"\n    },\n    {\n      \"claim\": \"Labdabirtokláskor háromvédős hátsó sorra váltottak.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm a change in the number of players in the back line during possession from 2.3 to 2.9, which reasonably indicates a shift to a three-player back line.\"\n    },\n   "
    }
   ]
  }

@@ -160,3 +160,24 @@ def test_unknown_followed_player_is_rejected(agent_client):
     sid = agent_client.post("/api/session", params={"from": 60}).json()["session"]
     r = agent_client.get("/api/cards", params={"session": sid, "persona": "player", "follow": "XXX-99"})
     assert r.status_code == 404
+
+
+def test_pressure_needs_a_pressing_measurement():
+    from fullpitch.agents import unmeasured_pressure
+    line_only = {"signals": [{"signal": "line_adj", "before": 30.5, "after": 24.4}]}
+    pressing = {"signals": [{"signal": "pressers", "before": 0.9, "after": 2.1}]}
+    assert unmeasured_pressure("Northgate FC invited heavy pressure.", line_only)
+    assert unmeasured_pressure("A nyomás ellenére 0-0.", line_only)
+    assert not unmeasured_pressure("Riverside Athletic started pressing higher.", pressing)
+    assert not unmeasured_pressure("Northgate FC dropped their line deeper.", line_only)
+
+
+def test_certain_cause_and_name_articles():
+    from fullpitch.agents import certain_cause, drop_article_before_players
+    assert certain_cause("This change more than tripled their xG from 0.4 to 1.28.")
+    assert certain_cause("This shift increased possession (43% to 55%).")
+    assert not certain_cause("Riverside Athletic scored after the change.")
+    players = ["Umar Dorsey", "Emil Holmgrave"]
+    assert drop_article_before_players("akik az Umar Dorsey révén, a Riverside Athletic javára", players) == \
+        "akik Umar Dorsey révén, a Riverside Athletic javára"
+    assert drop_article_before_players("Az Emil Holmgrave gólja", players) == "Emil Holmgrave gólja"
