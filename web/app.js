@@ -119,10 +119,15 @@
     if (!force && m === S.lastCardMinute) return;
     S.lastCardMinute = m;
     const req = ++S.cardReq;
-    const cards = await api("/api/cards", withSession({ persona: S.persona, lang: S.lang }));
+    const params = { persona: S.persona, lang: S.lang };
+    if (S.persona === "player" && S.follow) params.follow = S.follow;
+    const cards = await api("/api/cards", withSession(params));
     if (req !== S.cardReq) return;
+    // the agents are still writing some cards: ask again shortly, the template text shows meanwhile
+    clearTimeout(S.pendingTimer);
+    if (cards.some((c) => c.pending)) S.pendingTimer = setTimeout(() => refreshCards(currentMinute(), true), 3000);
     const fresh = cards.filter((c) => !S.seenCards.has(cardKey(c)));
-    const sig = JSON.stringify(cards.map((c) => [c.kind, c.minute, c.title, c.body])) + S.persona + S.lang + !!S.follow;
+    const sig = JSON.stringify(cards.map((c) => [c.kind, c.minute, c.title, c.body, c.pending])) + S.persona + S.lang + !!S.follow;
     S.cards = cards;
     if (sig === S.cardSig) return;  // nothing new: keep the DOM so clicks don't land on a rebuilt list
     S.cardSig = sig;
@@ -482,7 +487,20 @@
         d.addEventListener("click", go);
         d.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
       }
-      if (c.source === "agent") { const s = document.createElement("div"); s.className = "src"; s.textContent = "Explained by Full Pitch agents"; d.appendChild(s); }
+      if (c.agent_key && !c.pending) {
+        const s = document.createElement("div"); s.className = "src";
+        const how = document.createElement("button"); how.type = "button";
+        s.textContent = c.source === "agent" ? (hu() ? "Ágensek írták ·" : "Written by agents ·")
+          : (hu() ? "Sablonszöveg, az ágensek változata nem ment át az ellenőrzésen ·" : "Template text, the agents' version failed a check ·");
+        how.textContent = hu() ? "Hogyan?" : "How?";
+        how.addEventListener("click", (e) => { e.stopPropagation(); openTrace(c); });
+        how.addEventListener("keydown", (e) => e.stopPropagation());
+        s.appendChild(how); d.appendChild(s);
+      } else if (c.pending) {
+        const s = document.createElement("div"); s.className = "src pending";
+        s.textContent = hu() ? "Az ágensek most írják…" : "Agents are writing this…";
+        d.appendChild(s);
+      }
       if (S.seenCards.has(cardKey(c))) d.style.animation = "none";
       S.seenCards.add(cardKey(c));
       el.appendChild(d);
@@ -816,19 +834,106 @@
   segment("persona", "p", "persona");
   segment("lang", "l", "lang");
 
+  // ------------------------------------------------------------ how was this card written?
+  const TRACE_LABEL = {
+    Analyst: ["investigates the match through the MCP tools", "MCP-eszközökkel vizsgálja a meccset"],
+    Tactician: ["explains cause and effect", "ok-okozatot magyaráz"],
+    Narrator: ["writes for your viewer type", "a nézőtípusodnak ír"],
+    "Fact-checker": ["checks every number and name against the data", "minden számot és nevet összevet az adatokkal"],
+    Editor: ["reads the card against the facts", "a kártyát a tényekkel veti össze"],
+  };
+  function traceSummary(st) {
+    if (st.agent === "Fact-checker") {
+      const issues = [];
+      if (st.unsupported && st.unsupported.length) issues.push((hu() ? "nem igazolt szám: " : "unsupported number: ") + st.unsupported.join(", "));
+      if (st.unknown_names && st.unknown_names.length) issues.push((hu() ? "ismeretlen név: " : "unknown name: ") + st.unknown_names.join(", "));
+      if (st.too_many_numbers) issues.push(hu() ? "túl sok szám" : "too many numbers");
+      if (st.wrong_language) issues.push(hu() ? "rossz nyelv" : "wrong language");
+      if (st.check) issues.push(st.check);
+      return issues.length ? issues.join("; ")
+        : (hu() ? `${st.numbers_checked ?? 0} szám ellenőrizve, mind szerepel az adatokban` : st.numbers_checked === 1 ? "1 number checked, it is in the data" : `${st.numbers_checked ?? 0} numbers checked, all in the data`);
+    }
+    let o = st.output || "";
+    try {
+      const j = JSON.parse(o.replace(/^```(?:json)?\s*|\s*```$/g, ""));
+      if (st.agent === "Analyst" && j.observations) o = j.observations.slice(0, 2).join(" ");
+      else if (st.agent === "Tactician") o = j.headline || o;
+      else if (st.agent === "Editor") o = j.ok ? (hu() ? "Rendben." : "Approved.") : (j.problems || []).join(" ");
+      else if (j.title) o = `${j.title}: ${j.body || ""}`;
+    } catch (e) {
+      // the trace keeps the first 600 characters, so long replies are cut mid-JSON: pick the first field
+      const first = o.match(/"(?:observations"\s*:\s*\[\s*|headline"\s*:\s*|title"\s*:\s*)"((?:[^"\\]|\\.)*)"/);
+      if (first) o = first[1].replace(/\\"/g, '"');
+    }
+    return o.length > 260 ? o.slice(0, 257) + "…" : o;
+  }
+  async function openTrace(c) {
+    const params = { key: c.agent_key, persona: S.persona, lang: S.lang };
+    if (S.persona === "player" && S.follow) params.follow = S.follow;
+    let res;
+    try { res = await api("/api/trace", params); } catch (e) { toast(hu() ? "Ennek a kártyának még nincs naplója." : "No trace for this card yet."); return; }
+    lastFocus = document.activeElement;
+    $("traceCard").textContent = c.title;
+    const ol = $("traceSteps"); ol.innerHTML = "";
+    let total = 0, tokens = 0, drafts = 0;
+    for (const st of res.steps) {
+      const role = st.agent.replace(/ \(.*\)$/, "");
+      if (role === "Narrator" && drafts++) {
+        const sep = document.createElement("li"); sep.className = "retry";
+        sep.textContent = hu() ? `Visszaküldve, ${drafts}. változat` : `Sent back, draft ${drafts}`;
+        ol.appendChild(sep);
+      }
+      const li = document.createElement("li");
+      if (st.passed === false || (role === "Editor" && /"ok"\s*:\s*false/.test(st.output || ""))) li.className = "fail";
+      const who = document.createElement("div"); who.className = "who";
+      const b = document.createElement("b"); b.textContent = st.agent; who.appendChild(b);
+      const lab = TRACE_LABEL[role];
+      if (lab) { const m = document.createElement("span"); m.className = "meta"; m.textContent = lab[hu() ? 1 : 0]; who.appendChild(m); }
+      const meta = [res.models[role], st.seconds != null ? st.seconds + " s" : null, st.tokens ? st.tokens + " tokens" : null].filter(Boolean).join(" · ");
+      if (meta) { const m = document.createElement("span"); m.className = "meta"; m.textContent = meta; who.appendChild(m); }
+      for (const t of st.tools || []) { const tl = document.createElement("span"); tl.className = "tool"; tl.textContent = t; who.appendChild(tl); }
+      const what = document.createElement("p"); what.className = "what"; what.textContent = traceSummary(st);
+      li.append(who, what); ol.appendChild(li);
+      total += +st.seconds || 0; tokens += +st.tokens || 0;
+    }
+    $("traceNote").textContent = (hu()
+      ? `Microsoft Agent Framework, Microsoft Foundry modellek, MCP-eszközök. ${total.toFixed(1)} s, ${tokens} token. `
+      : `Microsoft Agent Framework, models on Microsoft Foundry, tools over MCP. ${total.toFixed(1)} s, ${tokens} tokens. `)
+      + (res.source === "agent" ? "" : (hu() ? "Az ágensek szövege nem ment át az ellenőrzésen, ezért a mért adatokból épített sablon látszik."
+        : "The agents' text did not pass the checks, so the template built from measured data is shown."));
+    $("traceDrawer").hidden = false; $("traceClose").focus();
+  }
+  function closeTrace() { $("traceDrawer").hidden = true; if (lastFocus) lastFocus.focus(); }
+  $("traceClose").addEventListener("click", closeTrace);
+  $("traceDrawer").addEventListener("click", (e) => { if (e.target.id === "traceDrawer") closeTrace(); });
+
   // ------------------------------------------------------------ what did I miss?
-  let awayFor = 10, lastFocus = null;
+  let awayFor = 10, lastFocus = null, missedReq = 0;
+  function showMissed(lines) {
+    const ul = $("missedLines"); ul.innerHTML = "";
+    const [head, ...rest] = lines;
+    $("missedWindow").textContent = head;
+    for (const line of rest) { const li = document.createElement("li"); li.textContent = line; ul.appendChild(li); }
+  }
   async function loadMissed() {
+    const req = ++missedReq;
     const params = withSession({ away: awayFor, persona: S.persona, lang: S.lang });
     if (S.follow) params.follow = S.follow;
     const res = await api("/api/catchup", params);
-    const ul = $("missedLines"); ul.innerHTML = "";
-    const [head, ...rest] = res.text.lines;
-    $("missedWindow").textContent = head;
-    for (const line of rest) { const li = document.createElement("li"); li.textContent = line; ul.appendChild(li); }
-    $("missedSource").textContent = res.text.source === "agent"
-      ? "Written by Full Pitch agents on Microsoft Foundry from measured match data."
-      : "Built straight from measured match data.";
+    if (req !== missedReq) return;
+    showMissed(res.text.lines);
+    $("missedSource").textContent = hu() ? "Mért meccsadatokból. Az ágensek most írják a saját változatukat…" : "From measured match data. The agents are writing their version…";
+    try {
+      const ag = await api("/api/catchup/agent", params);
+      if (req !== missedReq) return;
+      showMissed(ag.lines);
+      $("missedSource").textContent = hu()
+        ? "Az ágensek írták a Microsoft Foundryn, mért meccsadatokból, minden szám ellenőrizve."
+        : "Written by Full Pitch agents on Microsoft Foundry from measured match data, every number checked.";
+    } catch (e) {
+      if (req !== missedReq) return;
+      $("missedSource").textContent = hu() ? "Közvetlenül a mért meccsadatokból." : "Built straight from measured match data.";
+    }
   }
   function openDrawer() { lastFocus = document.activeElement; $("drawer").hidden = false; $("drawerClose").focus(); loadMissed(); }
   function closeDrawer() { $("drawer").hidden = true; if (lastFocus) lastFocus.focus(); }
@@ -836,7 +941,7 @@
   $("drawerClose").addEventListener("click", closeDrawer);
   $("drawer").addEventListener("click", (e) => { if (e.target.id === "drawer") closeDrawer(); });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { if (!$("drawer").hidden) closeDrawer(); else if (S.replay) endReplay(); else if (document.body.classList.contains("present")) togglePresent(false); }
+    if (e.key === "Escape") { if (!$("traceDrawer").hidden) closeTrace(); else if (!$("drawer").hidden) closeDrawer(); else if (S.replay) endReplay(); else if (document.body.classList.contains("present")) togglePresent(false); }
     if ((e.key === "p" || e.key === "P") && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) togglePresent();
   });
   document.querySelectorAll("#awayFor button").forEach((b) =>

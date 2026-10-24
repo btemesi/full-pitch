@@ -40,6 +40,10 @@ def store():
 
 
 def live_minute() -> float:
+    path = os.environ.get("FULLPITCH_CLOCK_FILE")
+    if path:  # the orchestrator writes the minute an agent is allowed to see
+        with open(path, encoding="utf-8") as f:
+            return float(f.read().strip())
     url = os.environ.get("FULLPITCH_CLOCK_URL")
     if url:
         with urllib.request.urlopen(url, timeout=3) as r:
@@ -47,7 +51,7 @@ def live_minute() -> float:
     fixed = os.environ.get("FULLPITCH_LIVE_MINUTE")
     if fixed is not None:
         return float(fixed)
-    raise RuntimeError("No live clock: set FULLPITCH_CLOCK_URL or FULLPITCH_LIVE_MINUTE")
+    raise RuntimeError("No live clock: set FULLPITCH_CLOCK_FILE, FULLPITCH_CLOCK_URL or FULLPITCH_LIVE_MINUTE")
 
 
 def _with_clock(payload):
@@ -102,6 +106,10 @@ def key_moments() -> dict:
 if __name__ == "__main__":
     if "--http" in sys.argv:
         port = int(sys.argv[sys.argv.index("--http") + 1])
-        mcp.run(transport="streamable-http", port=port)
+        if hasattr(mcp, "settings"):  # SDK 1.x: host/port live in settings
+            mcp.settings.port = port
+            mcp.run(transport="streamable-http")
+        else:  # SDK 2.x
+            mcp.run(transport="streamable-http", port=port)
     else:
         mcp.run()

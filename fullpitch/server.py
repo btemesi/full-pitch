@@ -28,7 +28,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .analysis import slot_occupancy
 from .store import load
-from .templates import catch_up_text, change_card, goal_card, recap_text
+from .templates import WORDS, catch_up_text, change_card, goal_card, recap_text
 
 MATCH_DIR = os.environ.get("FULLPITCH_MATCH", os.path.join(os.path.dirname(__file__), "..", "data", "FP-0001"))
 WEB_DIR = os.path.join(os.path.dirname(__file__), "..", "web")
@@ -39,14 +39,39 @@ Persona = Literal["casual", "analyst", "player"]
 Lang = Literal["en", "hu"]
 
 
+def _load_env(path):
+    """Minimal .env reader (KEY=value lines); real environment variables win."""
+    if os.path.exists(path):
+        for line in open(path, encoding="utf-8"):
+            if "=" in line and not line.lstrip().startswith("#"):
+                k, v = line.strip().split("=", 1)
+                os.environ.setdefault(k, v)
+
+
+_load_env(os.path.join(os.path.dirname(__file__), "..", ".env"))
+TEAM = None  # the agent team; None means template text only
+
+
 @asynccontextmanager
 async def lifespan(_app):
-    load(MATCH_DIR)  # warm the match and its analysis before the first viewer arrives
+    global TEAM
+    store_ = load(MATCH_DIR)  # warm the match and its analysis before the first viewer arrives
+    if os.environ.get("FOUNDRY_PROJECT_ENDPOINT") and os.environ.get("FULLPITCH_AGENTS", "1") != "0":
+        try:
+            from .agents import AgentTeam
+            TEAM = AgentTeam(store_, cache_path=os.path.join(MATCH_DIR, "agent_cache.json"))
+            await TEAM.start()
+        except Exception as exc:  # noqa: BLE001 - without agents the app still works on templates
+            print(f"[agents] disabled: {type(exc).__name__}: {exc}")
+            TEAM = None
     yield
+    if TEAM:
+        await TEAM.stop()
 
 
 app = FastAPI(title="Full Pitch", lifespan=lifespan)
 SESSIONS: dict[str, dict] = {}
+CATCHUP_CACHE: dict[tuple, dict] = {}
 
 
 def store():
@@ -130,8 +155,44 @@ def changes(sid: str = Query(alias="session")):
 
 
 @app.get("/api/cards")
-def cards(sid: str = Query(alias="session"), persona: Persona = "casual", lang: Lang = "en"):
-    """On-screen cards up to the live minute: confirmed tactical changes and goals."""
+async def cards(sid: str = Query(alias="session"), persona: Persona = "casual", lang: Lang = "en",
+                follow: str | None = None):
+    """On-screen cards up to the live minute: confirmed tactical changes, goals, red cards, recaps.
+    The template text shows at once; the agents' version replaces it as soon as it is written."""
+    out = _template_cards(sid, persona, lang)
+    if TEAM:
+        fol = follow if persona == "player" else None
+        for card in out:
+            if card["kind"] not in ("change", "goal", "recap"):
+                continue
+            card["agent_key"] = TEAM.event_key(card)
+            hit = TEAM.lookup(card, persona, lang, fol)
+            if hit and hit.get("source") == "agent":
+                card.update(title=hit["title"], body=hit["body"], source="agent")
+                exp = TEAM.cache.get(f"{card['agent_key']}|explain")
+                if card["kind"] == "change" and exp:  # the start minute the agents wrote about
+                    card["subtitle"] = WORDS[lang]["since"].format(clock=exp["facts"]["since"])
+            elif hit is None:
+                TEAM.ensure(card, persona, lang, fol)
+                card["pending"] = True
+    return out
+
+
+@app.get("/api/trace")
+def trace(key: str, persona: Persona = "casual", lang: Lang = "en", follow: str | None = None):
+    """How a card was written: each agent's step, tools used, time, and the fact-check."""
+    if not TEAM:
+        raise HTTPException(404, "agents are off")
+    hit = TEAM.cache.get(f"{key}|{persona}|{lang}|{follow or ''}")
+    if not hit:
+        raise HTTPException(404, "not written yet")
+    fast = os.environ.get("FOUNDRY_MODEL", "gpt-4.1-mini")
+    writer = os.environ.get("FOUNDRY_WRITER_MODEL", fast)
+    return {"key": key, "source": hit.get("source"), "steps": hit.get("trace", []),
+            "models": {"Analyst": fast, "Tactician": fast, "Narrator": writer, "Editor": writer}}
+
+
+def _template_cards(sid, persona, lang):
     s, at = store(), now(sid)
     names = {t["short"]: t["name"] for t in s.md.meta["teams"]}
     out = []
@@ -185,6 +246,30 @@ def lineup(sid: str = Query(alias="session")):
                          "on_pitch": bool(s.md.active[f, k * 11 + slot])})
         out[short] = team
     return out
+
+
+@app.get("/api/catchup/agent")
+async def catchup_agent(sid: str = Query(alias="session"), away: float = Query(10, ge=1, le=120),
+                        follow: str | None = None, persona: Persona = "casual", lang: Lang = "en"):
+    """'What did I miss?' written by the Narrator agent and fact-checked; 404 if agents are off or fail."""
+    if not TEAM:
+        raise HTTPException(404, "agents are off")
+    s, at = store(), now(sid)
+    if follow and follow not in {p["id"] for p in s.md.meta["players"]}:
+        raise HTTPException(404, "unknown player")
+    key = (round(max(0.0, at - away), 1), round(at, 1), follow, persona, lang)
+    if key not in CATCHUP_CACHE:
+        facts = s.catch_up(max(0.0, at - away), at, at_minute=at, follow_player=follow)
+        try:
+            res = await asyncio.wait_for(TEAM.catch_up(facts, persona, lang), timeout=30)
+        except Exception:  # noqa: BLE001
+            res = None
+        if not res:
+            raise HTTPException(503, "agents could not write a checked summary")
+        # the window line stays the measured one; the agents write the bullets
+        res = {**res, "lines": [catch_up_text(facts, persona, lang)["lines"][0], *res["lines"]]}
+        CATCHUP_CACHE[key] = res
+    return CATCHUP_CACHE[key]
 
 
 @app.get("/api/catchup")

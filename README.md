@@ -13,7 +13,7 @@ Full Pitch is a live second screen for football fans. Next to the broadcast it s
 - [x] Server-held live clock, MCP server for agents, live replay API
 - [x] Web app (desktop + phone), EN / HU: replays with drawn explanations, team and player stats, recaps
 - [x] Tests (`pytest`)
-- [ ] Agents on Microsoft Foundry (Microsoft Agent Framework)
+- [x] Agents on Microsoft Foundry (Microsoft Agent Framework), with a visible trace for every card
 - [ ] Azure Container Apps deployment
 
 ## How it works
@@ -76,7 +76,7 @@ Live, a change is confirmed a median 7.5 minutes after it starts (middle half: 7
 
 ## 3. MCP server and live replay
 
-- `fullpitch/mcp_server.py`: `match_info`, `match_state`, `tactical_changes`, `shape_timeline`, `player_report`, `catch_up`, `key_moments`. The live minute comes from the replay server's session clock (`FULLPITCH_CLOCK_URL`), never from the agent.
+- `fullpitch/mcp_server.py`: `match_info`, `match_state`, `tactical_changes`, `shape_timeline`, `player_report`, `catch_up`, `key_moments`. The live minute comes from the replay server's clock (`FULLPITCH_CLOCK_FILE`, written by the agent team for the moment being explained, or `FULLPITCH_CLOCK_URL`), never from the agent.
 - `fullpitch/server.py`: FastAPI. `POST /api/session`, `GET /api/stream` (Server-Sent Events: positions, events, detected changes), `/api/cards`, `/api/catchup` ("What did I miss?"), `/api/player`, `/api/lineup`, `/api/frame`, `/api/clock`. Inputs are validated.
 
 ## 4. Web app
@@ -92,6 +92,24 @@ Live, a change is confirmed a median 7.5 minutes after it starts (middle half: 7
 - **What did I miss?**: the last 5 to 30 minutes in a few lines.
 - **Presentation mode** (`P` or `?present=1`): just the pitch and the scoreboard, for recording.
 
+## 5. Agents on Microsoft Foundry
+
+`fullpitch/agents.py`, built with the **Microsoft Agent Framework** (`agent_framework`), models deployed on **Microsoft Foundry**, match data over **MCP**. Five roles work on every moment (a goal, a shape change, a recap):
+
+| Role | Model | Job |
+| --- | --- | --- |
+| Analyst | gpt-4.1-mini | Investigates the moment through the MCP tools (`match_state`, `tactical_changes`, `key_moments`, ...). The MCP server reads the session clock, so the Analyst cannot look past the live minute. |
+| Tactician | gpt-4.1-mini | Turns the measured facts and the Analyst's notes into cause and effect. |
+| Narrator | gpt-4o | Writes the on-screen card for one viewer type (fan, analyst, the fan following one player), in English or Hungarian. |
+| Fact-checker | plain Python | Every number in the card must exist in the measured facts or in the Analyst's tool results; every capitalised name must belong to this match (it caught invented clubs such as "Riverstone"); the language must be the one asked for. |
+| Editor | gpt-4o | Reads the card against the facts like a sub-editor: wrong minute, scorer or score, actions that did not happen, a headline about the wrong thing, claims that need the future ("the winner" in the 88th minute). |
+
+A card that fails a check goes back to the Narrator with the reasons, up to three drafts. If no draft passes, the template text built straight from the measurements stays on screen, so a viewer never sees an unchecked sentence. The template shows at once in any case; the agents' version replaces it when it is ready (`pending` in `/api/cards`).
+
+**Every card has a "How?" link** (`/api/trace`): each agent's step, the model, the MCP tools it called, seconds, tokens, and what the checks found, including drafts that were sent back.
+
+For the demo match the cards are written ahead (`python scripts/pregenerate.py`, cached in `data/FP-0001/agent_cache.json`) so the video and the public demo do not depend on rate limits; anything not cached is written live. In that cached run: 59 of 60 cards (10 moments × 3 viewer types × 2 languages) were written by the agents and 1 stayed on the template; 15 cards needed more than one draft; the Editor sent back 21 drafts and the Fact-checker 1. "What did I miss?" is also written by the agents from the same measured facts, checked, and must mention every goal and shape change in the window (`/api/catchup/agent`).
+
 ## Run it
 
 ```bash
@@ -99,11 +117,14 @@ python -m venv .venv && .venv/Scripts/pip install -r requirements.txt -r require
 python scripts/generate.py --seed 3                  # the demo match: RIV 3-2 NOR
 uvicorn fullpitch.server:app --port 8010             # open http://localhost:8010/?t=50
 python -m pytest                                     # tests
+python scripts/pregenerate.py                        # agents write every card of the demo match (needs .env)
 python scripts/analyze.py                            # detected changes vs truth for the current match
 python scripts/realism_report.py 101 116             # how football-like the engine is
 python scripts/eval_detection.py 1 60                # detection accuracy
 python scripts/fuzz_api.py 201 206                   # bug hunt: every endpoint, every minute, every player
 ```
+
+Agents need a Foundry project and `az login` (no keys are stored): put `FOUNDRY_PROJECT_ENDPOINT`, `FOUNDRY_MODEL` (gpt-4.1-mini) and `FOUNDRY_WRITER_MODEL` (gpt-4o) in `.env`. Without them the app runs on the template texts.
 
 Pitch: 105 × 68 m. Home attacks +x in the first half and -x in the second.
 

@@ -74,7 +74,19 @@ select,.chk{background:var(--panel);border:1px solid var(--line);border-radius:8
 .card h3{margin:4px 0 4px;font:700 20px/1.15 var(--cond);letter-spacing:.01em}
 .card p{margin:0;color:#d5ddd7}
 .card.goal h3{color:var(--accent)}
-.card .src{margin-top:8px;font-size:11px;color:var(--mute)}
+.card .src{margin-top:8px;font-size:11px;color:var(--mute);display:flex;gap:8px;align-items:center}
+.card .src button{background:none;border:0;padding:0;color:var(--accent);font:inherit;cursor:pointer;text-decoration:underline}
+.card .src.pending::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+.trace{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;max-height:58vh;overflow:auto}
+.trace li{border-left:3px solid var(--accent);padding:4px 0 4px 12px}
+.trace li.fail{border-color:#ff8a4d}
+.trace li.retry{border:0;padding:0;color:#ff8a4d;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.trace .who{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;font-size:13px}
+.trace .who b{font-size:14px}
+.trace .meta{color:var(--mute);font-size:11px}
+.trace .tool{font:11px/1 ui-monospace,monospace;background:rgba(255,255,255,.08);border-radius:4px;padding:3px 5px}
+.trace .what{margin:4px 0 0;font-size:13px;color:var(--ink,inherit);opacity:.9}
 @keyframes in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 
 .drawer{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding-top:9vh;z-index:5}
