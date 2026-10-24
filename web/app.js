@@ -839,6 +839,7 @@
     Analyst: ["investigates the match through the MCP tools", "MCP-eszközökkel vizsgálja a meccset"],
     Tactician: ["explains cause and effect", "ok-okozatot magyaráz"],
     Narrator: ["writes for your viewer type", "a nézőtípusodnak ír"],
+    Translator: ["turns the checked English card into Hungarian", "magyarra fordítja az ellenőrzött angol kártyát"],
     "Fact-checker": ["checks every number and name against the data", "minden számot és nevet összevet az adatokkal"],
     Editor: ["reads the card against the facts", "a kártyát a tényekkel veti össze"],
   };
@@ -871,7 +872,7 @@
     const params = { key: c.agent_key, persona: S.persona, lang: S.lang };
     if (S.persona === "player" && S.follow) params.follow = S.follow;
     let res;
-    try { res = await api("/api/trace", params); } catch (e) { toast(hu() ? "Ennek a kártyának még nincs naplója." : "No trace for this card yet."); return; }
+    try { res = await api("/api/trace", withSession(params)); } catch (e) { toast(hu() ? "Ennek a kártyának még nincs naplója." : "No trace for this card yet."); return; }
     lastFocus = document.activeElement;
     $("traceCard").textContent = c.title;
     const ol = $("traceSteps"); ol.innerHTML = "";

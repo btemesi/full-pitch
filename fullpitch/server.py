@@ -19,6 +19,7 @@ import json
 import os
 import time
 import uuid
+from collections import OrderedDict
 from contextlib import asynccontextmanager
 from typing import Literal
 
@@ -71,7 +72,9 @@ async def lifespan(_app):
 
 app = FastAPI(title="Full Pitch", lifespan=lifespan)
 SESSIONS: dict[str, dict] = {}
-CATCHUP_CACHE: dict[tuple, dict] = {}
+CATCHUP_CACHE: "OrderedDict[tuple, dict]" = OrderedDict()
+CATCHUP_INFLIGHT: dict[tuple, asyncio.Task] = {}
+CATCHUP_CACHE_MAX = 300
 
 
 def store():
@@ -162,34 +165,42 @@ async def cards(sid: str = Query(alias="session"), persona: Persona = "casual", 
     out = _template_cards(sid, persona, lang)
     if TEAM:
         fol = follow if persona == "player" else None
+        if fol and fol not in {p["id"] for p in store().md.meta["players"]}:
+            raise HTTPException(404, "unknown player")
         for card in out:
             if card["kind"] not in ("change", "goal", "recap"):
                 continue
-            card["agent_key"] = TEAM.event_key(card)
+            key = TEAM.event_key(card)
             hit = TEAM.lookup(card, persona, lang, fol)
+            writing = hit is None and TEAM.ensure(card, persona, lang, fol)
+            if hit or writing:
+                card["agent_key"] = key  # only cards the agents wrote, tried, or are writing have a trace
             if hit and hit.get("source") == "agent":
                 card.update(title=hit["title"], body=hit["body"], source="agent")
                 exp = TEAM.cache.get(f"{card['agent_key']}|explain")
                 if card["kind"] == "change" and exp:  # the start minute the agents wrote about
                     card["subtitle"] = WORDS[lang]["since"].format(clock=exp["facts"]["since"])
-            elif hit is None:
-                TEAM.ensure(card, persona, lang, fol)
+            elif writing:
                 card["pending"] = True
     return out
 
 
 @app.get("/api/trace")
-def trace(key: str, persona: Persona = "casual", lang: Lang = "en", follow: str | None = None):
-    """How a card was written: each agent's step, tools used, time, and the fact-check."""
+def trace(key: str, sid: str = Query(alias="session"), persona: Persona = "casual", lang: Lang = "en",
+          follow: str | None = None):
+    """How a card was written: each agent's step, tools used, time, and the fact-check.
+    Only for cards the session can already see: a trace holds the card's text."""
     if not TEAM:
         raise HTTPException(404, "agents are off")
+    if key not in {TEAM.event_key(c) for c in _template_cards(sid, persona, lang)}:
+        raise HTTPException(404, "no such card yet")
     hit = TEAM.cache.get(f"{key}|{persona}|{lang}|{follow or ''}")
     if not hit:
         raise HTTPException(404, "not written yet")
     fast = os.environ.get("FOUNDRY_MODEL", "gpt-4.1-mini")
     writer = os.environ.get("FOUNDRY_WRITER_MODEL", fast)
     return {"key": key, "source": hit.get("source"), "steps": hit.get("trace", []),
-            "models": {"Analyst": fast, "Tactician": fast, "Narrator": writer, "Editor": writer}}
+            "models": {"Analyst": fast, "Tactician": fast, "Narrator": writer, "Translator": writer, "Editor": writer}}
 
 
 def _template_cards(sid, persona, lang):
@@ -205,7 +216,7 @@ def _template_cards(sid, persona, lang):
         r = s.recap(kind, at)
         if r:
             t = recap_text(r, lang)
-            out.append({"kind": "recap", "recap": kind, "team": None, "minute": 45.0 if kind == "ht" else s.length_min,
+            out.append({"kind": "recap", "recap": kind, "team": None, "minute": s.ht_minute if kind == "ht" else s.length_min,
                         "subtitle": r["clock"], "title": t["title"], "body": "\n".join(t["lines"][1:]), "source": "template"})
     for e in s.key_moments(at):
         if e["type"] == "goal":
@@ -257,19 +268,38 @@ async def catchup_agent(sid: str = Query(alias="session"), away: float = Query(1
     s, at = store(), now(sid)
     if follow and follow not in {p["id"] for p in s.md.meta["players"]}:
         raise HTTPException(404, "unknown player")
-    key = (round(max(0.0, at - away), 1), round(at, 1), follow, persona, lang)
-    if key not in CATCHUP_CACHE:
-        facts = s.catch_up(max(0.0, at - away), at, at_minute=at, follow_player=follow)
-        try:
-            res = await asyncio.wait_for(TEAM.catch_up(facts, persona, lang), timeout=30)
-        except Exception:  # noqa: BLE001
-            res = None
-        if not res:
-            raise HTTPException(503, "agents could not write a checked summary")
+    # whole minutes: viewers asking within the same minute share one summary
+    at = float(int(at))
+    start = max(0.0, at - round(away))
+    key = (start, at, follow, persona, lang)
+    if key in CATCHUP_CACHE:
+        CATCHUP_CACHE.move_to_end(key)
+        return CATCHUP_CACHE[key]
+    if key not in CATCHUP_INFLIGHT:
+        if not TEAM.take_run():
+            raise HTTPException(503, "agent budget for this hour is used up")
+        facts = s.catch_up(start, at, at_minute=at, follow_player=follow)
+        CATCHUP_INFLIGHT[key] = asyncio.create_task(_write_catchup(key, facts, persona, lang))
+    res = await asyncio.shield(CATCHUP_INFLIGHT[key])
+    if not res:
+        raise HTTPException(503, "agents could not write a checked summary")
+    return res
+
+
+async def _write_catchup(key, facts, persona, lang):
+    try:
+        res = await asyncio.wait_for(TEAM.catch_up(facts, persona, lang), timeout=40)
+    except Exception:  # noqa: BLE001
+        res = None
+    finally:
+        CATCHUP_INFLIGHT.pop(key, None)
+    if res:
         # the window line stays the measured one; the agents write the bullets
         res = {**res, "lines": [catch_up_text(facts, persona, lang)["lines"][0], *res["lines"]]}
         CATCHUP_CACHE[key] = res
-    return CATCHUP_CACHE[key]
+        while len(CATCHUP_CACHE) > CATCHUP_CACHE_MAX:
+            CATCHUP_CACHE.popitem(last=False)
+    return res
 
 
 @app.get("/api/catchup")

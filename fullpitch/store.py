@@ -154,7 +154,16 @@ class MatchStore:
     def player_profile(self, pid, at_minute):
         return insights.player_profile(self.md, pid, self.frame(at_minute) + 1, self.runs)
 
+    @property
+    def ht_minute(self):
+        # match minute of the half-time whistle (the last frame of the first half)
+        idx = np.flatnonzero(np.asarray(self.md.period) == 2)
+        return float(self.md.tmin[int(idx[0]) - 1]) if len(idx) else self.length_min
+
     def recap(self, kind, at_minute):
+        # the half-time recap says what was known at the whistle, whenever it is read
+        if kind == "ht" and at_minute >= self.ht_minute:
+            at_minute = self.ht_minute
         return insights.recap(self.md, kind, self.frame(at_minute) + 1, self.live_changes_at(at_minute), self.runs)
 
     def replay(self, kind, minute, team, at_minute, signal=None):

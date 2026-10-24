@@ -2,12 +2,13 @@
 
     Analyst      reads the match through the MCP server (as of the moment) and writes evidence notes
     Tactician    turns evidence into cause and effect: what changed, why it matters, what followed
-    Narrator x3  writes for a fan, an analyst or one player's follower, in English or Hungarian
+    Narrator x3  writes for a fan, an analyst or one player's follower, in English
+    Translator   turns the checked English card into Hungarian, adding nothing
     Fact-checker deterministic: every number must exist in the measured facts or the Analyst's tool
                  results, every name must belong to this match
     Editor       reads the card against the facts like a sub-editor: wrong minute, scorer, score or team,
                  invented actions (headers, free kicks), a headline about the wrong thing
-                 Two rewrites are allowed; after that the template text stands
+                 Up to three drafts; after that the template text stands
     Orchestrator shared state (fact pack + notes), hand-offs, caching, failure recovery, a trace per card
 
 Agents never see past the moment they explain: the MCP server reads its clock from a file that
@@ -15,6 +16,7 @@ the orchestrator sets to the event's minute before the Analyst runs.
 """
 
 import asyncio
+import collections
 import difflib
 import json
 import os
@@ -29,6 +31,7 @@ import numpy as np
 from .catchup import player_name, window_facts
 
 PERSONAS = ("casual", "analyst", "player")
+FAIL_COOLDOWN_S = 300
 LANGS = ("en", "hu")
 
 ANALYST = """You are the Analyst in a football broadcast team. You investigate one moment of a live match
@@ -41,7 +44,8 @@ TACTICIAN = """You are the Tactician in a football broadcast team. You receive m
 Analyst's observations about one moment. Explain cause and effect like a sharp pundit: what changed,
 why it matters on the pitch, and what has followed so far (possession, shots, xG, goals), if anything.
 Use only numbers that appear in the input and the team and player names exactly as given.
-If the evidence for a consequence is weak, say so plainly.
+The facts never prove cause: when a goal or a number followed a change, say it came after the change or may
+have helped, never that the change produced it. If the evidence for a consequence is weak, say so plainly.
 Return ONLY JSON: {"headline": "...", "why": "...", "consequence": "..."}"""
 
 NARRATOR = {
@@ -58,6 +62,7 @@ Use the team and player names exactly as given, and call teams by their full nam
 Back-line player counts are averages: say "three" or "a back three",
 never "2.9 players". The title starts with a capital letter, names keep their capitals.
 If the moment has "card_is_about", the title is about that subject.
+Describe tactics (pressing, a deep block, a formation, line height) only when the facts measure them.
 You know only what has happened up to this moment: never call a goal the winner or say a match is decided
 unless the facts say it has ended. Do not use dashes as punctuation. Write in {language}.
 Return ONLY JSON: {{"title": "...", "body": "..."}}"""
@@ -65,21 +70,41 @@ LANGUAGE = {"en": "English",
             "hu": "natural, correctly spelled Hungarian, the way a Hungarian TV pundit talks (decimal comma, "
                   "team names keep their English form with Hungarian case endings, e.g. 'a Northgate FC-nek')"}
 
+TRANSLATOR = """You translate one checked on-screen football card from English into Hungarian, the way a
+Hungarian TV commentator would say it. Keep every fact, number, minute and name; add nothing and leave nothing out.
+Write natural, grammatical Hungarian: decimal comma (30,5), team names keep their English form with Hungarian
+case endings ("a Northgate FC-nek", "a Riverside Athletic javára"), the article before minutes ("az 53. percben",
+"a 47. percben", "a 66. percben": "az" only before numbers read with a vowel, like 1, 5 and 50 to 59),
+suffixes after scores ("2-0-s vezetés", "1-0-ra"). Do not use dashes as punctuation.
+Words: "shape change" is "átrendeződés" (never "formációváltás" unless the English says formation),
+"defensive line" is "védelmi vonal", "expected goals" or "xG" is "xG" or "várható gólok", "back three" is
+"háromvédős hátsó sor", "final third" is "támadóharmad".
+Return ONLY JSON: {"title": "...", "body": "..."}"""
+
 EDITOR = """You are the Editor of a football broadcast. You check one on-screen card against the measured facts.
 Flag ONLY real problems: a wrong minute, scorer, assist, score or team; an action that is not in the facts
-(for example a header, volley, free kick, save or dribble that the facts do not mention); a headline about
-something other than the moment; a claim that contradicts a number. Do not flag style or wording.
+(for example a header, volley, free kick, save or dribble that the facts do not mention); a tactical claim
+(pressing, a deep block, a formation, a line height) that the facts do not measure; a headline about
+something other than the moment; a claim that contradicts a number. Do not flag style or wording, what the
+card leaves out, or a fair reading of a number (55% possession is "more of the ball").
 Also flag a claim that needs knowledge of the future (calling a goal "the winner", "decisive", "sealed it")
-unless the facts show the match has ended, and clear spelling or grammar mistakes in Hungarian.
+unless the facts show the match has ended. For a Hungarian card, also read it as a native proofreader and flag
+grammar: subject and verb must agree ("Dorsey két gólja alapozta meg", not "alapozták"), suffixes after scores
+and numbers ("2-0-s", "1-0-ra"), case endings, and phrases no Hungarian commentator would say ("várt gólmutató"
+instead of "várható gólok", "önmaga által tartott vonal").
 A clock like "45+2'" is the 2nd minute of first-half stoppage time; "47'" is the 2nd minute of the second half,
 which you may call "early in the second half" but never "the second minute".
 Window stats are counts inside that window. A goal's own "score_after" is the score it produced.
 A pundit's "may have", "helped" or "led to" about a goal that followed a change is fine; flag causation
 only when the card states it as certain.
-Return ONLY JSON: {"ok": true or false, "problems": ["short description", ...]}"""
+Work claim by claim: list every factual claim the card makes (numbers, minutes, names, events, tactics,
+cause and effect) and decide whether the facts support it.
+Return ONLY JSON: {"claims": [{"claim": "...", "supported": true or false, "why": "..."}],
+"ok": true only if every claim is supported, "problems": ["short description of each unsupported claim"]}"""
 
 NUM = re.compile(r"\d+(?:[.,]\d+)?")
-WORD_NUMBERS_OK = set(range(0, 12)) | {90}  # counts of players, "90 minutes"
+WORD_NUMBERS_OK = {0, 1, 90}  # "0-0", "one", "90 minutes"; every other digit must be in the facts
+SMALL_COUNTS = set(range(12)) | {90}  # scores and small counts do not make a casual card "too numeric"
 
 
 # ------------------------------------------------------------------ helpers
@@ -171,7 +196,13 @@ def unknown_names(text, names):
 
 
 HU_WORDS = re.compile(r"\b(a|az|és|hogy|de|már|még|után|ellen|percben|gól|óta|nem|is)\b", re.I)
-HU_VOWEL_NUMBERS = re.compile(r"\b([Aa]) ((?:1|5\d?)\b[.'])")  # egy, öt, ötven...
+HU_ARTICLE_NUMBER = re.compile(r"\b([Aa]z?) (\d+)(?=[.,'\s%+-]|$)")
+HU_SPELLING = {"Gólnélküli": "Gól nélküli", "gólnélküli": "gól nélküli"}
+
+
+def _hu_article(n):
+    # numbers read with a leading vowel: egy (1), öt (5), ötven.. (50-59), ezer.. (1000-1999)
+    return "az" if n in (1, 5) or 50 <= n <= 59 or 1000 <= n <= 1999 else "a"
 
 
 def wrong_language(text, lang):
@@ -186,8 +217,15 @@ def polish(text, lang, names, title=False):
     text = re.sub(r"(\d)\s*[–—]\s*(\d)", r"\1-\2", text)
     text = re.sub(r"\s+[–—]\s+", ", ", text)
     text = text.replace("—", ", ").replace("–", "-")
+    text = re.sub(r"\s+-\s*(?=[,.;:!?])", "", text)  # a dash left dangling before punctuation
+    text = re.sub(r"\s+-\s+", ", ", text)
     if lang == "hu":
-        text = HU_VOWEL_NUMBERS.sub(lambda m: ("Az" if m.group(1) == "A" else "az") + " " + m.group(2), text)
+        def article(m):
+            art = _hu_article(int(m.group(2)))
+            return (art.capitalize() if m.group(1)[0] == "A" else art) + " " + m.group(2)
+        text = HU_ARTICLE_NUMBER.sub(article, text)
+        for wrong, right in HU_SPELLING.items():
+            text = text.replace(wrong, right)
     if title and lang == "en":
         def is_name(w):
             w = re.sub(r"['’]s$", "", w.strip("',.:;!?")).split("-")[0]
@@ -197,6 +235,27 @@ def polish(text, lang, names, title=False):
             text = " ".join([words[0]] + [w if is_name(w) else w.lower() for w in words[1:]])
     if title:
         text = text[:1].upper() + text[1:]
+    return text
+
+
+CLOCK = re.compile(r"(\d+)(?:\+\d+)?'")
+TEXT_MINUTES = re.compile(r"(\d+)(?:\+\d+)?(?:'|(?:st|nd|rd|th) minute|\.\s*perc)")
+
+
+def fact_minutes(facts):
+    # every clock label in the facts of the moment, e.g. "67'" or "45+2'"
+    return {int(m) for m in CLOCK.findall(json.dumps(facts, ensure_ascii=False))}
+
+
+def wrong_minutes(text, minutes):
+    # minutes in the text that are not a clock of this moment ("since the 70' change" when it began at 67')
+    return [m for m in TEXT_MINUTES.findall(text) if int(m) not in minutes]
+
+
+def expand_codes(text, teams):
+    # "RIV dominate" -> "Riverside Athletic dominate": viewers know the names, not the codes
+    for short, name in teams.items():
+        text = re.sub(rf"\b{short}\b(?![-'’]?\d)", name, text)
     return text
 
 
@@ -212,6 +271,18 @@ def fact_check(text, allowed):
     return bad
 
 
+def editor_verdict(text):
+    """Problems the Editor found; an unreadable verdict doesn't block a card that passed the checks."""
+    try:
+        v = _json_from(text)
+    except ValueError:
+        return []
+    problems = [str(x) for x in v.get("problems", []) if str(x).strip()]
+    problems += [f"unsupported: {c.get('claim')}" for c in v.get("claims", [])
+                 if isinstance(c, dict) and c.get("supported") is False and not problems]
+    return [] if v.get("ok") and not problems else (problems or ["the editor rejected the card"])[:4]
+
+
 # ------------------------------------------------------------------ orchestrator
 class AgentTeam:
     def __init__(self, store, cache_path=None):
@@ -223,6 +294,10 @@ class AgentTeam:
         self.cache_path = Path(cache_path) if cache_path else None
         self.cache = json.loads(self.cache_path.read_text(encoding="utf-8")) if self.cache_path and self.cache_path.exists() else {}
         self.pending = {}
+        self.failed = {}  # key -> time of the last failure; retried after FAIL_COOLDOWN_S
+        self.runs = collections.deque()  # start times of live (uncached) jobs, for the hourly budget
+        self.max_runs_per_hour = int(os.environ.get("FULLPITCH_AGENT_RUNS_PER_HOUR", "60"))
+        self.jobs = asyncio.Semaphore(2)
         self.analyst_lock = asyncio.Lock()
         self.clock_file = os.path.join(tempfile.gettempdir(), f"fullpitch_clock_{os.getpid()}.txt")
         Path(self.clock_file).write_text("0", encoding="utf-8")
@@ -245,6 +320,8 @@ class AgentTeam:
         self.tactician = Agent(client=client, name="Tactician", instructions=TACTICIAN)
         self.narrators = {p: Agent(client=writer, name=f"Narrator ({p})", instructions=NARRATOR[p]) for p in PERSONAS}
         self.editor = Agent(client=writer, name="Editor", instructions=EDITOR)
+        self.translator = Agent(client=writer, name="Translator", instructions=TRANSLATOR)
+        self.inflight = {}  # card key -> task, so English and Hungarian don't write the same card twice
         md = store.md
         self.names = ({w for t in md.meta["teams"] for w in t["name"].split()} | set(md.shorts)
                       | {w for p in md.meta["players"] for w in p["name"].split()} | {"I", "VAR", "xG"})
@@ -278,9 +355,9 @@ class AgentTeam:
         md = s.md
         if card["kind"] == "change":
             asof = float(card["confirmed_minute"])
-            m = float(card["minute"])
             change = next(c for c in s.tactical_changes(asof) if c["team"] == card["team"]
                           and c["confirmed_minute"] == card["confirmed_minute"])
+            m = float(change["since_minute"])  # as known at confirmation, not the later refined start
             before = window_facts(md, s.rows, s.frame(max(0, m - 12)), s.frame(m), changes=[])
             after = window_facts(md, s.rows, s.frame(m), s.frame(asof), changes=[])
             return asof, {"type": "shape change", "team": card["team"], "team_name": _team_name(md, card["team"]),
@@ -309,8 +386,8 @@ class AgentTeam:
                           "shape_changes_so_far": [{"team": c["team"], "since": c["since"],
                                                     "what": [x["what"] for x in c["signals"]]} for c in active]}
         if card["kind"] == "recap":
-            asof = 45.0 if card["recap"] == "ht" else s.length_min
-            r = s.recap(card["recap"], s.length_min if card["recap"] == "ft" else 60)
+            asof = s.ht_minute if card["recap"] == "ht" else s.length_min
+            r = s.recap(card["recap"], asof)  # only what was known at the whistle
             return asof, {"type": "half-time recap" if card["recap"] == "ht" else "full-time recap", **r}
         raise ValueError(card["kind"])
 
@@ -347,31 +424,86 @@ class AgentTeam:
             return hit
         asof, facts = self.fact_pack(card)
         trace = []
-        async with self.analyst_lock:  # the clock file is shared, so one investigation at a time
-            Path(self.clock_file).write_text(str(asof), encoding="utf-8")
-            notes_text, tool_results = await self._run(
-                self.analyst, f"Investigate this moment. Facts we already measured:\n{json.dumps(facts, ensure_ascii=False)}",
-                trace, "Analyst")
-        try:
-            notes = _json_from(notes_text)
-        except ValueError:
-            notes = {"observations": []}
-        tac_text, _ = await self._run(
-            self.tactician, json.dumps({"facts": facts, "analyst": notes}, ensure_ascii=False), trace, "Tactician")
-        tactic = _json_from(tac_text)
+        # the Analyst and the Tactician are checked too: their notes are what the Narrator builds on
+        ask = f"Investigate this moment. Facts we already measured:\n{json.dumps(facts, ensure_ascii=False)}"
+        for _ in range(3):
+            async with self.analyst_lock:  # the clock file is shared, so one investigation at a time
+                Path(self.clock_file).write_text(str(asof), encoding="utf-8")
+                notes_text, tool_results = await self._run(self.analyst, ask, trace, "Analyst")
+            try:
+                notes = _json_from(notes_text)
+            except ValueError:
+                notes = {"observations": []}
+            allowed = allowed_numbers(facts, tool_results)
+            problems = self._check_notes(notes.get("observations", []), allowed, trace)
+            if not problems:
+                break
+            ask += f"\n\nYour previous notes had {problems}. Investigate again; use only names and numbers from the data."
+        else:
+            notes = {"observations": []}  # unchecked notes are never passed on
+        tell = json.dumps({"facts": facts, "analyst": notes}, ensure_ascii=False)
+        tactic = None
+        for _ in range(3):
+            tac_text, _ = await self._run(self.tactician, tell, trace, "Tactician")
+            try:
+                tactic = _json_from(tac_text)
+            except ValueError:
+                continue
+            problems = self._check_notes(list(tactic.values()), allowed, trace)
+            if not problems:
+                break
+            tell += f"\n\nYour previous answer had {problems}. Rewrite it with only names and numbers from the input."
+            tactic = None
+        if tactic is None:
+            raise ValueError("the Tactician could not give a checked explanation")
         out = {"asof": asof, "facts": facts, "notes": notes, "tactic": tactic,
-               "allowed": sorted(allowed_numbers(facts, tool_results)), "trace": trace}
+               "allowed": sorted(allowed), "trace": trace}
         self.cache[f"{key}|explain"] = out
         self._save()
         return out
+
+    def _check_notes(self, sentences, allowed, trace):
+        """Fact-check the Analyst's notes or the Tactician's answer; '' when they hold."""
+        teams = {t["short"]: t["name"] for t in self.store.md.meta["teams"]}
+        text = " ".join(str(x).strip().rstrip(".") + "." for x in sentences)
+        bad = fact_check(text, allowed)
+        names_bad = unknown_names(expand_codes(text, teams), self.names)
+        trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(text)), "unsupported": bad,
+                      "unknown_names": names_bad, "passed": not (bad or names_bad)})
+        problems = []
+        if bad:
+            problems.append(f"numbers that are not in the data: {bad}")
+        if names_bad:
+            problems.append(f"names that are not in this match: {names_bad}")
+        return "; ".join(problems)
 
     async def narrate(self, card, persona, lang, follow=None):
         key = f"{self.event_key(card)}|{persona}|{lang}|{follow or ''}"
         if key in self.cache:
             return self.cache[key]
+        if key not in self.inflight:
+            self.inflight[key] = asyncio.ensure_future(self._narrate(key, card, persona, lang, follow))
+        try:
+            return await asyncio.shield(self.inflight[key])
+        finally:
+            if self.inflight.get(key) and self.inflight[key].done():
+                self.inflight.pop(key, None)
+
+    async def _narrate(self, key, card, persona, lang, follow):
+        if lang == "hu":
+            # Hungarian is translated from the checked English card: same facts in both languages,
+            # and the model translates into Hungarian far better than it composes in it
+            en = await self.narrate(card, persona, "en", follow)
+            if en.get("source") == "agent":
+                result = await self._translate(card, en, persona, follow)
+                if result:
+                    self.cache[key] = result
+                    self._save()
+                    return result
         exp = await self.explain(card)
         trace = list(exp["trace"])
         allowed = set(exp["allowed"])
+        minutes = fact_minutes(exp["facts"])
         extra = {}
         if persona == "player" and follow:
             extra = self.store.player_report(follow, 0, exp["asof"], exp["asof"])
@@ -387,13 +519,15 @@ class AgentTeam:
             try:
                 card_text = _json_from(text)
                 title, body = str(card_text["title"]).strip(), str(card_text["body"]).strip()
-                title, body = polish(title, lang, self.names, title=True), polish(body, lang, self.names)
+                teams = {t["short"]: t["name"] for t in self.store.md.meta["teams"]}
+                title = polish(expand_codes(title, teams), lang, self.names, title=True)
+                body = polish(expand_codes(body, teams), lang, self.names)
             except (ValueError, KeyError):
                 trace.append({"agent": "Fact-checker", "check": "reply was not a card", "passed": False})
                 continue
-            bad = fact_check(f"{title} {body}", allowed)
+            bad = fact_check(f"{title} {body}", allowed) + wrong_minutes(f"{title} {body}", minutes)
             names_bad = unknown_names(body, self.names)
-            n_numbers = len([x for x in NUM.findall(f"{title} {body}") if float(x.replace(",", ".")) not in WORD_NUMBERS_OK])
+            n_numbers = len([x for x in NUM.findall(f"{title} {body}") if float(x.replace(",", ".")) not in SMALL_COUNTS])
             too_many = persona == "casual" and n_numbers > 2
             lang_bad = wrong_language(f"{title} {body}", lang)
             trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(f"{title} {body}")),
@@ -404,11 +538,7 @@ class AgentTeam:
                 verdict_text, _ = await self._run(
                     self.editor, json.dumps({"facts": exp["facts"], "card": {"title": title, "body": body},
                                              "language": lang}, ensure_ascii=False), trace, "Editor")
-                try:
-                    verdict = _json_from(verdict_text)
-                    editor_problems = [] if verdict.get("ok") else [str(x) for x in verdict.get("problems", [])][:4]
-                except ValueError:
-                    editor_problems = []  # an unreadable verdict doesn't block a card that passed the checks
+                editor_problems = editor_verdict(verdict_text)
                 if not editor_problems:
                     result = {"title": title, "body": body, "source": "agent", "trace": trace}
                     break
@@ -430,22 +560,85 @@ class AgentTeam:
         self._save()
         return result
 
+    async def reverify(self, key):
+        """Run the current Editor over a cached agent card; returns its problems (empty when it holds)."""
+        hit = self.cache.get(key)
+        exp = self.cache.get(key.split("|")[0] + "|explain")
+        if not hit or hit.get("source") != "agent" or not exp:
+            return []
+        lang = key.split("|")[2]
+        text, _ = await self._run(self.editor, json.dumps({"facts": exp["facts"], "card": {
+            "title": hit["title"], "body": hit["body"]}, "language": lang}, ensure_ascii=False), [], "Editor")
+        return editor_verdict(text)
+
+    async def _translate(self, card, en, persona, follow):
+        exp = await self.explain(card)
+        trace = list(en["trace"])
+        allowed = set(exp["allowed"])
+        if persona == "player" and follow:
+            allowed |= allowed_numbers(self.store.player_report(follow, 0, exp["asof"], exp["asof"]))
+        minutes = fact_minutes(exp["facts"])
+        teams = {t["short"]: t["name"] for t in self.store.md.meta["teams"]}
+        ask = json.dumps({"title": en["title"], "body": en["body"]}, ensure_ascii=False)
+        for _ in range(3):
+            text, _ = await self._run(self.translator, ask, trace, "Translator")
+            try:
+                card_text = _json_from(text)
+                title = polish(expand_codes(str(card_text["title"]).strip(), teams), "hu", self.names, title=True)
+                body = polish(expand_codes(str(card_text["body"]).strip(), teams), "hu", self.names)
+            except (ValueError, KeyError):
+                continue
+            bad = fact_check(f"{title} {body}", allowed) + wrong_minutes(f"{title} {body}", minutes)
+            names_bad = unknown_names(body, self.names)
+            lang_bad = wrong_language(f"{title} {body}", "hu")
+            trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(f"{title} {body}")),
+                          "unsupported": bad, "unknown_names": names_bad, "wrong_language": lang_bad,
+                          "passed": not (bad or names_bad or lang_bad)})
+            problems = []
+            if not (bad or names_bad or lang_bad):
+                verdict_text, _ = await self._run(
+                    self.editor, json.dumps({"facts": exp["facts"], "card": {"title": title, "body": body},
+                                             "language": "hu"}, ensure_ascii=False), trace, "Editor")
+                problems = editor_verdict(verdict_text)
+                if not problems:
+                    return {"title": title, "body": body, "source": "agent", "trace": trace}
+            else:
+                problems = [f"numbers {bad}", f"names {names_bad}", "not Hungarian" if lang_bad else ""]
+            ask += "\n\nYour previous translation had these problems: " + "; ".join(x for x in problems if x) + ". Translate again."
+        return None
+
     def lookup(self, card, persona, lang, follow=None):
         return self.cache.get(f"{self.event_key(card)}|{persona}|{lang}|{follow or ''}")
 
+    def take_run(self):
+        # a public demo must not be able to spend the model budget: live jobs per hour are capped
+        now = time.time()
+        while self.runs and now - self.runs[0] > 3600:
+            self.runs.popleft()
+        if len(self.runs) >= self.max_runs_per_hour:
+            return False
+        self.runs.append(now)
+        return True
+
     def ensure(self, card, persona, lang, follow=None):
-        """Start writing a card in the background if it isn't written or being written."""
+        """Start writing a card in the background. True while the agents are on it; False when the
+        template text stays (already written, failed recently, or over the hourly budget)."""
         key = f"{self.event_key(card)}|{persona}|{lang}|{follow or ''}"
-        if key in self.cache or key in self.pending:
-            return
-        task = asyncio.create_task(self._safe(self.narrate(card, persona, lang, follow)))
+        if key in self.pending:
+            return True
+        if key in self.cache or time.time() - self.failed.get(key, -1e9) < FAIL_COOLDOWN_S or not self.take_run():
+            return False
+        task = asyncio.create_task(self._safe(key, self.narrate(card, persona, lang, follow)))
         self.pending[key] = task
         task.add_done_callback(lambda _t: self.pending.pop(key, None))
+        return True
 
-    async def _safe(self, coro):
+    async def _safe(self, key, coro):
         try:
-            return await coro
+            async with self.jobs:
+                return await coro
         except Exception as exc:  # noqa: BLE001 - a failed agent must never break the live page
+            self.failed[key] = time.time()  # no retry storm: the page asks again every few seconds
             print(f"[agents] {type(exc).__name__}: {exc}", file=sys.stderr)
             return None
 
@@ -454,6 +647,7 @@ class AgentTeam:
         """'What did I miss?' written by the Narrator straight from the measured facts, fact-checked."""
         trace = []
         allowed = allowed_numbers(facts)
+        minutes = fact_minutes(facts)
         narrator = self.narrators[persona]
         rules = NARRATOR_RULES.format(language=LANGUAGE[lang]).replace(
             '{"title": "...", "body": "..."}', '{"lines": ["...", "..."]}')
@@ -471,7 +665,7 @@ class AgentTeam:
             except (ValueError, KeyError, TypeError):
                 continue
             joined = " ".join(lines)
-            bad = fact_check(joined, allowed)
+            bad = fact_check(joined, allowed) + wrong_minutes(joined, minutes)
             names_bad = unknown_names(joined, self.names)
             missing = [what for what, word in must if word not in joined]
             lang_bad = wrong_language(joined, lang)

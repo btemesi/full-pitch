@@ -19,7 +19,7 @@
     <span class="clock" id="clock">0'</span>
     <span class="live" id="live">LIVE</span>
   </div>
-  <button class="missed" id="missedBtn">What did I miss?</button>
+  <button class="missed" id="missedBtn" data-hu="Mit hagytam ki?">What did I miss?</button>
 </header>
 
 <main class="layout">
@@ -28,16 +28,16 @@
       <canvas id="pitch" width="1400" height="906" aria-label="Live pitch view"></canvas>
       <div class="hook" id="hook"></div>
       <div class="view-toggle" role="tablist" aria-label="View">
-        <button data-view="tv" role="tab" aria-selected="false">Broadcast</button>
-        <button data-view="full" role="tab" aria-selected="true" class="on">Full pitch</button>
+        <button data-view="tv" role="tab" aria-selected="false" data-hu="TV-kép">Broadcast</button>
+        <button data-view="full" role="tab" aria-selected="true" class="on" data-hu="Teljes pálya">Full pitch</button>
       </div>
       <div class="replay-bar" id="replayBar" hidden>
-        <span class="tag">REPLAY</span><span id="replayTitle"></span>
-        <button id="replayBack">Back to live</button>
+        <span class="tag" data-hu="VISSZAJÁTSZÁS">REPLAY</span><span id="replayTitle"></span>
+        <button id="replayBack" data-hu="Vissza élőbe">Back to live</button>
       </div>
       <div class="lower-third" id="lowerThird" hidden><i></i><div><small></small><b></b></div></div>
       <div class="follow-card" id="followCard" hidden aria-live="polite"></div>
-      <div class="hint" id="hint">Tap a player to follow them</div>
+      <div class="hint" id="hint" data-hu="Koppints egy játékosra a követéshez">Tap a player to follow them</div>
       <div class="toast" id="toast" role="status" hidden></div>
     </div>
     <div class="timeline">
@@ -47,7 +47,7 @@
         <option value="1">1×</option><option value="4">4×</option><option value="8" selected>8×</option>
         <option value="16">16×</option><option value="32">32×</option>
       </select>
-      <label class="chk"><input type="checkbox" id="shapes" checked> Shape</label>
+      <label class="chk"><input type="checkbox" id="shapes" checked> <span data-hu="Alakzat">Shape</span></label>
       <button class="ghost-btn" id="presentBtn" title="Presentation mode (P)" aria-label="Presentation mode">⛶</button>
     </div>
     <select id="followSelect" class="follow-select" aria-label="Follow a player"></select>
@@ -61,9 +61,9 @@
     </div>
     <div class="feed-head">
       <div class="seg" id="persona" role="group" aria-label="Viewer">
-        <button data-p="casual" class="on">Fan</button>
-        <button data-p="analyst">Analyst</button>
-        <button data-p="player">My player</button>
+        <button data-p="casual" class="on" data-hu="Szurkoló">Fan</button>
+        <button data-p="analyst" data-hu="Elemző">Analyst</button>
+        <button data-p="player" data-hu="Játékosom">My player</button>
       </div>
       <div class="seg small" id="lang" role="group" aria-label="Language">
         <button data-l="en" class="on">EN</button>
@@ -108,13 +108,13 @@
 <div class="drawer" id="drawer" hidden>
   <div class="drawer-box" role="dialog" aria-labelledby="drawerTitle">
     <div class="drawer-head">
-      <h2 id="drawerTitle">What did I miss?</h2>
+      <h2 id="drawerTitle" data-hu="Mit hagytam ki?">What did I miss?</h2>
       <button class="x" id="drawerClose" aria-label="Close">×</button>
     </div>
     <div class="chips" id="awayFor">
-      <span>I was away for</span>
-      <button data-min="5">5 min</button><button data-min="10" class="on">10 min</button>
-      <button data-min="15">15 min</button><button data-min="30">30 min</button>
+      <span data-hu="Ennyi ideig voltam távol:">I was away for</span>
+      <button data-min="5" data-hu="5 perc">5 min</button><button data-min="10" class="on" data-hu="10 perc">10 min</button>
+      <button data-min="15" data-hu="15 perc">15 min</button><button data-min="30" data-hu="30 perc">30 min</button>
     </div>
     <p class="missed-window" id="missedWindow"></p>
     <ul class="missed-lines" id="missedLines"></ul>

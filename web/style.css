@@ -70,7 +70,7 @@ select,.chk{background:var(--panel);border:1px solid var(--line);border-radius:8
 .cards{overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:2px}
 .empty{color:var(--mute);margin:16px 4px}
 .card{background:var(--panel-2);border-radius:10px;padding:12px 14px;border-left:4px solid var(--c,#888);animation:in .45s ease-out}
-.card .k{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.card .k{display:flex;justify-content:space-between;gap:4px 10px;flex-wrap:wrap;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 .card h3{margin:4px 0 4px;font:700 20px/1.15 var(--cond);letter-spacing:.01em}
 .card p{margin:0;color:#d5ddd7}
 .card.goal h3{color:var(--accent)}
