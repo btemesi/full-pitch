@@ -99,6 +99,8 @@ A pundit's "may have", "helped" or "led to" about a goal that followed a change 
 only when the card states it as certain.
 Work claim by claim: list every factual claim the card makes (numbers, minutes, names, events, tactics,
 cause and effect) and decide whether the facts support it.
+If the input has "translated_from", the card is a Hungarian translation of that English card: also flag
+anything the translation adds, drops or changes compared with it.
 Return ONLY JSON: {"claims": [{"claim": "...", "supported": true or false, "why": "..."}],
 "ok": true only if every claim is supported, "problems": ["short description of each unsupported claim"]}"""
 
@@ -567,8 +569,11 @@ class AgentTeam:
         if not hit or hit.get("source") != "agent" or not exp:
             return []
         lang = key.split("|")[2]
-        text, _ = await self._run(self.editor, json.dumps({"facts": exp["facts"], "card": {
-            "title": hit["title"], "body": hit["body"]}, "language": lang}, ensure_ascii=False), [], "Editor")
+        ask = {"facts": exp["facts"], "card": {"title": hit["title"], "body": hit["body"]}, "language": lang}
+        en = self.cache.get(key.replace("|hu|", "|en|")) if lang == "hu" else None
+        if en and en.get("source") == "agent":
+            ask["translated_from"] = {"title": en["title"], "body": en["body"]}
+        text, _ = await self._run(self.editor, json.dumps(ask, ensure_ascii=False), [], "Editor")
         return editor_verdict(text)
 
     async def _translate(self, card, en, persona, follow):
@@ -598,6 +603,7 @@ class AgentTeam:
             if not (bad or names_bad or lang_bad):
                 verdict_text, _ = await self._run(
                     self.editor, json.dumps({"facts": exp["facts"], "card": {"title": title, "body": body},
+                                             "translated_from": {"title": en["title"], "body": en["body"]},
                                              "language": "hu"}, ensure_ascii=False), trace, "Editor")
                 problems = editor_verdict(verdict_text)
                 if not problems:
@@ -664,10 +670,11 @@ class AgentTeam:
             problems.append(f"not written in {LANGUAGE[lang]}")
         return problems
 
-    async def _edit_lines(self, facts, lines, lang, trace):
-        verdict, _ = await self._run(self.editor, json.dumps(
-            {"facts": facts, "card": {"title": "What did I miss?", "body": " ".join(lines)}, "language": lang},
-            ensure_ascii=False), trace, "Editor")
+    async def _edit_lines(self, facts, lines, lang, trace, source=None):
+        ask = {"facts": facts, "card": {"title": "What did I miss?", "body": " ".join(lines)}, "language": lang}
+        if source:
+            ask["translated_from"] = {"title": "What did I miss?", "body": " ".join(source)}
+        verdict, _ = await self._run(self.editor, json.dumps(ask, ensure_ascii=False), trace, "Editor")
         return editor_verdict(verdict)
 
     async def catch_up(self, facts, persona, lang):
@@ -695,7 +702,7 @@ class AgentTeam:
                     continue
                 problems = self._check_lines(lines, "hu", allowed, minutes, must, trace)
                 if not problems and lines:
-                    problems = await self._edit_lines(facts, lines, "hu", trace)
+                    problems = await self._edit_lines(facts, lines, "hu", trace, source=en["lines"])
                     if not problems:
                         return {"lines": lines, "source": "agent", "trace": trace}
                 ask += "\n\nYour previous translation had: " + "; ".join(problems) + ". Translate again."

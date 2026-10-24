@@ -4003,316 +4003,6 @@
    }
   ]
  },
- "change:NOR:50|player|en|RIV-10": {
-  "title": "Umar Dorsey breaks the deadlock at 47'",
-  "body": "Northgate FC's deeper defensive line allowed Umar Dorsey to capitalize on Riverside Athletic's increased pressure. His goal, assisted by Zoltan Ulvane, capped a dominant period after the shape change.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 11.4,
-    "tools": [
-     "match_info",
-     "match_state",
-     "key_moments",
-     "tactical_changes"
-    ],
-    "tokens": 4845,
-    "output": "{\"observations\": [\"Northgate FC lowered their defensive line height from 30.5m to 24.4m starting at 35 minutes.\",\"Before the shape change (23' to 35'), Riverside Athletic had 62% possession, 3 shots, and 0.4 xG, while Northgate FC had 38% possession and no shots.\",\"Since the shape change (35' to 48'), Riverside Athletic maintained around 60% possession, made 4 shots with an xG of 1.28, and scored 1 goal.\",\"The goal was scored by Umar Dorsey at 47 minutes with an assist from Zoltan Ulvane.\",\"In the recent 3 minutes, Northgate FC's defensive line is at 14.9m with 3.7 players in the back line, wh"
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 1.7,
-    "tools": [],
-    "tokens": 1045,
-    "output": "{\n  \"headline\": \"Northgate FC's deeper defensive line invites greater pressure and leads to conceding first goal\",\n  \"why\": \"At 35 minutes, Northgate FC lowered their defensive line height significantly from 30.5m to 24.4m. This retreat reduced their ability to compress space and challenged their defensive compactness against Riverside Athletic's steady 60% possession.\",\n  \"consequence\": \"Following the shape change, Riverside Athletic increased their shots from 3 to 4 and more than tripled their expected goals from 0.4 to 1.28, culminating in Umar Dorsey's goal at 47 minutes. Northgate FC stil"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 4.3,
-    "tools": [],
-    "tokens": 1349,
-    "output": "```json\n{\"title\": \"Umar Dorsey scores decisive opening goal\", \"body\": \"Umar Dorsey's goal in the 47th minute, assisted by Zoltan Ulvane, gave Riverside Athletic the lead. He had six shots, including one big chance, and covered 5319 meters in the first 48 minutes.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 3,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 3.4,
-    "tools": [],
-    "tokens": 1418,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey scores decisive opening goal\",\n      \"supported\": false,\n      \"why\": \"The claim labels the goal as 'decisive', which requires knowledge of the match's outcome and final score. Since the match facts show it is still ongoing, this cannot be determined.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey's goal in the 47th minute, assisted by Zoltan Ulvane, gave Riverside Athletic the lead.\",\n      \"supported\": true,\n      \"why\": \"The goal happened in the 47th minute, scored by Umar Dorsey and assisted by Zoltan Ulvane, making the score 1-0 in favo"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.8,
-    "tools": [],
-    "tokens": 1405,
-    "output": "```json\n{\"title\": \"Umar Dorsey breaks the deadlock at 47'\", \"body\": \"Northgate FC's deeper defensive line allowed Umar Dorsey to capitalize on Riverside Athletic's increased pressure. His goal, assisted by Zoltan Ulvane, capped a dominant period after the shape change.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 1,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 4.0,
-    "tools": [],
-    "tokens": 1344,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey breaks the deadlock at 47'\",\n      \"supported\": true,\n      \"why\": \"The facts show that Umar Dorsey scored in the 47th minute, breaking the 0-0 deadlock.\"\n    },\n    {\n      \"claim\": \"Northgate FC's deeper defensive line allowed Umar Dorsey to capitalize on Riverside Athletic's increased pressure.\",\n      \"supported\": true,\n      \"why\": \"Northgate FC's defensive line height dropped from 30.5m to 24.4m after the shape change. Riverside Athletic had more possession (60%), shots (4), and a higher xG (1.28) in this period, indicating increa"
-   }
-  ]
- },
- "recap:ht|player|en|RIV-10": {
-  "title": "Umar Dorsey misses big chance for Riverside",
-  "body": "Despite two big chances, including a 0.66 xG miss in the 36th minute, Umar Dorsey has yet to find the back of the net. Riverside Athletic's pressure has kept them dominant, but the match remains 0-0 at half-time.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 4.5,
-    "tools": [
-     "tactical_changes",
-     "match_state",
-     "shape_timeline",
-     "shape_timeline",
-     "key_moments"
-    ],
-    "tokens": 16148,
-    "output": "{\"observations\":[\"At half-time, the score is 0-0 with RIV having 55% possession and 8 shots (3 on target) compared to NOR's 45% possession and 1 shot.\",\"RIV's xG at half-time is 1.26 while NOR's xG is 0.4, indicating RIV created more quality chances.\",\"Both teams have had no tactical changes so far, maintaining their initial formations and styles.\",\"In the last 5 minutes, RIV has had 60% possession and NOR 40%, with RIV's defensive line positioned significantly higher (46.7m) than NOR's (15.2m).\",\"Key moments include two notable off-target shots by Umar Dorsey (xG 0.66 at 36' and 0.35 at 23') "
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.3,
-    "tools": [],
-    "tokens": 990,
-    "output": "{\"headline\": \"RIV's high pressing and dominant possession frustrate NOR at half-time\", \"why\": \"RIV's defensive line is positioned significantly higher (46.7m) than NOR's (15.2m), enabling aggressive pressing and maintaining 55% possession with 8 shots, 3 on target, and a 1.26 xG. In contrast, NOR remains deep with less possession (45%) and fewer chances (1 shot, 0 on target, 0.4 xG). This aggressive posture allows RIV to control the midfield and apply pressure in NOR's half.\", \"consequence\": \"So far, the match remains goalless at 0-0 despite RIV's creation of higher quality chances, including "
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 4.3,
-    "tools": [],
-    "tokens": 1289,
-    "output": "```json\n{\"title\": \"Umar Dorsey drives Riverside Athletic's attack\", \"body\": \"Umar Dorsey has been pivotal with 5 shots and 52 passes, creating two big chances (xG 0.66 and 0.35) but failing to convert. His work rate, covering 4978m with 11 sprints, has kept Riverside Athletic on the front foot at 0-0.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 8,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 5.1,
-    "tools": [],
-    "tokens": 1490,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey has been pivotal with 5 shots.\",\n      \"supported\": false,\n      \"why\": \"The facts do not mention individual shot counts for players, only overall shots for Riverside Athletic (8).\"\n    },\n    {\n      \"claim\": \"Umar Dorsey has made 52 passes.\",\n      \"supported\": false,\n      \"why\": \"The facts provide team passing stats (287 for Riverside Athletic) but do not detail individual passing stats.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey created two big chances (xG 0.66 and 0.35).\",\n      \"supported\": false,\n      \"why\": \"The facts confirm t"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.2,
-    "tools": [],
-    "tokens": 1352,
-    "output": "```json\n{\"title\": \"Umar Dorsey shines in first half\", \"body\": \"Despite no goals yet, Umar Dorsey had Riverside Athletic's best chance with a 0.66 xG miss at 36'. His movement and high pressing have been key in controlling the game so far.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 2,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.3,
-    "tools": [],
-    "tokens": 1134,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey had Riverside Athletic's best chance with a 0.66 xG miss at 36'.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm a 'big miss' by Umar Dorsey at 36' with 0.66 xG.\"\n    },\n    {\n      \"claim\": \"His movement and high pressing have been key in controlling the game so far.\",\n      \"supported\": false,\n      \"why\": \"The facts do not contain any information or measurements about Dorsey's movement or pressing, nor do they state that these factors have controlled the game.\"\n    }\n  ],\n  \"ok\": false,\n  \"problems\": [\"The claim about Dors"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.6,
-    "tools": [],
-    "tokens": 1402,
-    "output": "```json\n{\"title\": \"Umar Dorsey misses big chance for Riverside\", \"body\": \"Despite two big chances, including a 0.66 xG miss in the 36th minute, Umar Dorsey has yet to find the back of the net. Riverside Athletic's pressure has kept them dominant, but the match remains 0-0 at half-time.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 4,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 1.8,
-    "tools": [],
-    "tokens": 1193,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey misses big chance for Riverside, including a 0.66 xG miss in the 36th minute.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm this: Umar Dorsey had a big chance with 0.66 xG in the 36th minute and did not score.\"\n    },\n    {\n      \"claim\": \"Riverside Athletic's pressure has kept them dominant.\",\n      \"supported\": true,\n      \"why\": \"The facts show Riverside had 55% possession, better xG (1.26 vs 0.4), more shots (8 vs 1), and 6 corners to 0, supporting the claim of dominance.\"\n    },\n    {\n      \"claim\": \"The match remains "
-   }
-  ]
- },
- "goal:48.24|player|en|RIV-10": {
-  "title": "Umar Dorsey scores for Riverside Athletic",
-  "body": "Dorsey netted a goal in the 47th minute, assisted by Zoltan Ulvane, with a powerful 91.3 km/h shot from 5.2 meters (xG: 0.47). This gives Riverside Athletic a 1-0 lead early in the second half.",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 3.7,
-    "tools": [
-     "match_state",
-     "key_moments",
-     "tactical_changes"
-    ],
-    "tokens": 2261,
-    "output": "{\"observations\": [\"Umar Dorsey scored the first goal for Riverside Athletic at 47' with a shot having an xG of 0.47 from 5.2 meters and speed of 91.3 km/h.\", \"The assist for the goal was provided by Zoltan Ulvane.\", \"Riverside Athletic has had 62% possession in the last 5 minutes compared to 38% by their opponents.\", \"In the last 3 minutes, RIV's defensive line is positioned at 42.7 meters with 3.7 back line players and 2 pressers near the ball.\", \"Norwich's defensive line is at 17.2 meters with 3.6 back line players and 1.5 pressers near the ball in the last 3 minutes.\", \"No tactical changes "
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 2.0,
-    "tools": [],
-    "tokens": 643,
-    "output": "{\"headline\": \"Umar Dorsey's 47th-minute strike puts Riverside Athletic ahead\", \"why\": \"Dorsey capitalized on a well-executed move involving four passes, assisted by Ulvane, taking a quality shot from close range (5.2 meters) with high velocity (91.3 km/h) and an xG of 0.47, reflecting a strong scoring opportunity.\", \"consequence\": \"The goal has given Riverside Athletic a 1-0 lead early in the second half. Their recent increased possession (62% in the last 5 minutes) and a relatively high defensive line at 42.7 meters indicate they are controlling the game and pressing forward aggressively. Nor"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.4,
-    "tools": [],
-    "tokens": 1022,
-    "output": "```json\n{\n  \"title\": \"Umar Dorsey scores for Riverside Athletic\",\n  \"body\": \"Dorsey netted a goal in the 47th minute, assisted by Zoltan Ulvane, with a powerful 91.3 km/h shot from 5.2 meters (xG: 0.47). This gives Riverside Athletic a 1-0 lead early in the second half.\"\n}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 6,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.1,
-    "tools": [],
-    "tokens": 972,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Dorsey netted a goal in the 47th minute\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Umar Dorsey scored in the 47th minute.\"\n    },\n    {\n      \"claim\": \"assisted by Zoltan Ulvane\",\n      \"supported\": true,\n      \"why\": \"The assist by Zoltan Ulvane is explicitly mentioned in the facts.\"\n    },\n    {\n      \"claim\": \"with a powerful 91.3 km/h shot from 5.2 meters (xG: 0.47)\",\n      \"supported\": true,\n      \"why\": \"The shot's speed (91.3 km/h), distance (5.2 meters), and xG (0.47) are all confirmed by the facts.\"\n    },\n    {\n      "
-   }
-  ]
- },
- "goal:54.12|player|en|RIV-10": {
-  "title": "Umar Dorsey's clinical finish at 53'",
-  "body": "Dorsey capitalized on a quick Kai Pell assist to score from 3.7 meters out with a powerful 109.5 km/h shot. This goal doubled Riverside Athletic's lead to 2-0, showcasing his precision in a high-quality opportunity (xG 0.69).",
-  "source": "agent",
-  "trace": [
-   {
-    "agent": "Analyst",
-    "seconds": 3.8,
-    "tools": [
-     "match_state",
-     "tactical_changes",
-     "key_moments"
-    ],
-    "tokens": 2578,
-    "output": "{\"observations\": [\"Riverside Athletic scored a goal at 53' by Umar Dorsey assisted by Kai Pell, increasing the score to 2-0 against NOR.\", \"The xG of the goal scored by Umar Dorsey was 0.69 from a 3.7 meter distance with a shot speed of 109.5 km/h.\", \"NOR changed their defensive line height without the ball at 35', lowering it from 30.5m to 24.4m.\", \"In the last 3 minutes, Riverside Athletic had a defensive line height of 43.5 meters compared to NOR's 14.0 meters.\", \"In the last 5 minutes, Riverside Athletic had 63% possession while NOR had 37%.\", \"Riverside Athletic had 1.7 pressers near the "
-   },
-   {
-    "agent": "Tactician",
-    "seconds": 3.6,
-    "tools": [],
-    "tokens": 710,
-    "output": "{\"headline\": \"Umar Dorsey's close-range strike doubles Riverside Athletic's lead at 53'\", \"why\": \"NOR's earlier decision at 35' to lower their defensive line from 30.5m to 24.4m left them vulnerable higher up the pitch, especially as Riverside Athletic maintained a high defensive line of 43.5m in the moments around the goal. This spatial imbalance created room for Riverside to exploit, allowing Kai Pell to deliver a quick, incisive pass that set up Dorsey for a high-quality (xG 0.69) shot from just 3.7 meters, struck at an impressive 109.5 km/h.\", \"consequence\": \"The goal boosted Riverside's c"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.8,
-    "tools": [],
-    "tokens": 1120,
-    "output": "```json\n{\"title\": \"Umar Dorsey doubles the lead for Riverside\", \"body\": \"At 53', Umar Dorsey scored his second goal, a close-range strike with an xG of 0.69, hit at 109.5 km/h and assisted by Kai Pell. Dorsey has now covered 5877.8 meters and completed 55 of 66 passes in his 54.6 minutes on the pitch.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 7,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 4.2,
-    "tools": [],
-    "tokens": 1191,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"At 53', Umar Dorsey scored his second goal.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Umar Dorsey scored a goal at 53', and this was his second goal as indicated by 'doubles the lead'.\"\n    },\n    {\n      \"claim\": \"A close-range strike with an xG of 0.69.\",\n      \"supported\": true,\n      \"why\": \"The xG is listed as 0.69 in the facts, and the distance of 3.7 meters supports the description of a close-range strike.\"\n    },\n    {\n      \"claim\": \"Hit at 109.5 km/h.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm the sho"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.5,
-    "tools": [],
-    "tokens": 1201,
-    "output": "```json\n{\n  \"title\": \"Umar Dorsey doubles Riverside Athletic's lead\",\n  \"body\": \"At 53', Umar Dorsey scored his second goal of the match for Riverside Athletic, finishing a precise pass from Kai Pell with a high-quality (xG 0.69) strike from just 3.7 meters away, hit at an impressive 109.5 km/h. This extended Riverside's lead to 2-0 against Northgate FC.\"\n}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 6,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 3.1,
-    "tools": [],
-    "tokens": 1132,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey doubles Riverside Athletic's lead.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm that Umar Dorsey scored the second goal for Riverside Athletic, making the score 2-0.\"\n    },\n    {\n      \"claim\": \"At 53', Umar Dorsey scored his second goal of the match for Riverside Athletic.\",\n      \"supported\": false,\n      \"why\": \"The facts do not confirm this is Dorsey's second goal of the match; it only states he scored this goal. There are no facts specifying he also scored the first goal.\"\n    },\n    {\n      \"claim\": \"He finished a p"
-   },
-   {
-    "agent": "Narrator (player)",
-    "seconds": 1.3,
-    "tools": [],
-    "tokens": 1218,
-    "output": "```json\n{\"title\": \"Umar Dorsey's clinical finish at 53'\", \"body\": \"Dorsey capitalized on a quick Kai Pell assist to score from 3.7 meters out with a powerful 109.5 km/h shot. This goal doubled Riverside Athletic's lead to 2-0, showcasing his precision in a high-quality opportunity (xG 0.69).\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 6,
-    "unsupported": [],
-    "unknown_names": [],
-    "too_many_numbers": false,
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.2,
-    "tools": [],
-    "tokens": 1006,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey's clinical finish at 53'\",\n      \"supported\": true,\n      \"why\": \"The facts show a goal scored by Umar Dorsey in the 53rd minute.\"\n    },\n    {\n      \"claim\": \"Dorsey capitalized on a quick Kai Pell assist to score from 3.7 meters out with a powerful 109.5 km/h shot.\",\n      \"supported\": true,\n      \"why\": \"The facts confirm Kai Pell assisted the goal, and Dorsey scored from 3.7 meters with a shot traveling at 109.5 km/h.\"\n    },\n    {\n      \"claim\": \"This goal doubled Riverside Athletic's lead to 2-0.\",\n      \"supported\": true,\n      \""
-   }
-  ]
- },
  "goal:67.33|explain": {
   "asof": 67.83,
   "facts": {
@@ -7835,8 +7525,8 @@
   ]
  },
  "recap:ft|casual|hu|": {
-  "title": "A Riverside Athletic nyert az izgalmas hajrában",
-  "body": "Umar Dorsey két gólja mellett Pablo Varnell utolsó pillanatokban szerzett találata biztosította a győzelmet a Riverside Athletic javára, míg Emil Holmgrave késői gólja csak szorosabbá tette a végeredményt, amely 3-2 lett.",
+  "title": "A Riverside Athletic nyeri a késői thrillert",
+  "body": "Umar Dorsey két gólja előnyt jelentett a Riverside Athletic számára, Pablo Varnell és Emil Holmgrave pedig késői gólváltásaikkal alakítottak a végeredményen, amely 3-2 lett.",
   "source": "agent",
   "trace": [
    {
@@ -7903,10 +7593,10 @@
    },
    {
     "agent": "Translator",
-    "seconds": 1.2,
+    "seconds": 3.6,
     "tools": [],
-    "tokens": 404,
-    "output": "```json\n{\"title\": \"A Riverside Athletic egy késői thrillert nyert meg\", \"body\": \"Umar Dorsey két gólja elég volt a Riverside Athletic javára, Pablo Varnell és Emil Holmgrave pedig késői találatokat váltott, így a végeredmény 3-2 lett.\"}\n```"
+    "tokens": 408,
+    "output": "```json\n{\"title\": \"A Riverside Athletic nyeri a késői thrillert\", \"body\": \"Umar Dorsey két gólja előnyt jelentett a Riverside Athletic számára, Pablo Varnell és Emil Holmgrave pedig késői gólváltásaikkal alakítottak a végeredményen, amely 3-2 lett.\"}\n```"
    },
    {
     "agent": "Fact-checker",
@@ -7918,38 +7608,16 @@
    },
    {
     "agent": "Editor",
-    "seconds": 2.9,
+    "seconds": 2.0,
     "tools": [],
-    "tokens": 1492,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A Riverside Athletic egy késői thrillert nyert meg\",\n      \"supported\": true,\n      \"why\": \"The match ended 3-2 in Riverside Athletic's favor, with a dramatic late goal in the 88th minute making it a thriller.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey két gólja elég volt a Riverside Athletic javára\",\n      \"supported\": false,\n      \"why\": \"Although Umar Dorsey scored two goals for Riverside Athletic, the team ultimately won 3-2 due to Pablo Varnell's late goal, so Dorsey’s two goals were not solely decisive or 'elég'.\"\n    },\n    {\n      \"claim\": \""
-   },
-   {
-    "agent": "Translator",
-    "seconds": 1.7,
-    "tools": [],
-    "tokens": 461,
-    "output": "```json\n{\"title\": \"A Riverside Athletic nyert az izgalmas hajrában\", \"body\": \"Umar Dorsey két gólja mellett Pablo Varnell utolsó pillanatokban szerzett találata biztosította a győzelmet a Riverside Athletic javára, míg Emil Holmgrave késői gólja csak szorosabbá tette a végeredményt, amely 3-2 lett.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 2,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.8,
-    "tools": [],
-    "tokens": 1522,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A Riverside Athletic nyert az izgalmas hajrában\",\n      \"supported\": true,\n      \"why\": \"The final score was 3-2 in favor of Riverside Athletic, with the second half and stoppage time containing dramatic events.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey két gólja mellett Pablo Varnell utolsó pillanatokban szerzett találata biztosította a győzelmet a Riverside Athletic javára\",\n      \"supported\": true,\n      \"why\": \"Dorsey scored in the 47th and 53rd minutes, and Varnell scored in the 88th minute. Riverside's third goal (Varnell's) made the score 3-"
+    "tokens": 1482,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey két gólja előnyt jelentett a Riverside Athletic számára\",\n      \"supported\": true,\n      \"why\": \"Umar Dorsey scored in the 47th and 53rd minutes to put Riverside Athletic in the lead.\"\n    },\n    {\n      \"claim\": \"Pablo Varnell és Emil Holmgrave pedig késői gólváltásaikkal alakítottak a végeredményen\",\n      \"supported\": true,\n      \"why\": \"Pablo Varnell scored in the 88th minute for Riverside Athletic, and Emil Holmgrave scored in the 90+5' minute for Northern Forge, which affected the final score.\"\n    },\n    {\n      \"claim\": \"amely 3"
    }
   ]
  },
  "recap:ft|player|hu|": {
-  "title": "A Riverside Athletic 3-2-re nyert",
-  "body": "Umar Dorsey duplája a második félidő elején meghozta az irányítást a Riverside Athletic számára, míg Pablo Varnell a 88. percben szerzett gólja megtartotta az előnyüket. A Northgate FC késői hajrája, beleértve Emil Holmgrave 90+5. percben szerzett találatát, végül nem volt elég.",
+  "title": "A Riverside Athletic 3-2-es győzelmet arat",
+  "body": "Umar Dorsey duplája a második félidő elején előnyhöz juttatta a Riverside Athleticet, míg Pablo Varnell 88. percben szerzett gólja megtartotta a vezetést. A Northgate FC késői nyomása, beleértve Emil Holmgrave 90+5. percben szerzett találatát, éppen csak kevésnek bizonyult.",
   "source": "agent",
   "trace": [
    {
@@ -8038,10 +7706,10 @@
    },
    {
     "agent": "Translator",
-    "seconds": 1.7,
+    "seconds": 3.9,
     "tools": [],
-    "tokens": 479,
-    "output": "```json\n{\"title\": \"A Riverside Athletic 3-2-es győzelmet aratott\", \"body\": \"Umar Dorsey duplája a második félidő elején lendítette előnybe a Riverside Athletic csapatát, miközben Pablo Varnell 88. percben szerzett gólja biztosította számukra a vezetést. A Northgate FC késői hajrája, beleértve Emil Holmgrave 90+5. percben szerzett találatát, épphogy kevésnek bizonyult.\"}\n```"
+    "tokens": 472,
+    "output": "```json\n{\"title\": \"A Riverside Athletic 3-2-es győzelmet arat\", \"body\": \"Umar Dorsey duplája a második félidő elején előnyhöz juttatta a Riverside Athleticet, míg Pablo Varnell 88. percben szerzett gólja megtartotta a vezetést. A Northgate FC késői nyomása, beleértve Emil Holmgrave 90+5. percben szerzett találatát, éppen csak kevésnek bizonyult.\"}\n```"
    },
    {
     "agent": "Fact-checker",
@@ -8053,32 +7721,10 @@
    },
    {
     "agent": "Editor",
-    "seconds": 2.9,
+    "seconds": 2.7,
     "tools": [],
-    "tokens": 1577,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A Riverside Athletic 3-2-es győzelmet aratott\",\n      \"supported\": true,\n      \"why\": \"The final score is confirmed as 3-2 in favor of Riverside Athletic.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey duplája a második félidő elején lendítette előnybe a Riverside Athletic csapatát\",\n      \"supported\": true,\n      \"why\": \"Umar Dorsey scored twice early in the second half (47' and 53'), contributing to Riverside Athletic's lead.\"\n    },\n    {\n      \"claim\": \"Pablo Varnell 88. percben szerzett gólja biztosította számukra a vezetést\",\n      \"supported\": fa"
-   },
-   {
-    "agent": "Translator",
-    "seconds": 1.5,
-    "tools": [],
-    "tokens": 504,
-    "output": "```json\n{\"title\": \"A Riverside Athletic 3-2-re nyert\", \"body\": \"Umar Dorsey duplája a második félidő elején meghozta az irányítást a Riverside Athletic számára, míg Pablo Varnell az 88. percben szerzett gólja megtartotta az előnyüket. A Northgate FC késői hajrája, beleértve Emil Holmgrave 90+5. percben szerzett találatát, végül nem volt elég.\"}\n```"
-   },
-   {
-    "agent": "Fact-checker",
-    "numbers_checked": 5,
-    "unsupported": [],
-    "unknown_names": [],
-    "wrong_language": false,
-    "passed": true
-   },
-   {
-    "agent": "Editor",
-    "seconds": 2.9,
-    "tools": [],
-    "tokens": 1590,
-    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"A Riverside Athletic 3-2-re nyert\",\n      \"supported\": true,\n      \"why\": \"The facts show a full-time score of 3-2 in favor of Riverside Athletic.\"\n    },\n    {\n      \"claim\": \"Umar Dorsey duplája a második félidő elején meghozta az irányítást a Riverside Athletic számára\",\n      \"supported\": true,\n      \"why\": \"Umar Dorsey scored two goals in the 47th and 53rd minutes, both early in the second half. Riverside took a 2-0 lead after these goals. This can reasonably be interpreted as gaining control of the match.\"\n    },\n    {\n      \"claim\": \"Pablo V"
+    "tokens": 1589,
+    "output": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"Umar Dorsey duplája a második félidő elején előnyhöz juttatta a Riverside Athleticet.\",\n      \"supported\": true,\n      \"why\": \"Dorsey scored two goals early in the second half (47' and 53'), which gave Riverside Athletic the lead.\"\n    },\n    {\n      \"claim\": \"Pablo Varnell 88. percben szerzett gólja megtartotta a vezetést.\",\n      \"supported\": true,\n      \"why\": \"Varnell's goal in the 88th minute made the score 3-1, maintaining Riverside Athletic's lead until Northgate's late goal.\"\n    },\n    {\n      \"claim\": \"A Northgate FC késői nyomása, beleér"
    }
   ]
  }
