@@ -4,6 +4,8 @@
 
 Full Pitch is a live second screen for football fans. Next to the broadcast it shows the whole pitch: every player, the shape of both teams, the runs nobody films. It tells you when a team changes shape, a back three, a deeper block, an all-out press, and if you stepped away for ten minutes, one tap tells you what you missed.
 
+**Live demo:** https://fullpitch.purplehill-778aa3eb.swedencentral.azurecontainerapps.io/?t=50 (the match starts at minute 50; drop `?t=50` to watch from kick-off)
+
 > Built for the Microsoft + Premier League *Inside the Game* hackathon. All data is synthetic and all teams and players are fictional.
 
 ## Status
@@ -14,7 +16,7 @@ Full Pitch is a live second screen for football fans. Next to the broadcast it s
 - [x] Web app (desktop + phone), EN / HU: replays with drawn explanations, team and player stats, recaps
 - [x] Tests (`pytest`)
 - [x] Agents on Microsoft Foundry (Microsoft Agent Framework), with a visible trace for every card
-- [ ] Azure Container Apps deployment
+- [x] Azure Container Apps deployment (managed identity to Foundry, no keys)
 
 ## How it works
 
@@ -127,6 +129,15 @@ python scripts/fuzz_api.py 201 206                   # bug hunt: every endpoint,
 Agents need a Foundry project and `az login` (no keys are stored): put `FOUNDRY_PROJECT_ENDPOINT`, `FOUNDRY_MODEL` (gpt-4.1-mini) and `FOUNDRY_WRITER_MODEL` (gpt-4o) in `.env`. Without them the app runs on the template texts.
 
 Pitch: 105 × 68 m. Home attacks +x in the first half and -x in the second.
+
+## Deploy (Azure Container Apps)
+
+```bash
+docker build -t <registry>.azurecr.io/fullpitch:v1 . && docker push <registry>.azurecr.io/fullpitch:v1
+az containerapp create -n fullpitch -g <rg> --environment <env> --image <registry>.azurecr.io/fullpitch:v1   --registry-server <registry>.azurecr.io --registry-identity system --system-assigned   --ingress external --target-port 8000 --min-replicas 1 --max-replicas 1   --env-vars FOUNDRY_PROJECT_ENDPOINT=... FOUNDRY_MODEL=gpt-4.1-mini FOUNDRY_WRITER_MODEL=gpt-4o
+```
+
+Then give the app's managed identity the *Foundry User* and *Cognitive Services OpenAI User* roles on the Foundry resource. One replica on purpose: viewer sessions and the live clock live in memory.
 
 ## License
 
