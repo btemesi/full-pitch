@@ -143,6 +143,7 @@ select,.chk{background:var(--panel);border:1px solid var(--line);border-radius:8
 .card .play-hint{float:right;font-size:11px;color:var(--accent)}
 .card.recap h3{color:var(--ink)}
 .card.recap{border-left-color:var(--accent)}
+.pitch-wrap:has(.replay-bar:not([hidden])) .view-toggle{display:none}
 .replay-bar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:rgba(11,15,13,.85);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;max-width:92%}
 .replay-bar[hidden]{display:none}
 .replay-bar .tag{font-weight:700;letter-spacing:.1em;color:#0b0f0d;background:var(--accent);border-radius:4px;padding:2px 6px;font-size:11px}

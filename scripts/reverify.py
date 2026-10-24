@@ -39,6 +39,8 @@ async def main():
             rejected += 1
             print(f"REJECT {k}: {team.cache[k]['title']}\n    " + "\n    ".join(problems), flush=True)
             del team.cache[k]
+            # a Hungarian card is a translation of its English card: it goes with it
+            team.cache.pop(k.replace("|en|", "|hu|"), None) if "|en|" in k else None
     team._save()
     print(f"{rejected}/{len(keys)} cards rejected by the Editor")
 

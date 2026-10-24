@@ -218,8 +218,11 @@
     const [bx, by] = toScreen(S.cam.x, S.cam.y);
     const z = Math.min(1, Math.max(0, (S.zoom - 1) / 1.7));
     const cx = dw / 2 + (bx - dw / 2) * z, cy = dh / 2 + (by - dh / 2) * z;
-    const ox = (dw - vw) / 2 > 0 ? (dw - vw) / 2 : Math.max(-PAD, Math.min(dw + PAD - vw, cx - vw / 2));
-    const oy = (dh - vh) / 2 > 0 ? (dh - vh) / 2 : Math.max(-PAD, Math.min(dh + PAD - vh, cy - vh / 2));
+    // a view wider than the pitch and its margin is centred; a smaller (zoomed) view follows the camera
+    // and stops at the margin
+    const fit = (dim, view, c) => view >= dim + 2 * PAD ? (dim - view) / 2
+      : Math.max(-PAD, Math.min(dim + PAD - view, c - view / 2));
+    const ox = fit(dw, vw, cx), oy = fit(dh, vh, cy);
     const P = (x, y) => { const [u, v] = toScreen(x, y); return [(u - ox) * k, (v - oy) * k]; };
     return { k, base, P, inView: (x, y) => { const [u, v] = toScreen(x, y); return u >= ox && u <= ox + vw && v >= oy && v <= oy + vh; } };
   }
@@ -277,9 +280,19 @@
         g.strokeStyle = label === "now" ? "#d7ff3a" : "#ffffff"; g.lineWidth = 3 * d;
         g.beginPath(); g.moveTo(a1, b1); g.lineTo(a2, b2); g.stroke(); g.restore();
         g.font = `700 ${13 * d}px Inter, sans-serif`; g.fillStyle = label === "now" ? "#d7ff3a" : "#fff";
-        g.textAlign = "center"; g.textBaseline = "bottom";
-        const [lx, ly] = v.P(x, W + 0.5);
-        g.fillText(label === "now" ? (hu() ? "MOST" : "NOW") : (hu() ? "KORÁBBAN" : "BEFORE"), lx, ly);
+        g.textAlign = "center"; g.textBaseline = "middle";
+        // inside the pitch near the near touchline (the top edge is under the replay bar, and in the
+        // upright phone view the far touchline is the canvas edge), the two labels apart, never cut off
+        const text = label === "now" ? (hu() ? "MOST" : "NOW") : (hu() ? "KORÁBBAN" : "BEFORE");
+        let [lx, ly] = v.P(x, label === "now" ? 3 : 7);
+        const half = g.measureText(text).width / 2 + 6 * d;
+        lx = Math.max(half, Math.min(g.canvas.width - half, lx));
+        ly = Math.max(10 * d, Math.min(g.canvas.height - 10 * d, ly));
+        const ink = g.fillStyle;
+        g.fillStyle = "rgba(8,14,10,.78)";
+        g.fillRect(lx - half, ly - 10 * d, 2 * half, 20 * d);
+        g.fillStyle = ink;
+        g.fillText(text, lx, ly);
       }
     }
     if (ov && ov.type === "change" && ov.channel) {
@@ -778,9 +791,19 @@
     b.addEventListener("click", () => {
       S.view = b.dataset.view;
       document.querySelectorAll(".view-toggle button").forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-selected", x === b); });
-      if (S.view === "tv") setTimeout(() => hook(`On TV, you see ${S.visible} player${S.visible === 1 ? "" : "s"}.`), 900);
-      else hook("The match has twenty-two.");
+      if (S.view === "tv") tvHook(0);
+      else hook(hu() ? "A meccsen huszonketten vannak." : "The match has twenty-two.");
     }));
+
+  // count the players in view once the camera has zoomed in, never a number from halfway through the zoom
+  function tvHook(tries) {
+    if (S.view !== "tv" || S.replay) return;
+    if (S.visible == null || Math.abs(S.zoom - 2.7) > 0.08) {
+      if (tries < 40) setTimeout(() => tvHook(tries + 1), 100);
+      return;
+    }
+    hook(hu() ? `A tévében ${S.visible} játékost látsz.` : `On TV, you see ${S.visible} player${S.visible === 1 ? "" : "s"}.`);
+  }
 
   document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => {
     S.tab = b.dataset.tab;
