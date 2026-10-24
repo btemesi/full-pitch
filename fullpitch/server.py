@@ -15,6 +15,7 @@ Run: uvicorn fullpitch.server:app --port 8010
 """
 
 import asyncio
+import hashlib
 import json
 import os
 import time
@@ -24,7 +25,7 @@ from contextlib import asynccontextmanager
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from .analysis import slot_occupancy
@@ -288,7 +289,7 @@ async def catchup_agent(sid: str = Query(alias="session"), away: float = Query(1
 
 async def _write_catchup(key, facts, persona, lang):
     try:
-        res = await asyncio.wait_for(TEAM.catch_up(facts, persona, lang), timeout=40)
+        res = await asyncio.wait_for(TEAM.catch_up(facts, persona, lang), timeout=60)
     except Exception:  # noqa: BLE001
         res = None
     finally:
@@ -419,6 +420,17 @@ async def stream(sid: str = Query(alias="session"), speed: float = Query(8.0, ge
 if os.path.isdir(WEB_DIR):
     app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
 
+    def _versioned_index():
+        # the page names its script and stylesheet by content hash, so a new deploy never runs with a
+        # browser's cached copy of the old ones
+        html = open(os.path.join(WEB_DIR, "index.html"), encoding="utf-8").read()
+        for name in ("app.js", "style.css"):
+            digest = hashlib.sha1(open(os.path.join(WEB_DIR, name), "rb").read()).hexdigest()[:10]
+            html = html.replace(f"/static/{name}", f"/static/{name}?v={digest}")
+        return html
+
+    INDEX_HTML = _versioned_index()
+
     @app.get("/")
     def index():
-        return FileResponse(os.path.join(WEB_DIR, "index.html"))
+        return HTMLResponse(INDEX_HTML, headers={"Cache-Control": "no-cache"})

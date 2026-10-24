@@ -643,11 +643,63 @@ class AgentTeam:
             return None
 
     # ---------------------------------------------------------------- catch-up (on demand)
+    def _check_lines(self, lines, lang, allowed, minutes, must, trace):
+        """Deterministic checks on catch-up lines; a list of problems, empty when they hold."""
+        joined = " ".join(lines)
+        bad = fact_check(joined, allowed) + wrong_minutes(joined, minutes)
+        names_bad = unknown_names(joined, self.names)
+        missing = [what for what, word in must if word not in joined]
+        lang_bad = wrong_language(joined, lang)
+        trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(joined)), "unsupported": bad,
+                      "unknown_names": names_bad, "missing": missing, "wrong_language": lang_bad,
+                      "passed": not (bad or names_bad or missing or lang_bad)})
+        problems = []
+        if bad:
+            problems.append(f"numbers not in the facts {bad}")
+        if names_bad:
+            problems.append(f"names not in the match {names_bad}")
+        if missing:
+            problems.append(f"left out {missing}")
+        if lang_bad:
+            problems.append(f"not written in {LANGUAGE[lang]}")
+        return problems
+
+    async def _edit_lines(self, facts, lines, lang, trace):
+        verdict, _ = await self._run(self.editor, json.dumps(
+            {"facts": facts, "card": {"title": "What did I miss?", "body": " ".join(lines)}, "language": lang},
+            ensure_ascii=False), trace, "Editor")
+        return editor_verdict(verdict)
+
     async def catch_up(self, facts, persona, lang):
-        """'What did I miss?' written by the Narrator straight from the measured facts, fact-checked."""
+        """'What did I miss?' written by the Narrator straight from the measured facts, checked by the
+        Fact-checker and the Editor; Hungarian is translated from the checked English lines."""
         trace = []
         allowed = allowed_numbers(facts)
         minutes = fact_minutes(facts)
+        teams = {t["short"]: t["name"] for t in self.store.md.meta["teams"]}
+        must = [(t, teams[t].split()[0]) for t in {c["team"] for c in facts.get("shape_changes", [])}]
+        must += [(g["scorer"], g["scorer"].split()[-1]) for g in facts.get("goals", [])]
+        if lang == "hu":
+            en = await self.catch_up(facts, persona, "en")
+            if not en:
+                return None
+            trace = list(en["trace"])
+            ask = (json.dumps({"lines": en["lines"]}, ensure_ascii=False) + '\n\nTranslate every line. '
+                   'Return ONLY JSON: {"lines": ["...", "..."]}')
+            for _ in range(3):
+                text, _r = await self._run(self.translator, ask, trace, "Translator")
+                try:
+                    lines = [polish(expand_codes(str(x).strip(), teams), "hu", self.names)
+                             for x in _json_from(text)["lines"] if str(x).strip()]
+                except (ValueError, KeyError, TypeError):
+                    continue
+                problems = self._check_lines(lines, "hu", allowed, minutes, must, trace)
+                if not problems and lines:
+                    problems = await self._edit_lines(facts, lines, "hu", trace)
+                    if not problems:
+                        return {"lines": lines, "source": "agent", "trace": trace}
+                ask += "\n\nYour previous translation had: " + "; ".join(problems) + ". Translate again."
+            return None
         narrator = self.narrators[persona]
         rules = NARRATOR_RULES.format(language=LANGUAGE[lang]).replace(
             '{"title": "...", "body": "..."}', '{"lines": ["...", "..."]}')
@@ -655,27 +707,19 @@ class AgentTeam:
                   "first. The screen already shows the time window, so do not repeat it. Cover every goal, red card and "
                   "every entry in shape_changes (what the team changed, in plain words), then the score. Mention "
                   "substitutions only when nothing bigger happened. Facts:\n" + json.dumps(facts, ensure_ascii=False))
-        must = [(t, self.store.md.meta["teams"][self.store.md.shorts.index(t)]["name"].split()[0])
-                for t in {c["team"] for c in facts.get("shape_changes", [])}]
-        must += [(g["scorer"], g["scorer"].split()[-1]) for g in facts.get("goals", [])]
         for _ in range(3):
             text, _r = await self._run(narrator, f"{rules}\n\n{prompt}", trace, narrator.name)
             try:
-                lines = [polish(str(x).strip(), lang, self.names) for x in _json_from(text)["lines"] if str(x).strip()]
+                lines = [polish(expand_codes(str(x).strip(), teams), lang, self.names)
+                         for x in _json_from(text)["lines"] if str(x).strip()]
             except (ValueError, KeyError, TypeError):
                 continue
-            joined = " ".join(lines)
-            bad = fact_check(joined, allowed) + wrong_minutes(joined, minutes)
-            names_bad = unknown_names(joined, self.names)
-            missing = [what for what, word in must if word not in joined]
-            lang_bad = wrong_language(joined, lang)
-            trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(joined)), "unsupported": bad,
-                          "unknown_names": names_bad, "missing": missing, "wrong_language": lang_bad,
-                          "passed": not (bad or names_bad or missing or lang_bad)})
-            if not (bad or names_bad or missing or lang_bad) and lines:
-                return {"lines": lines, "source": "agent", "trace": trace}
-            prompt += (f"\n\nYour previous lines had: numbers not in the facts {bad}, names not in the match "
-                       f"{names_bad}, left out {missing}, wrong language {lang_bad}. Rewrite them.")
+            problems = self._check_lines(lines, lang, allowed, minutes, must, trace)
+            if not problems and lines:
+                problems = await self._edit_lines(facts, lines, lang, trace)
+                if not problems:
+                    return {"lines": lines, "source": "agent", "trace": trace}
+            prompt += "\n\nYour previous lines had: " + "; ".join(problems or ["no lines"]) + ". Rewrite them."
         return None
 
 

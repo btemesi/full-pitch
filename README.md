@@ -96,21 +96,24 @@ Live, a change is confirmed a median 7.5 minutes after it starts (middle half: 7
 
 ## 5. Agents on Microsoft Foundry
 
-`fullpitch/agents.py`, built with the **Microsoft Agent Framework** (`agent_framework`), models deployed on **Microsoft Foundry**, match data over **MCP**. Five roles work on every moment (a goal, a shape change, a recap):
+`fullpitch/agents.py`, built with the **Microsoft Agent Framework** (`agent_framework`), models deployed on **Microsoft Foundry**, match data over **MCP**. Six roles work on every moment (a goal, a shape change, a recap):
 
 | Role | Model | Job |
 | --- | --- | --- |
-| Analyst | gpt-4.1-mini | Investigates the moment through the MCP tools (`match_state`, `tactical_changes`, `key_moments`, ...). The MCP server reads the session clock, so the Analyst cannot look past the live minute. |
-| Tactician | gpt-4.1-mini | Turns the measured facts and the Analyst's notes into cause and effect. |
-| Narrator | gpt-4o | Writes the on-screen card for one viewer type (fan, analyst, the fan following one player), in English or Hungarian. |
-| Fact-checker | plain Python | Every number in the card must exist in the measured facts or in the Analyst's tool results; every capitalised name must belong to this match (it caught invented clubs such as "Riverstone"); the language must be the one asked for. |
-| Editor | gpt-4o | Reads the card against the facts like a sub-editor: wrong minute, scorer or score, actions that did not happen, a headline about the wrong thing, claims that need the future ("the winner" in the 88th minute). |
+| Analyst | gpt-4.1-mini | Investigates the moment through the MCP tools (`match_state`, `tactical_changes`, `key_moments`, ...). The MCP server reads the clock of the moment being explained, so the Analyst cannot look past it. |
+| Tactician | gpt-4.1-mini | Turns the measured facts and the Analyst's notes into cause and effect, without claiming that a change caused what followed. |
+| Narrator | gpt-4o | Writes the on-screen card in English for one viewer type: a fan, an analyst, or the fan following one player. |
+| Translator | gpt-4o | Turns the checked English card into Hungarian, adding nothing. Both languages carry the same facts. |
+| Fact-checker | plain Python | Runs after every agent, the Analyst and the Tactician included. Every number must exist in the measured facts or the Analyst's tool results, every minute must be a clock of this moment, every capitalised name must belong to this match (it caught invented clubs such as "Riverstone", "Riverford" and a real club name), and the language must be the one asked for. |
+| Editor | gpt-4o | Checks the card claim by claim against the facts: wrong minute, scorer or score, actions or tactics the data does not show, a headline about the wrong thing, claims that need the future ("the winner" in the 88th minute), Hungarian grammar. |
 
-A card that fails a check goes back to the Narrator with the reasons, up to three drafts. If no draft passes, the template text built straight from the measurements stays on screen, so a viewer never sees an unchecked sentence. The template shows at once in any case; the agents' version replaces it when it is ready (`pending` in `/api/cards`).
+A card that fails a check goes back with the reasons, up to three drafts. If no draft passes, the template text built straight from the measurements stays on screen, so a viewer never sees an unchecked sentence. The template shows at once in any case; the agents' version replaces it when it is ready (`pending` in `/api/cards`).
 
-**Every card has a "How?" link** (`/api/trace`): each agent's step, the model, the MCP tools it called, seconds, tokens, and what the checks found, including drafts that were sent back.
+**Every card has a "How?" link** (`/api/trace`): each agent's step, the model, the MCP tools it called, seconds, tokens, and what the checks found, including drafts that were sent back. A trace is only served for cards the viewer's session can already see.
 
-For the demo match the cards are written ahead (`python scripts/pregenerate.py`, cached in `data/FP-0001/agent_cache.json`) so the video and the public demo do not depend on rate limits; anything not cached is written live. In that cached run: 59 of 60 cards (10 moments × 3 viewer types × 2 languages) were written by the agents and 1 stayed on the template; 15 cards needed more than one draft; the Editor sent back 21 drafts and the Fact-checker 1. "What did I miss?" is also written by the agents from the same measured facts, checked, and must mention every goal and shape change in the window (`/api/catchup/agent`).
+For the demo match the cards are written ahead (`python scripts/pregenerate.py`, cached in `data/FP-0001/agent_cache.json`) so the video and the public demo do not depend on rate limits; anything not cached (for example the cards for a player you follow) is written live, capped at 60 agent jobs an hour (`FULLPITCH_AGENT_RUNS_PER_HOUR`) so a public demo cannot drain the model budget. `python scripts/reverify.py` runs the current Editor over every cached card again and drops the ones it rejects; the cached cards were also read by hand. In the run that produced the cache, all 60 cards (10 moments × 3 viewer types × 2 languages) passed: 14 needed more than one draft, the Editor sent back 7 drafts and the Fact-checker 1, and before that the Fact-checker sent back the Tactician twice for invented club names.
+
+"What did I miss?" is written the same way from the measured facts of the window (`/api/catchup/agent`): Narrator, Fact-checker (it must also mention every goal and shape change in the window), Editor, and for Hungarian the Translator.
 
 ## Run it
 

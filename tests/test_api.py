@@ -98,3 +98,9 @@ def test_replay_shows_the_score_of_its_moment(client):
     if len(goals) >= 2:
         r = client.get("/api/replay", params={"session": sid, "kind": "goal", "minute": round(goals[1], 2)}).json()
         assert sum(r["score"]) == 1  # the clip starts before the second goal
+
+
+def test_page_names_its_assets_by_version(client):
+    r = client.get("/")
+    assert r.status_code == 200 and r.headers["cache-control"] == "no-cache"
+    assert "/static/app.js?v=" in r.text and "/static/style.css?v=" in r.text

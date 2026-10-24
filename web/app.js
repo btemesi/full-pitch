@@ -927,7 +927,8 @@
     try {
       const ag = await api("/api/catchup/agent", params);
       if (req !== missedReq) return;
-      showMissed(ag.lines);
+      // keep the measured window line (the agents' copy is rounded to the minute), swap the bullets
+      showMissed([res.text.lines[0], ...ag.lines.slice(1)]);
       $("missedSource").textContent = hu()
         ? "Az ágensek írták a Microsoft Foundryn, mért meccsadatokból, minden szám ellenőrizve."
         : "Written by Full Pitch agents on Microsoft Foundry from measured match data, every number checked.";

@@ -1,9 +1,9 @@
 """MCP server exposing the match to the agents.
 
-The agent never chooses the time. The live minute comes from the replay
-server's session clock (FULLPITCH_CLOCK_URL), or a fixed minute for offline
-use (FULLPITCH_LIVE_MINUTE). Every tool answers as of that minute, so an agent
-cannot leak the future into live commentary.
+The agent never chooses the time. The live minute comes, in this order, from a file the
+agent team writes for the moment being explained (FULLPITCH_CLOCK_FILE), the replay server's
+session clock (FULLPITCH_CLOCK_URL), or a fixed minute for offline use (FULLPITCH_LIVE_MINUTE).
+Every tool answers as of that minute, so an agent cannot leak the future into live commentary.
 
 Run:  FULLPITCH_CLOCK_URL=http://localhost:8010/api/clock?session=<id> python -m fullpitch.mcp_server
       FULLPITCH_LIVE_MINUTE=60 python -m fullpitch.mcp_server            (offline, frozen at 60')
@@ -54,6 +54,18 @@ def live_minute() -> float:
     raise RuntimeError("No live clock: set FULLPITCH_CLOCK_FILE, FULLPITCH_CLOCK_URL or FULLPITCH_LIVE_MINUTE")
 
 
+def _team(team):
+    if team not in store().md.shorts:
+        raise ValueError(f"unknown team {team!r}; use one of {store().md.shorts}")
+    return team
+
+
+def _player(player_id):
+    if player_id is not None and player_id not in {p["id"] for p in store().md.meta["players"]}:
+        raise ValueError(f"unknown player {player_id!r}; match_info lists the player ids")
+    return player_id
+
+
 def _with_clock(payload):
     m = live_minute()
     return {"live_minute": round(m, 2), "live_clock": store().clock(m), "data": payload(m)}
@@ -62,7 +74,9 @@ def _with_clock(payload):
 @mcp.tool()
 def match_info() -> dict:
     """Teams, squads and starting formations."""
-    return store().match_info()
+    info = store().match_info()
+    info.pop("length_minutes", None)  # how much stoppage time there will be is not known live
+    return info
 
 
 @mcp.tool()
@@ -81,20 +95,24 @@ def tactical_changes() -> dict:
 @mcp.tool()
 def shape_timeline(team: str, from_minute: float, to_minute: float) -> dict:
     """Minute-by-minute shape of one team (short code, e.g. RIV) with and without the ball."""
+    _team(team)
     return _with_clock(lambda m: store().shape_timeline(team, from_minute, to_minute, m))
 
 
 @mcp.tool()
 def player_report(player_id: str, from_minute: float = 0.0) -> dict:
     """Running (distance, sprints, top speed) and on-ball actions for one player, from a minute until now."""
-    return _with_clock(lambda m: store().player_report(player_id, from_minute, m, m))
+    _player(player_id)
+    return _with_clock(lambda m: store().player_report(player_id, max(0.0, min(from_minute, m)), m, m))
 
 
 @mcp.tool()
 def catch_up(minutes_away: float = 10.0, follow_player: str | None = None) -> dict:
     """Everything that happened in the last `minutes_away` minutes: goals, big chances, cards, subs,
     possession, shots, xG, tactical changes, and the followed player's numbers."""
-    return _with_clock(lambda m: store().catch_up(max(0.0, m - minutes_away), m, m, follow_player))
+    _player(follow_player)
+    away = max(0.0, float(minutes_away))
+    return _with_clock(lambda m: store().catch_up(max(0.0, m - away), m, m, follow_player))
 
 
 @mcp.tool()
