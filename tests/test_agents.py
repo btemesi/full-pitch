@@ -181,3 +181,25 @@ def test_certain_cause_and_name_articles():
     assert drop_article_before_players("akik az Umar Dorsey révén, a Riverside Athletic javára", players) == \
         "akik Umar Dorsey révén, a Riverside Athletic javára"
     assert drop_article_before_players("Az Emil Holmgrave gólja", players) == "Emil Holmgrave gólja"
+
+
+def test_short_hungarian_answers_are_hungarian():
+    assert not wrong_language("Quentin Grievson eddig a legtöbbet futotta, 9,0 km-t.", "hu")
+    assert not wrong_language("Quentin Grievson futott a legtöbbet.", "hu")
+    assert wrong_language("Quentin Grievson has run the most so far.", "hu")
+
+
+def test_speech_only_speaks_registered_lines(tmp_path):
+    from fullpitch.speech import Speech
+
+    class Cred:
+        def get_token(self, scope):
+            return type("T", (), {"token": "t", "expires_on": time.time() + 3600})()
+    sp = Speech("https://example.cognitiveservices.azure.com", tmp_path, credential=Cred())
+    calls = []
+    sp._synthesise = lambda text, lang: calls.append((text, lang)) or b"mp3"
+    sid = sp.register("Northgate  pull one back.", "en")
+    assert asyncio.run(sp.audio(sid)) == b"mp3"
+    assert asyncio.run(sp.audio(sid)) == b"mp3"      # second play comes from the disk cache
+    assert calls == [("Northgate pull one back.", "en")]
+    assert asyncio.run(sp.audio("0123456789abcdef")) is None  # nothing that wasn't handed out

@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .analysis import MatchData, detect_changes, minute_metrics, player_physicals
+from .analysis import MatchData, detect_changes, minute_metrics, player_physicals, slot_occupancy, team_rel
 from .catchup import player_name, score_at, window_facts
 from . import insights
 
@@ -141,6 +141,82 @@ class MatchStore:
         return window_facts(self.md, self.rows, self.frame(from_minute), self.frame(to_minute), follow=follow_player,
                             changes=self.live_changes_at(to_minute))
 
+    # ---------------------------------------------------------------- for viewers' questions
+    @property
+    def occupancy(self):
+        if not hasattr(self, "_occ"):
+            self._occ = slot_occupancy(self.md)
+        return self._occ
+
+    def player_at(self, k, s, f):
+        return next(p for p, a, b in self.occupancy[k][s] if a <= f < b or (b == self.md.F and f >= a))
+
+    def slot_at(self, pid, f):
+        """(team index, slot) of a player on the pitch at frame f, or None."""
+        for k, slots in enumerate(self.occupancy):
+            for s, spans in enumerate(slots):
+                if any(p == pid and a <= f < b for p, a, b in spans) and self.md.active[f, k * 11 + s]:
+                    return k, s
+        return None
+
+    def positions_at(self, minute, at_minute):
+        """Where everyone stood at a moment (never later than now): metres from their own goal line,
+        channel from their own view of the pitch, distance to the ball, and who had it."""
+        m = min(minute, at_minute)
+        f = self.frame(m)
+        md = self.md
+        ball = md.xy[f, 22]
+        out = {"clock": self.clock(m), "minute": round(m, 2),
+               "team_in_possession": md.shorts[int(md.poss[f])] if md.poss[f] >= 0 else None, "players": []}
+        for k, short in enumerate(md.shorts):
+            for s in range(11):
+                if not md.active[f, k * 11 + s]:
+                    continue
+                pid = self.player_at(k, s, f)
+                rel = team_rel(md.xy[f, k * 11 + s], k, int(md.period[f]))
+                out["players"].append({
+                    "id": pid, "name": player_name(md, pid), "team": short,
+                    "metres_from_own_goal": round(float(rel[0]), 1),
+                    "channel": "left" if rel[1] > 45 else ("right" if rel[1] < 23 else "centre"),
+                    "metres_to_ball": round(float(np.linalg.norm(md.xy[f, k * 11 + s] - ball)), 1)})
+        out["players"].sort(key=lambda p: p["metres_to_ball"])
+        return out
+
+    def attack_channels(self, team, from_minute, at_minute):
+        """Completed passes into the final third by channel (left / centre / right, from the attacking
+        team's own view), from a minute until now."""
+        rows = self._seen(at_minute)[int(max(0, from_minute)):]
+        tot = {c: sum(r["teams"][team]["entries"][c] for r in rows) for c in ("left", "centre", "right")}
+        n = sum(tot.values())
+        return {"team": team, "window": [self.clock(from_minute), self.clock(at_minute)], "entries": tot,
+                "share_pct": {c: (round(100 * v / n) if n else None) for c, v in tot.items()}}
+
+    def leaders(self, at_minute, top=5):
+        """The players leading each count so far: distance, sprints, top speed, shots, passes, tackles."""
+        f = self.frame(at_minute)
+        phys = player_physicals(self.md, window=(0, f))
+        evs = [e for e in self.md.events if e["frame"] <= f and e.get("player")]
+        counts = {}
+        for e in evs:
+            c = counts.setdefault(e["player"], {"shots": 0, "passes_completed": 0, "tackles_won": 0})
+            if e["type"] == "shot":
+                c["shots"] += 1
+            elif e["type"] == "pass" and e["outcome"] == "complete":
+                c["passes_completed"] += 1
+            elif e["type"] == "tackle" and e["outcome"] == "won":
+                c["tackles_won"] += 1
+
+        def board(values, unit):
+            best = sorted(values.items(), key=lambda kv: -kv[1])[:top]
+            return [{"id": pid, "name": player_name(self.md, pid), "team": pid.split("-")[0], unit: v} for pid, v in best]
+        return {"clock": self.clock(at_minute),
+                "distance": board({p: round(v["distance_m"] / 1000, 2) for p, v in phys.items() if v}, "km"),
+                "sprints": board({p: v["sprints"] for p, v in phys.items() if v}, "sprints"),
+                "top_speed": board({p: v["top_speed_kmh"] for p, v in phys.items() if v}, "kmh"),
+                "shots": board({p: c["shots"] for p, c in counts.items()}, "shots"),
+                "passes_completed": board({p: c["passes_completed"] for p, c in counts.items()}, "passes"),
+                "tackles_won": board({p: c["tackles_won"] for p, c in counts.items()}, "tackles")}
+
     # ---------------------------------------------------------------- deeper numbers
     def team_stats(self, at_minute):
         return insights.team_stats(self.md, self.frame(at_minute) + 1)
@@ -172,12 +248,29 @@ class MatchStore:
     def key_moments(self, at_minute):
         f = self.frame(at_minute)
         out = []
-        for e in self.md.events:
+        for moment, e in self._key_events():
             if e["frame"] > f:
                 break
+            out.append(dict(self._event_view(e), moment=moment))
+        return out
+
+    def _key_events(self):
+        """(moment id, event) for goals, big chances and cards in match order: 'goal-1', 'chance-3', 'card-2'."""
+        n = {}
+        for e in self.md.events:
             if e["type"] == "goal" or (e["type"] == "shot" and e["outcome"] != "goal" and e["xg"] >= 0.2) \
                     or e["type"] == "card":
-                out.append(self._event_view(e))
+                kind = "chance" if e["type"] == "shot" else e["type"]
+                n[kind] = n.get(kind, 0) + 1
+                yield f"{kind}-{n[kind]}", e
+
+    def positions_at_moment(self, moment, at_minute):
+        """Positions at the exact frame of a key moment ('goal-1' from key_moments), if it has happened."""
+        e = next((e for m, e in self._key_events() if m == moment), None)
+        if e is None or e["frame"] > self.frame(at_minute):
+            raise ValueError(f"no moment {moment!r} so far; key_moments lists them")
+        out = self.positions_at(float(self.md.tmin[e["frame"]]), at_minute)
+        out["moment"] = dict(self._event_view(e), moment=moment)
         return out
 
     def _event_view(self, e):

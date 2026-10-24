@@ -116,6 +116,36 @@ def catch_up(minutes_away: float = 10.0, follow_player: str | None = None) -> di
 
 
 @mcp.tool()
+def positions_at(minute: float) -> dict:
+    """Where every player stood at one moment (a continuous match minute; later than now gives now):
+    metres from their own goal line, channel from their own view, distance to the ball, who had it.
+    Use the minute of a key moment to see a goal or a chance."""
+    return _with_clock(lambda m: store().positions_at(float(minute), m))
+
+
+@mcp.tool()
+def positions_at_moment(moment: str) -> dict:
+    """Where every player stood at the exact moment of a goal, big chance or card. `moment` is the id that
+    key_moments gives (for example 'goal-1'). Prefer this to positions_at for anything about a key moment."""
+    return _with_clock(lambda m: store().positions_at_moment(moment, m))
+
+
+@mcp.tool()
+def attack_channels(team: str, from_minute: float = 0.0) -> dict:
+    """Where a team attacks: completed passes into the final third down the left, centre and right
+    (from that team's own view), from a minute until now."""
+    _team(team)
+    return _with_clock(lambda m: store().attack_channels(team, max(0.0, min(from_minute, m)), m))
+
+
+@mcp.tool()
+def leaders() -> dict:
+    """The players leading each count so far: distance run, sprints, top speed, shots, completed passes,
+    tackles won."""
+    return _with_clock(lambda m: store().leaders(m))
+
+
+@mcp.tool()
 def key_moments() -> dict:
     """Goals, big chances (xG >= 0.2), penalties and cards so far."""
     return _with_clock(lambda m: store().key_moments(m))

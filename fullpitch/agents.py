@@ -36,7 +36,8 @@ LANGS = ("en", "hu")
 
 ANALYST = """You are the Analyst in a football broadcast team. You investigate one moment of a live match
 using the match-data tools, which only show what has happened so far. Call the tools you need
-(tactical_changes, match_state, shape_timeline, key_moments, catch_up, player_report).
+(tactical_changes, match_state, shape_timeline, key_moments, catch_up, player_report, positions_at_moment, positions_at,
+attack_channels, leaders, match_info for player ids).
 Then return ONLY JSON: {"observations": ["short factual sentence with the numbers you saw", ...]}
 with 3 to 6 observations. Copy numbers exactly as the tools give them. Never guess or invent a number."""
 
@@ -71,6 +72,20 @@ Return ONLY JSON: {{"title": "...", "body": "..."}}"""
 LANGUAGE = {"en": "English",
             "hu": "natural, correctly spelled Hungarian, the way a Hungarian TV pundit talks (decimal comma, "
                   "team names keep their English form with Hungarian case endings, e.g. 'a Northgate FC-nek')"}
+
+ANSWERER = """You answer a football fan's question during a live match, as a short on-screen answer, from the
+Analyst's checked notes and the data the Analyst looked up. Plain and direct, 1 to 3 short sentences, English.
+Use only names, numbers and minutes that appear in the input; you know nothing after the live minute.
+If the data cannot answer the question (a prediction, an opinion, something that is not measured), say so in
+one sentence and give what the data does show instead.
+Then choose what the pitch should show next to the answer:
+"players": up to 4 player ids from the input that the answer is about,
+"team" and "channel": a team code and "left", "centre" or "right" when the answer is about where a team attacks,
+"minute": the continuous match minute (the "minute" field of a moment in the input, such as 48.24) of a past
+moment to replay, or null to show the present.
+In the answer text name moments by their clock label ("47'", "45+2'"), never by a continuous minute like 48.24.
+When you describe where players stood at a goal or chance, use only positions looked up for that exact moment.
+Return ONLY JSON: {"answer": "...", "players": [], "team": null, "channel": null, "minute": null}"""
 
 TRANSLATOR = """You translate one checked on-screen football card from English into Hungarian, the way a
 Hungarian TV commentator would say it. Keep every fact, number, minute and name; add nothing and leave nothing out.
@@ -200,7 +215,9 @@ def unknown_names(text, names):
     return bad
 
 
-HU_WORDS = re.compile(r"\b(a|az|és|hogy|de|már|még|után|ellen|percben|gól|óta|nem|is)\b", re.I)
+HU_WORDS = re.compile(r"\b(a|az|és|hogy|de|már|még|után|ellen|percben|gól|óta|nem|is|eddig|volt|van|ezzel|pedig|csak)\b",
+                      re.I)
+EN_WORDS = re.compile(r"\b(the|and|of|has|have|with|is|are|was|to|in|their|they|since|after|for|by)\b", re.I)
 HU_ARTICLE_NUMBER = re.compile(r"\b([Aa]z?) (\d+)(?=[.,'\s%+-]|$)")
 HU_SPELLING = {"Gólnélküli": "Gól nélküli", "gólnélküli": "gól nélküli"}
 
@@ -213,7 +230,10 @@ def _hu_article(n):
 def wrong_language(text, lang):
     """A Hungarian card that came back in English (or the other way round)."""
     hu_hits = len(HU_WORDS.findall(text)) + len(re.findall(r"[áéíóöőúüű]", text, re.I))
-    return hu_hits < 3 if lang == "hu" else hu_hits > 6
+    en_hits = len(EN_WORDS.findall(text))
+    if lang == "hu":  # short Hungarian answers carry few signals: judge by what looks English
+        return (en_hits >= 2 and en_hits > hu_hits) or (hu_hits < 2 and en_hits >= 1)
+    return hu_hits > 6
 
 
 def polish(text, lang, names, title=False):
@@ -362,6 +382,7 @@ class AgentTeam:
         self.narrators = {p: Agent(client=writer, name=f"Narrator ({p})", instructions=NARRATOR[p]) for p in PERSONAS}
         self.editor = Agent(client=writer, name="Editor", instructions=EDITOR)
         self.translator = Agent(client=writer, name="Translator", instructions=TRANSLATOR)
+        self.answerer = Agent(client=writer, name="Narrator (answer)", instructions=ANSWERER)
         self.inflight = {}  # card key -> task, so English and Hungarian don't write the same card twice
         md = store.md
         self.players = sorted({p["name"] for p in md.meta["players"]}, key=len, reverse=True)
@@ -662,6 +683,112 @@ class AgentTeam:
                 problems = [f"numbers {bad}", f"names {names_bad}", "not Hungarian" if lang_bad else ""]
             ask += "\n\nYour previous translation had these problems: " + "; ".join(x for x in problems if x) + ". Translate again."
         return None
+
+    # ---------------------------------------------------------------- a viewer's question (on demand)
+    async def ask(self, question, at, lang):
+        """A viewer's question, answered from the match data as of now, with what to show on the pitch.
+        Analyst (MCP tools) -> Fact-checker -> Narrator (answer + what to show) -> Fact-checker -> Editor,
+        and the Translator for Hungarian. When no checked answer could be written, "answer" is None and the
+        trace says why."""
+        s = self.store
+        teams = {t["short"]: t["name"] for t in s.md.meta["teams"]}
+        ids = {p["id"] for p in s.md.meta["players"]}
+        context = {"live_clock": s.clock(at), "live_minute": round(at, 2), "teams": teams, "state": s.match_state(at)}
+        trace = []
+        ask = (f"A viewer watching live asks: {question!r}\nInvestigate with the tools (they only show the match up to "
+               f"now) and report what answers it. Context:\n{json.dumps(context, ensure_ascii=False)}")
+        tool_results, notes = [], {"observations": []}
+        for _ in range(2):
+            async with self.analyst_lock:  # the clock file is shared, so one investigation at a time
+                Path(self.clock_file).write_text(str(at), encoding="utf-8")
+                notes_text, tool_results = await self._run(self.analyst, ask, trace, "Analyst")
+            try:
+                notes = _json_from(notes_text)
+            except ValueError:
+                notes = {"observations": []}
+            allowed = allowed_numbers(context, tool_results)
+            problems = self._check_notes(notes.get("observations", []), allowed, trace)
+            if not problems:
+                break
+            ask += f"\n\nYour previous notes had {problems}. Investigate again; use only names and numbers from the data."
+        else:
+            return {"answer": None, "source": "failed", "trace": trace}
+        data = {"context": context, "looked_up": [str(x)[:4000] for x in tool_results]}
+        minutes = fact_minutes(data)
+        continuous = set(re.findall(r"minute\W{1,4}(\d+\.\d{2})\b", json.dumps(data)))
+        tell = json.dumps({"question": question, "analyst": notes, **data}, ensure_ascii=False)
+        for _ in range(3):
+            text, _ = await self._run(self.answerer, tell, trace, "Narrator (answer)")
+            try:
+                out = _json_from(text)
+                answer = polish(expand_codes(str(out["answer"]).strip(), teams), "en", self.names)
+            except (ValueError, KeyError):
+                continue
+            show = {"players": [p for p in (out.get("players") or []) if p in ids][:4],
+                    "team": out.get("team") if out.get("team") in teams else None,
+                    "channel": out.get("channel") if out.get("channel") in ("left", "centre", "right") else None,
+                    "minute": None}
+            try:
+                if out.get("minute") is not None and 0 <= float(out["minute"]) <= at:
+                    show["minute"] = round(float(out["minute"]), 2)
+            except (TypeError, ValueError):
+                pass
+            bad = fact_check(answer, allowed) + wrong_minutes(answer, minutes)
+            # a continuous minute ("48.24") is for the replay, the viewer reads clock labels ("47'")
+            bad += [m for m in re.findall(r"\d+\.\d{2}\b", answer) if m in continuous]
+            names_bad = unknown_names(answer, self.names)
+            press_bad = unmeasured_pressure(answer, data)
+            cause_bad = certain_cause(answer)
+            invented = [p for p in (out.get("players") or []) if p not in ids]
+            trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(answer)), "unsupported": bad,
+                          "unknown_names": names_bad + invented, "unmeasured_pressure": press_bad,
+                          "certain_cause": cause_bad,
+                          "passed": not (bad or names_bad or invented or press_bad or cause_bad)})
+            problems = []
+            if bad:
+                problems.append(f"numbers or minutes not in the data: {bad}")
+            if names_bad or invented:
+                problems.append(f"names or player ids not in this match: {names_bad + invented}")
+            if press_bad:
+                problems.append("talk of pressure or pressing, which the data does not measure here")
+            if cause_bad:
+                problems.append("a change said to produce what followed")
+            if not problems:
+                verdict, _ = await self._run(self.editor, json.dumps(
+                    {"facts": data, "card": {"title": question, "body": answer}, "language": "en"},
+                    ensure_ascii=False), trace, "Editor")
+                problems = editor_verdict(verdict)
+                if not problems:
+                    break
+            tell += "\n\nYour previous answer had: " + "; ".join(problems) + ". Answer again."
+        else:
+            return {"answer": None, "source": "failed", "trace": trace}
+        if lang == "hu":
+            ask_hu = (json.dumps({"title": question, "body": answer}, ensure_ascii=False)
+                      + '\n\nTranslate the body only. Return ONLY JSON: {"body": "..."}')
+            for _ in range(3):
+                text, _ = await self._run(self.translator, ask_hu, trace, "Translator")
+                try:
+                    hu_answer = drop_article_before_players(
+                        polish(expand_codes(str(_json_from(text)["body"]).strip(), teams), "hu", self.names), self.players)
+                except (ValueError, KeyError):
+                    continue
+                problems = fact_check(hu_answer, allowed) + wrong_minutes(hu_answer, minutes)
+                lang_bad = wrong_language(hu_answer, "hu") or unmeasured_pressure(hu_answer, data)
+                trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(hu_answer)),
+                              "unsupported": problems, "wrong_language": lang_bad, "passed": not (problems or lang_bad)})
+                if not (problems or lang_bad):
+                    verdict, _ = await self._run(self.editor, json.dumps(
+                        {"facts": data, "card": {"title": question, "body": hu_answer},
+                         "translated_from": {"title": question, "body": answer}, "language": "hu"},
+                        ensure_ascii=False), trace, "Editor")
+                    if not editor_verdict(verdict):
+                        answer = hu_answer
+                        break
+                ask_hu += "\n\nYour previous translation was not accepted. Translate again, faithfully."
+            else:
+                return {"answer": None, "source": "failed", "trace": trace}
+        return {"answer": answer, "show": show, "source": "agent", "trace": trace}
 
     def lookup(self, card, persona, lang, follow=None):
         return self.cache.get(f"{self.event_key(card)}|{persona}|{lang}|{follow or ''}")

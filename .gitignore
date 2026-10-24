@@ -5,3 +5,4 @@ __pycache__/
 preview.html
 .claude/
 data/*/analysis.json
+data/*/speech/

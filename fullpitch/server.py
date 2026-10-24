@@ -25,10 +25,12 @@ from contextlib import asynccontextmanager
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from .analysis import slot_occupancy
+from .catchup import player_name, score_at
+from .insights import frames_payload
 from .store import load
 from .templates import WORDS, catch_up_text, change_card, goal_card, recap_text
 
@@ -52,11 +54,29 @@ def _load_env(path):
 
 _load_env(os.path.join(os.path.dirname(__file__), "..", ".env"))
 TEAM = None  # the agent team; None means template text only
+SPEECH = None  # spoken commentary; None means silent
+
+
+def _speech_endpoint():
+    # the same AI Services resource as the Foundry project: <name>.services.ai.azure.com -> <name>.cognitiveservices.azure.com
+    explicit = os.environ.get("FULLPITCH_SPEECH_ENDPOINT")
+    if explicit:
+        return explicit
+    project = os.environ.get("FOUNDRY_PROJECT_ENDPOINT", "")
+    host = project.split("//")[-1].split("/")[0]
+    return f"https://{host.split('.')[0]}.cognitiveservices.azure.com" if host.endswith(".services.ai.azure.com") else None
 
 
 @asynccontextmanager
 async def lifespan(_app):
-    global TEAM
+    global TEAM, SPEECH
+    if _speech_endpoint() and os.environ.get("FULLPITCH_SPEECH", "1") != "0":
+        try:
+            from .speech import Speech
+            SPEECH = Speech(_speech_endpoint(), os.path.join(MATCH_DIR, "speech"))
+        except Exception as exc:  # noqa: BLE001 - the page works without a voice
+            print(f"[speech] disabled: {type(exc).__name__}: {exc}")
+            SPEECH = None
     store_ = load(MATCH_DIR)  # warm the match and its analysis before the first viewer arrives
     if os.environ.get("FOUNDRY_PROJECT_ENDPOINT") and os.environ.get("FULLPITCH_AGENTS", "1") != "0":
         try:
@@ -183,6 +203,10 @@ async def cards(sid: str = Query(alias="session"), persona: Persona = "casual", 
                     card["subtitle"] = WORDS[lang]["since"].format(clock=exp["facts"]["since"])
             elif writing:
                 card["pending"] = True
+    if SPEECH:  # the agents' prose can be read out (template cards are shorthand), and only cards sent here
+        for card in out:
+            if card.get("source") == "agent":
+                card["speech"] = SPEECH.register(f"{card['title']}. {card['body']}", lang)
     return out
 
 
@@ -198,10 +222,7 @@ def trace(key: str, sid: str = Query(alias="session"), persona: Persona = "casua
     hit = TEAM.cache.get(f"{key}|{persona}|{lang}|{follow or ''}")
     if not hit:
         raise HTTPException(404, "not written yet")
-    fast = os.environ.get("FOUNDRY_MODEL", "gpt-4.1-mini")
-    writer = os.environ.get("FOUNDRY_WRITER_MODEL", fast)
-    return {"key": key, "source": hit.get("source"), "steps": hit.get("trace", []),
-            "models": {"Analyst": fast, "Tactician": fast, "Narrator": writer, "Translator": writer, "Editor": writer}}
+    return {"key": key, "source": hit.get("source"), "steps": hit.get("trace", []), "models": _models()}
 
 
 def _template_cards(sid, persona, lang):
@@ -301,6 +322,88 @@ async def _write_catchup(key, facts, persona, lang):
         while len(CATCHUP_CACHE) > CATCHUP_CACHE_MAX:
             CATCHUP_CACHE.popitem(last=False)
     return res
+
+
+@app.get("/api/speech/{sid}.mp3")
+async def speech(sid: str):
+    """A card or answer read out (Azure AI Speech). Only ids the server handed out are spoken."""
+    if not SPEECH:
+        raise HTTPException(404, "speech is off")
+    try:
+        audio = await SPEECH.audio(sid)
+    except Exception:  # noqa: BLE001
+        audio = None
+    if audio is None:
+        raise HTTPException(404, "no such line, or the voice is resting")
+    return Response(audio, media_type="audio/mpeg", headers={"Cache-Control": "public, max-age=86400"})
+
+
+ASK_CACHE: "OrderedDict[tuple, dict]" = OrderedDict()
+ASK_INFLIGHT: dict[tuple, asyncio.Task] = {}
+
+
+def _models():
+    fast = os.environ.get("FOUNDRY_MODEL", "gpt-4.1-mini")
+    writer = os.environ.get("FOUNDRY_WRITER_MODEL", fast)
+    return {"Analyst": fast, "Tactician": fast, "Narrator": writer, "Translator": writer, "Editor": writer}
+
+
+@app.get("/api/ask")
+async def ask(sid: str = Query(alias="session"), q: str = Query(min_length=3, max_length=200), lang: Lang = "en"):
+    """A viewer's question, answered by the agents from the match up to now, with what to show on the pitch:
+    a clip (the moment the answer is about, or the last seconds), players to ring and a channel to light."""
+    if not TEAM:
+        raise HTTPException(404, "agents are off")
+    s, at = store(), float(int(now(sid)))  # whole minutes: the same question within a minute is answered once
+    key = (at, " ".join(q.lower().split()), lang)
+    if key not in ASK_CACHE:
+        if key not in ASK_INFLIGHT:
+            if not TEAM.take_run():
+                raise HTTPException(503, "agent budget for this hour is used up")
+            ASK_INFLIGHT[key] = asyncio.create_task(_answer(key, q, at, lang))
+        res = await asyncio.shield(ASK_INFLIGHT[key])
+        if res is None:
+            raise HTTPException(503, "the agents could not answer just now")
+    res = ASK_CACHE[key]
+    ASK_CACHE.move_to_end(key)
+    return res
+
+
+async def _answer(key, q, at, lang):
+    try:
+        res = await asyncio.wait_for(TEAM.ask(q, at, lang), timeout=90)
+    except Exception:  # noqa: BLE001
+        res = None
+    finally:
+        ASK_INFLIGHT.pop(key, None)
+    if res is None:
+        return None
+    s, md = store(), store().md
+    show = res.get("show") or {}
+    f_now = s.frame(at)
+    if show.get("minute") is not None:  # the moment the answer is about, a little before and after
+        f_mid = s.frame(min(show["minute"], at))
+        f_from, f_to = max(0, f_mid - 5 * md.hz), min(f_now, f_mid + 3 * md.hz)
+    else:  # the present: the last seconds of play
+        f_mid = f_now
+        f_from, f_to = max(0, f_now - 8 * md.hz), f_now
+    rings = []
+    for pid in show.get("players", []):
+        slot = s.slot_at(pid, f_mid)
+        if slot:
+            rings.append({"k": slot[0], "s": slot[1], "name": player_name(md, pid)})
+    zone = ({"team_index": md.shorts.index(show["team"]), "channel": show["channel"]}
+            if show.get("team") and show.get("channel") else None)
+    out = {"question": q, "answer": res.get("answer"), "source": res.get("source"),
+           "speech": SPEECH.register(res["answer"], lang) if SPEECH and res.get("answer") else None,
+           "steps": res.get("trace", []), "models": _models(),
+           "show": {"rings": rings, "zone": zone, "clock": md.clock_label(f_mid) if res.get("answer") else None},
+           "clip": {"frames": frames_payload(md, f_from, max(f_from + 1, f_to)), "score": score_at(md, f_from)}
+           if res.get("answer") else None}
+    ASK_CACHE[key] = out
+    while len(ASK_CACHE) > CATCHUP_CACHE_MAX:
+        ASK_CACHE.popitem(last=False)
+    return out
 
 
 @app.get("/api/catchup")

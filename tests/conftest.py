@@ -8,6 +8,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 os.environ["FULLPITCH_AGENTS"] = "0"  # tests never call the model
+os.environ["FULLPITCH_SPEECH"] = "0"  # nor the voice
 sys.path.insert(0, str(ROOT))
 
 from fullpitch.engine import Match  # noqa: E402

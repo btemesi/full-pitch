@@ -19,7 +19,10 @@
     <span class="clock" id="clock">0'</span>
     <span class="live" id="live">LIVE</span>
   </div>
+  <div class="head-actions">
+  <button class="voice" id="voiceBtn" aria-pressed="false" title="Read new moments and answers aloud (Azure AI Speech)"><span class="dot"></span><span data-hu="Kommentár">Commentary</span></button>
   <button class="missed" id="missedBtn" data-hu="Mit hagytam ki?">What did I miss?</button>
+  </div>
 </header>
 
 <main class="layout">
@@ -71,6 +74,11 @@
       </div>
     </div>
     <div class="panel" id="panel-insights">
+      <form class="ask-form" id="askForm" autocomplete="off">
+        <input id="askInput" maxlength="200" placeholder="Ask the pitch…" aria-label="Ask the pitch a question">
+        <button type="submit" data-hu="Kérdés">Ask</button>
+      </form>
+      <div class="ask-chips" id="askChips"></div>
       <div class="cards" id="cards" aria-live="polite"><p class="empty">Insights appear here as the match unfolds.</p></div>
     </div>
     <div class="panel" id="panel-stats" hidden>

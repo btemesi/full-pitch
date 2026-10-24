@@ -11,7 +11,7 @@
     frames: [], playhead: 0, playing: true, speed: 8, es: null,
     view: "full", zoom: 1, cam: { x: L / 2, y: W / 2 }, portrait: false, dpr: 1,
     follow: null, followStats: null, persona: "casual", lang: "en", tab: "insights",
-    cards: [], seenCards: new Set(), score: [0, 0], lastCardMinute: -1, lastStatMinute: -1, cardReq: 0,
+    cards: [], asks: [], seenCards: new Set(), score: [0, 0], lastCardMinute: -1, lastStatMinute: -1, cardReq: 0,
     still: null, replay: null, resumeMinute: null, lastPanelMinute: -1, pnTeam: null, pnWindow: "match",
   };
   const hu = () => S.lang === "hu";
@@ -138,6 +138,7 @@
     if (!quiet && fresh.length && !S.replay) {
       const c = fresh.sort((a, b) => b.minute - a.minute)[0];
       lowerThird(c);
+      say(c.speech);
     }
   }
 
@@ -297,6 +298,15 @@
         g.fillText(text, lx, ly);
       }
     }
+    if (ov && ov.type === "ask" && ov.zone) {
+      const k = ov.zone.team_index, period = fr.per || 1;
+      const plusX = (k === 0) === (period === 1);
+      // the channel from the attacking team's own view: left is y > 45 when they attack +x
+      const [lo, hi] = { left: [45, W], centre: [23, 45], right: [0, 23] }[ov.zone.channel];
+      const [y0, y1] = plusX ? [lo, hi] : [W - hi, W - lo];
+      g.save(); g.globalAlpha = 0.2; g.fillStyle = "#d7ff3a";
+      g.fillRect(...rect(plusX ? 52.5 : 0, y0, plusX ? L : 52.5, y1)); g.restore();
+    }
     if (ov && ov.type === "change" && ov.channel) {
       const k = ov.team_index, period = fr.per || 1;
       const plusX = (k === 0) === (period === 1);
@@ -371,6 +381,12 @@
       }
       if (ringed && ov.team_index === k && ringed.has(s)) {
         g.beginPath(); g.arc(x, y, r * 1.75, 0, 7); g.strokeStyle = "#d7ff3a"; g.lineWidth = 2.5 * d; g.stroke();
+      }
+      const ai = ov && ov.type === "ask" && ov.rings ? ov.rings.findIndex((o) => o.k === k && o.s === s) : -1;
+      if (ai >= 0) {
+        g.beginPath(); g.arc(x, y, r * 1.75, 0, 7); g.strokeStyle = "#d7ff3a"; g.lineWidth = 2.5 * d; g.stroke();
+        // names alternate above and below, so players standing close together stay readable
+        label(ov.rings[ai].name, x, ai % 2 ? y + r * 3.4 : y - r * 2.1, "#d7ff3a", d, r);
       }
       g.beginPath(); g.arc(x, y, me ? r * 1.25 : r, 0, 7);
       g.fillStyle = s === 0 ? "#1d1f1e" : S.colors[S.shorts[k]]; g.fill();
@@ -473,12 +489,14 @@
   function renderCards() {
     const el = $("cards");
     el.innerHTML = "";
+    for (const a of S.asks) el.appendChild(askCard(a));
     if (S.persona === "player" && !S.follow) {
       const p = document.createElement("p"); p.className = "empty";
       p.textContent = hu() ? "Koppints egy játékosra, vagy válaszd ki a listából, és az ő szemszögéből követed a meccset." : "Tap a player, or pick one from the list, to follow the match through their eyes.";
       el.appendChild(p);
     }
     if (!S.cards.length) {
+      if (S.asks.length) return;
       const p = document.createElement("p"); p.className = "empty";
       p.textContent = hu() ? "A meccs elemzései itt jelennek meg." : "Insights appear here as the match unfolds.";
       el.appendChild(p); return;
@@ -851,7 +869,7 @@
       b.addEventListener("click", () => {
         S[key] = b.dataset[attr];
         document.querySelectorAll(`#${id} button`).forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); });
-        if (key === "lang") { fillFollowSelect(); translateStatic(); }
+        if (key === "lang") { fillFollowSelect(); translateStatic(); renderAskChips(); }
         refreshCards(currentMinute(), true);
         refreshPanel(true);
         if (!$("drawer").hidden) loadMissed();
@@ -898,8 +916,11 @@
     if (S.persona === "player" && S.follow) params.follow = S.follow;
     let res;
     try { res = await api("/api/trace", withSession(params)); } catch (e) { toast(hu() ? "Ennek a kártyának még nincs naplója." : "No trace for this card yet."); return; }
+    showTrace(res, c.title);
+  }
+  function showTrace(res, title) {
     lastFocus = document.activeElement;
-    $("traceCard").textContent = c.title;
+    $("traceCard").textContent = title;
     const ol = $("traceSteps"); ol.innerHTML = "";
     let total = 0, tokens = 0, drafts = 0;
     for (const st of res.steps) {
@@ -932,6 +953,101 @@
   function closeTrace() { $("traceDrawer").hidden = true; if (lastFocus) lastFocus.focus(); }
   $("traceClose").addEventListener("click", closeTrace);
   $("traceDrawer").addEventListener("click", (e) => { if (e.target.id === "traceDrawer") closeTrace(); });
+
+  // ------------------------------------------------------------ spoken commentary (Azure AI Speech)
+  const voice = new Audio();
+  function say(id) {
+    if (!S.voice || !id) return;
+    voice.pause();
+    voice.src = `/api/speech/${id}.mp3`;
+    voice.play().catch(() => {});
+  }
+  $("voiceBtn").addEventListener("click", () => {
+    S.voice = !S.voice;
+    $("voiceBtn").setAttribute("aria-pressed", S.voice);
+    if (!S.voice) { voice.pause(); return; }
+    // say the latest moment at once, so it is clear the voice works
+    const latest = [...S.cards].filter((c) => c.speech).sort((a, b) => b.minute - a.minute)[0];
+    if (latest) say(latest.speech);
+  });
+
+  // ------------------------------------------------------------ ask the pitch
+  const ASK_CHIPS = {
+    en: ["Who has run the most?", "Where is Northgate attacking from?", "Where was everyone at the last goal?", "Who is going to win?"],
+    hu: ["Ki futott a legtöbbet?", "Honnan támad a Northgate?", "Hol álltak a játékosok az utolsó gólnál?", "Ki fog nyerni?"],
+  };
+  function renderAskChips() {
+    const box = $("askChips"); box.innerHTML = "";
+    $("askInput").placeholder = hu() ? "Kérdezd a pályát…" : "Ask the pitch…";
+    for (const q of ASK_CHIPS[S.lang]) {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = q;
+      b.addEventListener("click", () => askPitch(q));
+      box.appendChild(b);
+    }
+  }
+  async function askPitch(q) {
+    q = q.trim();
+    if (q.length < 3) return;
+    const a = { question: q, status: "pending", res: null };
+    S.asks.unshift(a); S.asks.length = Math.min(S.asks.length, 5);
+    renderCards();
+    try {
+      a.res = await api("/api/ask", withSession({ q, lang: S.lang }));
+      a.status = a.res.answer ? "done" : "failed";
+    } catch (e) { a.status = "error"; }
+    renderCards();
+    if (a.status === "done") { playAsk(a); say(a.res.speech); }
+  }
+  function askCard(a) {
+    const d = document.createElement("article");
+    d.className = "card ask";
+    d.innerHTML = '<div class="k"><span></span><span></span></div><p class="q"></p><p class="a"></p>';
+    const [k1, k2] = d.querySelectorAll(".k span");
+    k1.textContent = hu() ? "Kérdésed" : "You asked";
+    k2.textContent = a.res && a.res.show && a.res.show.clock ? a.res.show.clock : "";
+    d.querySelector(".q").textContent = a.question;
+    const ans = d.querySelector(".a");
+    const src = document.createElement("div"); src.className = "src";
+    if (a.status === "pending") {
+      ans.textContent = hu() ? "Az ágensek utánanéznek a meccsadatokban…" : "The agents are looking it up in the match data…";
+      src.className = "src pending"; src.textContent = hu() ? "Analyst → Narrator → Fact-checker → Editor" : "Analyst → Narrator → Fact-checker → Editor";
+    } else if (a.status === "error") {
+      ans.textContent = hu() ? "Most nem sikerült választ adni. Próbáld újra egy perc múlva." : "No answer just now. Try again in a minute.";
+    } else {
+      ans.textContent = a.status === "done" ? a.res.answer
+        : (hu() ? "Erre az ágensek nem tudtak ellenőrzött választ adni, ezért nem is mondanak semmit." : "The agents could not give a checked answer to this, so they say nothing.");
+      src.textContent = (a.status === "done" ? (hu() ? "Ágensek válaszolták ·" : "Answered by agents ·") : (hu() ? "Visszadobva ·" : "Rejected ·"));
+      const how = document.createElement("button"); how.type = "button"; how.textContent = hu() ? "Hogyan?" : "How?";
+      how.addEventListener("click", (e) => { e.stopPropagation(); showTrace(a.res, a.question); });
+      src.appendChild(how);
+      if (a.status === "done") {
+        const h = document.createElement("span"); h.className = "play-hint"; h.textContent = hu() ? "▶ Mutasd a pályán" : "▶ Show on pitch";
+        d.querySelector(".k span").after(h);
+        d.classList.add("clickable"); d.tabIndex = 0; d.setAttribute("role", "button");
+        d.addEventListener("click", () => playAsk(a));
+        d.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); playAsk(a); } });
+      }
+    }
+    d.appendChild(src);
+    return d;
+  }
+  function playAsk(a) {
+    const clip = a.res && a.res.clip;
+    if (!clip || !clip.frames.length) return;
+    if (!S.replay) S.resumeMinute = currentMinute();
+    if (S.es) { S.es.close(); S.es = null; }
+    S.replay = { frames: clip.frames, overlay: { type: "ask", rings: a.res.show.rings, zone: a.res.show.zone },
+                 i: 0, doneAt: null, liveScore: S.replay ? S.replay.liveScore : S.score.slice() };
+    if (clip.score) { S.score = clip.score.slice(); renderScore(); }
+    $("replayTitle").textContent = a.question;
+    $("replayBar").hidden = false; $("followCard").hidden = true; $("lowerThird").hidden = true;
+    $("live").classList.add("paused");
+  }
+  $("askForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const q = $("askInput").value; $("askInput").value = "";
+    askPitch(q);
+  });
 
   // ------------------------------------------------------------ what did I miss?
   let awayFor = 10, lastFocus = null, missedReq = 0;
@@ -978,5 +1094,6 @@
       loadMissed();
     }));
 
+  renderAskChips();
   init();
 })();
