@@ -135,6 +135,8 @@ Pitch: 105 × 68 m. Home attacks +x in the first half and -x in the second.
 
 ## Deploy (Azure Container Apps)
 
+`scripts/deploy.sh v7` builds, pushes and rolls out a new image, and stops at the first failure so the app is never pointed at an image that was not pushed. The first setup:
+
 ```bash
 docker build -t <registry>.azurecr.io/fullpitch:v1 . && docker push <registry>.azurecr.io/fullpitch:v1
 az containerapp create -n fullpitch -g <rg> --environment <env> --image <registry>.azurecr.io/fullpitch:v1   --registry-server <registry>.azurecr.io --registry-identity system --system-assigned   --ingress external --target-port 8000 --min-replicas 1 --max-replicas 1   --env-vars FOUNDRY_PROJECT_ENDPOINT=... FOUNDRY_MODEL=gpt-4.1-mini FOUNDRY_WRITER_MODEL=gpt-4o
