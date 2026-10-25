@@ -284,16 +284,16 @@ def lineup(sid: str = Query(alias="session")):
 Since = Literal["ko", "ht"]
 
 
-def _away(s, at, away, since):
-    """Minutes to look back: a number, or since kick-off / half-time (worked out here, so the page never needs
-    to know when half-time came before it has)."""
+def _start(s, at, away, since):
+    """Where the window starts: `away` minutes back, or kick-off, or the half-time whistle (worked out here, so
+    the page never needs to know when half-time came before it has)."""
     if since == "ko":
-        return at
+        return 0.0
     if since == "ht":
         if at < s.ht_minute:
             raise HTTPException(409, "the second half hasn't started")
-        return max(1.0, at - s.ht_minute)
-    return away
+        return s.ht_minute
+    return max(0.0, at - away)
 
 
 @app.get("/api/catchup/agent")
@@ -304,12 +304,13 @@ async def catchup_agent(sid: str = Query(alias="session"), away: float = Query(1
     if not TEAM:
         raise HTTPException(404, "agents are off")
     s, at = store(), now(sid)
-    away = _away(s, at, away, since)
+    start = _start(s, at, away, since)
     if follow and follow not in {p["id"] for p in s.md.meta["players"]}:
         raise HTTPException(404, "unknown player")
-    # whole minutes: viewers asking within the same minute share one summary
-    at = float(int(at))
-    start = max(0.0, at - round(away))
+    if since is None:
+        # whole minutes: viewers asking within the same minute share one summary
+        at = float(int(at))
+        start = max(0.0, at - round(away))
     key = (start, at, follow, persona, lang)
     if key in CATCHUP_CACHE:
         CATCHUP_CACHE.move_to_end(key)
@@ -429,10 +430,10 @@ def catchup(sid: str = Query(alias="session"), away: float = Query(10, ge=1, le=
             follow: str | None = None, persona: Persona = "casual", lang: Lang = "en", since: Since | None = None):
     """'What did I miss?' for the last `away` minutes before now (or since kick-off / half-time)."""
     s, at = store(), now(sid)
-    away = _away(s, at, away, since)
+    start = _start(s, at, away, since)
     if follow and follow not in {p["id"] for p in s.md.meta["players"]}:
         raise HTTPException(404, "unknown player")
-    facts = s.catch_up(max(0.0, at - away), at, at_minute=at, follow_player=follow)
+    facts = s.catch_up(start, at, at_minute=at, follow_player=follow)
     return {"facts": facts, "text": catch_up_text(facts, persona, lang)}
 
 

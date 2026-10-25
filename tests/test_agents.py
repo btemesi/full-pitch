@@ -57,6 +57,7 @@ def test_polish_house_style():
     ("az 5. percben, a 1. gól, a 55%", "az 5. percben, az 1. gól, az 55%"),
     ("Emil Holmgrave 90+5. percben szerzett gólja", "Emil Holmgrave 90+5. percben szerzett gólja"),
     ("Holmgrave az 90+5. percben", "Holmgrave a 90+5. percben"),
+    ("Varnell az a 88. percben", "Varnell a 88. percben"),
     ("A mérkőzés 53. percében", "A mérkőzés 53. percében"),
 ])
 def test_polish_hungarian_articles(text, fixed):
@@ -314,3 +315,12 @@ def test_nothing_is_decided_before_the_final_whistle():
     assert decisive_claim("Varnell sealed it in the 88th.")
     assert decisive_claim("Varnell a 88. percben lezárta a meccset.")
     assert not decisive_claim("Varnell made it 3-1 in the 88th.")
+
+
+def test_the_goal_tally_matches_the_goals():
+    from fullpitch.agents import wrong_goal_tally
+    assert wrong_goal_tally("You missed three goals! Riverside went 3-1 up.", 4) == ["three"]
+    assert wrong_goal_tally("You missed a goal!", 1) == []
+    assert wrong_goal_tally("Lemaradtál két gólról: Dorsey kétszer is betalált.", 2) == []
+    assert wrong_goal_tally("Lemaradtál egy gólról!", 2) == ["egy"]
+    assert wrong_goal_tally("Dorsey scored two goals.", 4) == []  # one player's goals are not the tally

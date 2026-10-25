@@ -116,3 +116,19 @@ def test_catch_up_since_kick_off_and_half_time(client):
     r = client.get("/api/catchup", params={"session": late, "since": "ht"}).json()
     assert r["facts"]["window"]["from"] == s.clock(s.ht_minute)  # from the half-time whistle, not before
     assert client.get("/api/catchup", params={"session": late, "since": "xx"}).status_code == 422
+
+
+def test_since_half_time_starts_at_the_whistle_even_a_moment_after_it(client):
+    s = load(MATCH_DIR)
+    sid = new_session(client, s.ht_minute + 0.3)
+    r = client.get("/api/catchup", params={"session": sid, "since": "ht"}).json()
+    assert r["facts"]["window"]["from"] == s.clock(s.ht_minute)
+
+
+def test_catch_up_at_the_final_whistle_has_every_goal(client):
+    s = load(MATCH_DIR)
+    sid = new_session(client, s.length_min)
+    r = client.get("/api/catchup", params={"session": sid, "since": "ko"}).json()
+    goals = [e for e in s.md.events if e["type"] == "goal"]
+    assert len(r["facts"]["goals"]) == len(goals)  # the last one lands on the very last frame
+    assert r["facts"]["score_now"] == client.get("/api/state", params={"session": sid}).json()["score"]

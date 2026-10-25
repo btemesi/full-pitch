@@ -280,6 +280,7 @@ def polish(text, lang, names, title=False):
         def article(m):
             art = _hu_article(int(m.group(2)))
             return (art.capitalize() if m.group(1)[0] == "A" else art) + " " + m.group(2)
+        text = re.sub(r"\b[Aa]z?\s+(?=[Aa]z?\s+\d)", "", text)  # "az a 88. percben": one article is enough
         text = HU_ARTICLE_NUMBER.sub(article, text)
         for wrong, right in HU_SPELLING.items():
             text = text.replace(wrong, right)
@@ -448,6 +449,20 @@ DECISIVE = re.compile(
 def decisive_claim(text):
     # "Varnell sealed it" while there is still time to play needs knowledge of the future
     return [m.group(0) for m in DECISIVE.finditer(text)]
+
+
+COUNT_WORDS = {"a": 1, "an": 1, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7,
+               "egy": 1, "két": 2, "kettő": 2, "három": 3, "négy": 4, "öt": 5, "hat": 6, "hét": 7}
+GOAL_TALLY = re.compile(
+    r"\bmissed\s+(?:all\s+)?(a|an|one|two|three|four|five|six|seven|\d+)\s+goals?\b"
+    r"|\blemaradtál\s+(?:\w+\s+)?(egy|két|kettő|három|négy|öt|hat|hét|\d+)\s+gólról"
+    r"|\b(egy|két|kettő|három|négy|öt|hat|hét|\d+)\s+gól\s+(?:esett|született)", re.I)
+
+
+def wrong_goal_tally(text, goals):
+    # "You missed three goals!" when four went in
+    said = [next(g for g in m.groups() if g) for m in GOAL_TALLY.finditer(text)]
+    return [w for w in said if COUNT_WORDS.get(w.lower(), int(w) if w.isdigit() else -1) != goals]
 
 
 def foreign_content(text):
@@ -997,13 +1012,16 @@ class AgentTeam:
         lang_bad = wrong_language(joined, lang)
         press_bad = unmeasured_pressure(joined, facts)
         early = [] if facts.get("match_over") else decisive_claim(joined)
-        trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(joined)), "unsupported": bad,
+        tally = wrong_goal_tally(joined, len(facts.get("goals", [])))
+        trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(joined)), "unsupported": bad + tally,
                       "unknown_names": names_bad, "missing": missing, "wrong_language": lang_bad,
                       "unmeasured_pressure": press_bad, "decided_too_early": early,
-                      "passed": not (bad or names_bad or missing or lang_bad or press_bad or early)})
+                      "passed": not (bad or names_bad or missing or lang_bad or press_bad or early or tally)})
         problems = []
         if early:
             problems.append(f"{early}: the match is not over, nothing is decided yet")
+        if tally:
+            problems.append(f"the number of goals said ({tally}) is not the {len(facts.get('goals', []))} in the facts")
         if bad:
             problems.append(f"numbers not in the facts {bad}")
         if names_bad:

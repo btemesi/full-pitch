@@ -433,6 +433,7 @@
     sel.innerHTML = "";
     const first = document.createElement("option"); first.value = ""; first.textContent = hu() ? "Játékos követése…" : "Follow a player…";
     sel.appendChild(first);
+    if (!S.lineup || !S.match) return;  // the language can change before the line-ups arrive; they fill it in
     for (let k = 0; k < 2; k++) {
       const og = document.createElement("optgroup"); og.label = S.match.teams[k].name;
       for (const p of S.lineup[S.shorts[k]]) {
@@ -835,7 +836,7 @@
   }));
 
   cv.addEventListener("click", (e) => {
-    if (!S._v || !S._fr || S.replay) return;
+    if (!S._v || !S._fr || S.replay || !S.lineup) return;
     const rc = cv.getBoundingClientRect();
     const mx = (e.clientX - rc.left) * cv.width / rc.width, my = (e.clientY - rc.top) * cv.height / rc.height;
     let best = null, bd = 1e9;
@@ -1071,8 +1072,9 @@
     $("awayRange").value = Math.min(90, awayFor);
     $("awayRangeLabel").textContent = sinceKind ? "" : minLabel(awayFor);
     // "since half-time" only means something once the second half is on
-    const fr = liveFrame();
-    document.querySelector('#awayFor [data-since="ht"]').hidden = !(fr && fr.per === 2);
+    const fr = liveFrame(), second = !!(fr && fr.per === 2);
+    document.querySelector('#awayFor [data-since="ht"]').hidden = !second;
+    if (!second && sinceKind === "ht") { sinceKind = null; syncAway(); }  // jumped back into the first half
   }
   function showMissed(lines) {
     const ul = $("missedLines"); ul.innerHTML = "";

@@ -147,8 +147,10 @@ class MatchStore:
 
     def catch_up(self, from_minute, to_minute, at_minute, follow_player=None):
         to_minute = min(to_minute, at_minute)
-        return window_facts(self.md, self.rows, self.frame(from_minute), self.frame(to_minute), follow=follow_player,
-                            changes=self.live_changes_at(to_minute))
+        # up to and including the frame on screen now, like the score and the key moments (the last goal of this
+        # match lands on the very last frame and was left out)
+        return window_facts(self.md, self.rows, self.frame(from_minute), self.frame(to_minute) + 1,
+                            follow=follow_player, changes=self.live_changes_at(to_minute))
 
     # ---------------------------------------------------------------- for viewers' questions
     @property

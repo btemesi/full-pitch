@@ -38,7 +38,7 @@ def window_facts(md, rows, frame_from, frame_to, follow=None, changes=None):
     clock = md.clock_label
 
     facts = {
-        "window": {"from": clock(frame_from), "to": clock(frame_to),
+        "window": {"from": clock(frame_from), "to": clock(min(frame_to, md.F - 1)),
                    "minutes": round((frame_to - frame_from) / md.hz / 60, 1)},
         "teams": names,
         "score_before": dict(zip(shorts, score_at(md, frame_from - 1))),
