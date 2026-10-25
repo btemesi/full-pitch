@@ -4,6 +4,8 @@
 
 Full Pitch is a live second screen for football fans. Next to the broadcast it shows the whole pitch: every player, the shape of both teams, the runs nobody films. It tells you when a team changes shape, a back three, a deeper block, an all-out press, and if you stepped away for ten minutes, one tap tells you what you missed.
 
+**Demo video (1:41):** https://youtu.be/WTWD68Zts7o
+
 **Live demo:** https://fullpitch.purplehill-778aa3eb.swedencentral.azurecontainerapps.io/?t=50 (the match starts at minute 50; drop `?t=50` to watch from kick-off)
 
 > Built for the Microsoft + Premier League *Inside the Game* hackathon. All data is synthetic and all teams and players are fictional.
