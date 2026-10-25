@@ -8,6 +8,14 @@ Full Pitch is a live second screen for football fans. Next to the broadcast it s
 
 > Built for the Microsoft + Premier League *Inside the Game* hackathon. All data is synthetic and all teams and players are fictional.
 
+**Try it in a minute** (desktop browser, no login, the match plays at 8x):
+
+1. Click *Broadcast*, then *Full pitch*: the TV crop, then all 22 players.
+2. Click a card on the right: the pitch replays the moment and draws what the card says.
+3. Click *How?* on a card: every agent's step, the MCP tools it called, and the drafts the checks sent back.
+4. Tap *Where was everyone at the last goal?* under *Ask the pitch*.
+5. Switch on *Commentary*, or leave the tab for 20 seconds and come back: *Welcome back!* with what you missed.
+
 ## Status
 
 - [x] Synthetic match engine (tracking + events)
