@@ -324,3 +324,38 @@ def test_the_goal_tally_matches_the_goals():
     assert wrong_goal_tally("Lemaradtál két gólról: Dorsey kétszer is betalált.", 2) == []
     assert wrong_goal_tally("Lemaradtál egy gólról!", 2) == ["egy"]
     assert wrong_goal_tally("Dorsey scored two goals.", 4) == []  # one player's goals are not the tally
+
+
+class CatchUpTeam(FakeTeam):
+    def __init__(self, store):
+        super().__init__(store)
+        self.seen = []
+
+    async def catch_up(self, facts, persona, lang):
+        self.seen.append(facts)
+        return {"lines": [f"{len(facts['goals'])} goals"], "source": "agent", "trace": []}
+
+
+def test_agent_catch_up_includes_a_goal_from_earlier_in_this_minute(agent_client):
+    s = server.store()
+    goal = next(e["minute"] for e in s.key_moments(s.length_min)
+                if e["type"] == "goal" and 0.2 < e["minute"] % 1 < 0.9)
+    team = server.TEAM = CatchUpTeam(s)
+    server.CATCHUP_CACHE.clear()
+    before = agent_client.post("/api/session", params={"from": goal - 0.1}).json()["session"]
+    after = agent_client.post("/api/session", params={"from": goal + 0.05}).json()["session"]
+    first = agent_client.get("/api/catchup/agent", params={"session": before, "away": 3}).json()
+    second = agent_client.get("/api/catchup/agent", params={"session": after, "away": 3}).json()
+    # same minute, but the goal came in between: the later viewer gets a summary that has it
+    assert len(team.seen) == 2
+    assert len(team.seen[1]["goals"]) == len(team.seen[0]["goals"]) + 1
+    assert first["lines"][1] != second["lines"][1]
+
+
+def test_shared_minute_never_hides_news_or_shares_the_future():
+    s = server.store()
+    goal = next(e["minute"] for e in s.key_moments(s.length_min)
+                if e["type"] == "goal" and 0.2 < e["minute"] % 1 < 0.9)
+    assert server._shared_minute(s, goal - 0.1) <= goal - 0.1  # before the goal: shared, and not ahead of the viewer
+    after = server._shared_minute(s, goal + 0.05)
+    assert goal <= after <= goal + 0.05  # after it: the moment itself, so the goal is in

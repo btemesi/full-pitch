@@ -282,6 +282,20 @@ def lineup(sid: str = Query(alias="session")):
 
 
 Since = Literal["ko", "ht"]
+# what makes a moment worth its own answer: viewers asking within a minute share one unless one of these came in it
+NEWS = {"goal", "shot", "save", "block", "card", "substitution", "offside", "period_start", "period_end"}
+
+
+def _shared_minute(s, at):
+    """The whole minute, so viewers asking within it share one agent run; but when a goal, shot, card,
+    substitution or shape change came after the minute began, the moment itself (a goal 30 seconds ago belongs
+    in the answer). Never later than `at`, so nothing from a viewer's future is shared."""
+    whole, exact = float(int(at)), int(at * 100) / 100  # rounded down, never ahead of the viewer
+    f0, f = s.frame(whole), s.frame(exact)
+    if any(f0 < e["frame"] <= f and e["type"] in NEWS for e in s.md.events) or \
+            len(s.tactical_changes(exact)) != len(s.tactical_changes(whole)):
+        return exact
+    return whole
 
 
 def _start(s, at, away, since):
@@ -308,8 +322,7 @@ async def catchup_agent(sid: str = Query(alias="session"), away: float = Query(1
     if follow and follow not in {p["id"] for p in s.md.meta["players"]}:
         raise HTTPException(404, "unknown player")
     if since is None:
-        # whole minutes: viewers asking within the same minute share one summary
-        at = float(int(at))
+        at = _shared_minute(s, at)
         start = max(0.0, at - round(away))
     key = (start, at, follow, persona, lang)
     if key in CATCHUP_CACHE:
@@ -372,7 +385,8 @@ async def ask(sid: str = Query(alias="session"), q: str = Query(min_length=3, ma
     a clip (the moment the answer is about, or the last seconds), players to ring and a channel to light."""
     if not TEAM:
         raise HTTPException(404, "agents are off")
-    s, at = store(), float(int(now(sid)))  # whole minutes: the same question within a minute is answered once
+    s = store()
+    at = _shared_minute(s, now(sid))  # the same question within a minute is answered once, unless news came in it
     key = (at, " ".join(q.lower().split()), lang)
     if key not in ASK_CACHE:
         if key not in ASK_INFLIGHT:

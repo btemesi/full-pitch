@@ -872,7 +872,10 @@
       b.addEventListener("click", () => {
         S[key] = b.dataset[attr];
         document.querySelectorAll(`#${id} button`).forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); });
-        if (key === "lang") { fillFollowSelect(); translateStatic(); renderAskChips(); syncAway(); }
+        if (key === "lang") {
+          fillFollowSelect(); translateStatic(); renderAskChips(); syncAway();
+          if (welcomeAway && !$("missedWelcome").hidden) $("missedWelcome").textContent = welcomeText();
+        }
         refreshCards(currentMinute(), true);
         refreshPanel(true);
         if (!$("drawer").hidden) loadMissed();
@@ -1110,10 +1113,15 @@
       $("missedSource").textContent = hu() ? "Közvetlenül a mért meccsadatokból." : "Built straight from measured match data.";
     }
   }
-  function openDrawer(welcome) {
+  // the welcome line keeps its minutes, so a language switch can say it again in the other language
+  let welcomeAway = null;
+  const welcomeText = () => hu() ? `Üdv újra! Nagyjából ${welcomeAway} percet hagytál ki.`
+    : `Welcome back! You were away for about ${welcomeAway} minutes.`;
+  function openDrawer(away) {
     lastFocus = document.activeElement;
-    $("missedWelcome").hidden = !welcome;
-    if (welcome) $("missedWelcome").textContent = welcome;
+    welcomeAway = away || null;
+    $("missedWelcome").hidden = !welcomeAway;
+    if (welcomeAway) $("missedWelcome").textContent = welcomeText();
     syncAway();
     $("drawer").hidden = false; $("drawerClose").focus(); loadMissed();
   }
@@ -1152,7 +1160,7 @@
     const away = Math.round(back - left);
     if (away < 2) return;
     awayFor = Math.min(120, away); sinceKind = null;
-    openDrawer(hu() ? `Üdv újra! Nagyjából ${away} percet hagytál ki.` : `Welcome back! You were away for about ${away} minutes.`);
+    openDrawer(away);
   });
 
   renderAskChips();
