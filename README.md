@@ -95,7 +95,7 @@ Live, a change is confirmed a median 7.5 minutes after it starts (middle half: 7
 - **Player**: goals, assists, xG, pass accuracy, runs in behind the last line (detected from tracking, the movement TV rarely shows), running per 15 minutes with a fatigue read-out, heatmap, pass and shot map.
 - **Ask the pitch.** Type a question, or tap one of the suggestions: "Where was everyone at the last goal?", "Where is Northgate attacking from?", "Who has run the most?". The agents look it up in the match data as of now, answer in one to three sentences, and the pitch shows the answer: a question about a moment replays it, a question about the present is drawn over the live picture while the match plays on; the players are ringed and named and the channel lights up. A question the data cannot answer ("Who is going to win?") gets an honest no, and every answer has the same "How?" trace as the cards.
 - **Commentary.** Switch it on and a voice reads out each new moment and every answer, in English or Hungarian (Azure AI Speech neural voices, keyless through Microsoft Entra ID; each line is synthesised once and cached).
-- **What did I miss?**: the last 5 to 30 minutes in a few lines.
+- **What did I miss?**: told the way a friend on the sofa would tell you, for the last 2 to 45 minutes, any number of minutes on a slider, since half-time or since kick-off. Leave the page (another tab, a locked phone) and when you come back after a couple of match minutes it opens by itself: "Welcome back! You were away for about 7 minutes."
 - **Presentation mode** (`P` or `?present=1`): just the pitch and the scoreboard, for recording.
 
 ## 5. Agents on Microsoft Foundry

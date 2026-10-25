@@ -871,7 +871,7 @@
       b.addEventListener("click", () => {
         S[key] = b.dataset[attr];
         document.querySelectorAll(`#${id} button`).forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); });
-        if (key === "lang") { fillFollowSelect(); translateStatic(); renderAskChips(); }
+        if (key === "lang") { fillFollowSelect(); translateStatic(); renderAskChips(); syncAway(); }
         refreshCards(currentMinute(), true);
         refreshPanel(true);
         if (!$("drawer").hidden) loadMissed();
@@ -1062,7 +1062,18 @@
   });
 
   // ------------------------------------------------------------ what did I miss?
-  let awayFor = 10, lastFocus = null, missedReq = 0;
+  let awayFor = 10, sinceKind = null, lastFocus = null, missedReq = 0;
+  const minLabel = (n) => `${n} ${hu() ? "perc" : "min"}`;
+  // the chips, the slider and the label always show the same choice
+  function syncAway() {
+    document.querySelectorAll("#awayFor button").forEach((x) => x.classList.toggle("on",
+      sinceKind ? x.dataset.since === sinceKind : +x.dataset.min === awayFor));
+    $("awayRange").value = Math.min(90, awayFor);
+    $("awayRangeLabel").textContent = sinceKind ? "" : minLabel(awayFor);
+    // "since half-time" only means something once the second half is on
+    const fr = liveFrame();
+    document.querySelector('#awayFor [data-since="ht"]').hidden = !(fr && fr.per === 2);
+  }
   function showMissed(lines) {
     const ul = $("missedLines"); ul.innerHTML = "";
     const [head, ...rest] = lines;
@@ -1071,9 +1082,16 @@
   }
   async function loadMissed() {
     const req = ++missedReq;
-    const params = withSession({ away: awayFor, persona: S.persona, lang: S.lang });
+    const params = withSession(sinceKind ? { since: sinceKind } : { away: awayFor });
+    Object.assign(params, { persona: S.persona, lang: S.lang });
     if (S.follow) params.follow = S.follow;
-    const res = await api("/api/catchup", params);
+    let res;
+    try { res = await api("/api/catchup", params); } catch (e) {
+      if (req !== missedReq) return;
+      showMissed([hu() ? "A második félidő még nem kezdődött el." : "The second half hasn't started yet."]);
+      $("missedSource").textContent = "";
+      return;
+    }
     if (req !== missedReq) return;
     showMissed(res.text.lines);
     $("missedSource").textContent = hu() ? "Mért meccsadatokból. Az ágensek most írják a saját változatukat…" : "From measured match data. The agents are writing their version…";
@@ -1090,9 +1108,15 @@
       $("missedSource").textContent = hu() ? "Közvetlenül a mért meccsadatokból." : "Built straight from measured match data.";
     }
   }
-  function openDrawer() { lastFocus = document.activeElement; $("drawer").hidden = false; $("drawerClose").focus(); loadMissed(); }
+  function openDrawer(welcome) {
+    lastFocus = document.activeElement;
+    $("missedWelcome").hidden = !welcome;
+    if (welcome) $("missedWelcome").textContent = welcome;
+    syncAway();
+    $("drawer").hidden = false; $("drawerClose").focus(); loadMissed();
+  }
   function closeDrawer() { $("drawer").hidden = true; if (lastFocus) lastFocus.focus(); }
-  $("missedBtn").addEventListener("click", openDrawer);
+  $("missedBtn").addEventListener("click", () => openDrawer());
   $("drawerClose").addEventListener("click", closeDrawer);
   $("drawer").addEventListener("click", (e) => { if (e.target.id === "drawer") closeDrawer(); });
   document.addEventListener("keydown", (e) => {
@@ -1101,10 +1125,33 @@
   });
   document.querySelectorAll("#awayFor button").forEach((b) =>
     b.addEventListener("click", () => {
-      awayFor = +b.dataset.min;
-      document.querySelectorAll("#awayFor button").forEach((x) => x.classList.toggle("on", x === b));
-      loadMissed();
+      sinceKind = b.dataset.since || null;
+      if (!sinceKind) awayFor = +b.dataset.min;
+      $("missedWelcome").hidden = true;
+      syncAway(); loadMissed();
     }));
+  $("awayRange").addEventListener("input", () => {
+    awayFor = +$("awayRange").value; sinceKind = null; syncAway();
+  });
+  $("awayRange").addEventListener("change", () => { $("missedWelcome").hidden = true; loadMissed(); });
+
+  // welcome back: when the page comes back after a couple of match minutes, tell the viewer what they missed,
+  // measured on the server's clock (the picture jumps back to live on its own)
+  let hiddenAt = null;
+  document.addEventListener("visibilitychange", async () => {
+    if (document.hidden) {
+      try { hiddenAt = (await api("/api/clock", withSession())).minute; } catch (e) { hiddenAt = null; }
+      return;
+    }
+    const left = hiddenAt; hiddenAt = null;
+    if (left == null || !S.playing || S.replay || !$("drawer").hidden) return;
+    let back;
+    try { back = (await api("/api/clock", withSession())).minute; } catch (e) { return; }
+    const away = Math.round(back - left);
+    if (away < 2) return;
+    awayFor = Math.min(120, away); sinceKind = null;
+    openDrawer(hu() ? `Üdv újra! Nagyjából ${away} percet hagytál ki.` : `Welcome back! You were away for about ${away} minutes.`);
+  });
 
   renderAskChips();
   init();

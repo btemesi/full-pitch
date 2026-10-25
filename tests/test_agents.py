@@ -307,3 +307,10 @@ def test_distances_to_a_goal_are_checked_against_the_positions():
     assert wrong_distances("Emil Holmgrave (6.2 m from Riverside's goal) scored.", pos, teams)
     assert not wrong_distances("Emil Holmgrave scored 3.7 m from Riverside Athletic's goal.", pos, teams)
     assert not wrong_distances("Cyril Ekwuno was 4.7 m from his own goal.", pos, teams)
+
+
+def test_nothing_is_decided_before_the_final_whistle():
+    from fullpitch.agents import decisive_claim
+    assert decisive_claim("Varnell sealed it in the 88th.")
+    assert decisive_claim("Varnell a 88. percben lezárta a meccset.")
+    assert not decisive_claim("Varnell made it 3-1 in the 88th.")

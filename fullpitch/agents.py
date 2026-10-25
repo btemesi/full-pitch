@@ -99,8 +99,33 @@ case endings ("a Northgate FC-nek", "a Riverside Athletic javára"), the article
 suffixes after scores ("2-0-s vezetés", "1-0-ra"). Do not use dashes as punctuation.
 Words: "shape change" is "átrendeződés" (never "formációváltás" unless the English says formation),
 "defensive line" is "védelmi vonal", "expected goals" or "xG" is "xG" or "várható gólok", "back three" is
-"háromvédős hátsó sor", "final third" is "támadóharmad", a "late push" is a "hajrá" (never "nyomás").
+"háromvédős hátsó sor", "final third" is "támadóharmad", a "late push" is a "hajrá" (never "nyomás"),
+a "pass" or "assist" is "passz" or "gólpassz" (never "beadás", which is a cross). Add no colour of your own:
+no new verbs of action ("bombázta be"), no reasons, nothing the English does not say.
 Return ONLY JSON: {"title": "...", "body": "..."}"""
+
+CATCHUP = {
+    "casual": """The viewer has just come back to the sofa. You are the friend who kept watching. Tell them what
+they missed the way you would tell a mate: warm, natural, spoken English, short sentences, talking to them
+("You missed a goal!"). 2 to 4 lines, the biggest news first. Numbers only for the score and the minute of a goal.
+Say tactics the way a fan sees them ("Riverside have pushed the whole team further up the pitch"), never in
+metres or percentages. If nothing big happened, say so in a relaxed way and give the score.""",
+    "analyst": """The viewer has just come back. You are the friend who kept watching and loves the numbers.
+Talk to them naturally, short sentences, 2 to 4 lines, biggest news first. You may add one or two telling
+numbers (a line height, a share of possession, shots), said the way a person says them, not as a list.""",
+    "player": """The viewer has just come back and follows one player. You are the friend who kept watching.
+Give the big news first in a line or two (goals, the score, a big change), then tell them how their player's
+spell went in a sentence or two, the way a friend would ("Esterhuizen has been tidy: three passes, all found
+a teammate."). Short, warm, natural; 2 to 4 lines. If no player is followed, just tell the big news.""",
+}
+CATCHUP_RULES = """Use ONLY facts and numbers that appear in the input; never invent anything. Call each team by its
+full name the first time, after that its first word is fine ("Riverside"). Never say a change caused what
+followed; say what happened since. Talk about pressing only when the facts measure it. Never guess a reason
+(why a coach made a substitution or a change) or the kind of action the facts do not name (a cross, a header,
+a volley, a thunderbolt): a goal "from Bellweather's pass" is all the facts say. Do not use dashes as
+punctuation or bullet characters. The screen already shows the time window, so do not repeat it.
+Return ONLY JSON: {"lines": ["...", "..."]}"""
+CATCHUP_NUMBERS = {"casual": 2, "analyst": 5, "player": 4}  # beyond scores, small counts and minutes
 
 EDITOR = """You are the Editor of a football broadcast. You check one on-screen card against the measured facts.
 Flag ONLY real problems: a wrong minute, scorer, assist, score or team; an action that is not in the facts
@@ -210,6 +235,9 @@ def unknown_names(text, names):
                 continue
             if any(w.startswith(n) and len(w) - len(n) <= 5 and w[len(n):].islower() for n in names if len(n) >= 3):
                 continue  # Hungarian case endings: Athleticnak, Northgate-nek
+            if w.upper() in names and w.upper() != w and len(w) <= 4:
+                bad.append(w)  # "Nor did one": a team code dressed as a word is neither a name nor English
+                continue
             if w.upper() in names:
                 continue
             near_miss = any(len(n) >= 6 and difflib.SequenceMatcher(None, w.lower(), n.lower()).ratio() >= 0.7
@@ -411,6 +439,17 @@ def wrong_distances(text, positions, teams):
     return bad
 
 
+DECISIVE = re.compile(
+    r"\b(seal(?:ed|s)?\s+(?:it|the\s+(?:win|game|match|points))|clinch(?:ed|es)?|wrapp?ed\s+(?:it\s+)?up|killed\s+(?:it|the\s+game)\s+off|"
+    r"won\s+it|the\s+winner|winning\s+goal|decisive|game\s+over|lezárta|eldöntötte|bebiztosította|győztes\s+gól|döntő\s+gól)\b",
+    re.I)
+
+
+def decisive_claim(text):
+    # "Varnell sealed it" while there is still time to play needs knowledge of the future
+    return [m.group(0) for m in DECISIVE.finditer(text)]
+
+
 def foreign_content(text):
     # a viewer's question is free text: whatever it smuggles in (a link, an address, markup) never reaches the page
     return bool(FOREIGN.search(text))
@@ -467,6 +506,8 @@ class AgentTeam:
         self.editor = Agent(client=writer, name="Editor", instructions=EDITOR)
         self.translator = Agent(client=writer, name="Translator", instructions=TRANSLATOR)
         self.answerer = Agent(client=writer, name="Narrator (answer)", instructions=ANSWERER)
+        self.catchup_writer = Agent(client=writer, name="Narrator (catch-up)",
+                                    instructions="You tell a football fan, as a friend would, what they missed while away.")
         self.inflight = {}  # card key -> task, so English and Hungarian don't write the same card twice
         md = store.md
         self.players = sorted({p["name"] for p in md.meta["players"]}, key=len, reverse=True)
@@ -687,7 +728,8 @@ class AgentTeam:
             too_many = persona == "casual" and n_numbers > 2
             lang_bad = wrong_language(f"{title} {body}", lang)
             press_bad = unmeasured_pressure(f"{title} {body}", exp["facts"])
-            cause_bad = certain_cause(f"{title} {body}")
+            cause_bad = certain_cause(f"{title} {body}") or (
+                exp["facts"].get("type") != "full-time recap" and bool(decisive_claim(f"{title} {body}")))
             trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(f"{title} {body}")),
                           "unsupported": bad, "unknown_names": names_bad, "too_many_numbers": too_many,
                           "wrong_language": lang_bad, "unmeasured_pressure": press_bad, "certain_cause": cause_bad,
@@ -843,7 +885,7 @@ class AgentTeam:
             bad += [m for m in re.findall(r"\d+\.\d{2}\b", answer) if m in continuous]
             names_bad = unknown_names(answer, self.names)
             press_bad = unmeasured_pressure(answer, data)
-            cause_bad = certain_cause(answer)
+            cause_bad = certain_cause(answer) or (at < s.length_min and bool(decisive_claim(answer)))
             invented = [p for p in (out.get("players") or []) if p not in ids]
             foreign = foreign_content(answer)
             far = far_from_own_goal(answer) + wrong_distances(answer, placed, teams)
@@ -954,11 +996,14 @@ class AgentTeam:
         missing = [what for what, word in must if word not in joined]
         lang_bad = wrong_language(joined, lang)
         press_bad = unmeasured_pressure(joined, facts)
+        early = [] if facts.get("match_over") else decisive_claim(joined)
         trace.append({"agent": "Fact-checker", "numbers_checked": len(NUM.findall(joined)), "unsupported": bad,
                       "unknown_names": names_bad, "missing": missing, "wrong_language": lang_bad,
-                      "unmeasured_pressure": press_bad,
-                      "passed": not (bad or names_bad or missing or lang_bad or press_bad)})
+                      "unmeasured_pressure": press_bad, "decided_too_early": early,
+                      "passed": not (bad or names_bad or missing or lang_bad or press_bad or early)})
         problems = []
+        if early:
+            problems.append(f"{early}: the match is not over, nothing is decided yet")
         if bad:
             problems.append(f"numbers not in the facts {bad}")
         if names_bad:
@@ -992,7 +1037,13 @@ class AgentTeam:
             if not en:
                 return None
             trace = list(en["trace"])
-            ask = (json.dumps({"lines": en["lines"]}, ensure_ascii=False) + '\n\nTranslate every line. '
+            ask = (json.dumps({"lines": en["lines"]}, ensure_ascii=False) + '\n\nSay these lines in Hungarian the way a '
+                   'Hungarian fan tells a friend on the sofa what they missed: tegeződve, közvetlenül, természetes magyar '
+                   'mondatokban. Rebuild the sentences freely so they sound Hungarian, but keep every fact and add none. '
+                   'Good lines sound like: "Lemaradtál két gólról: Dorsey kétszer is betalált, a 47. és az 53. percben." '
+                   '"Sárgát kapott Jessop a 49. percben, Dorsey pedig az 57.-ben." "A Riverside azóta jóval feljebb tolta '
+                   'az egész csapatot." "Nem sokról maradtál le, még mindig 0-0." The player gets the card, never the team; '
+                   'never "benézted", "lemozdultál", "begyűjtött". '
                    'Return ONLY JSON: {"lines": ["...", "..."]}')
             for _ in range(3):
                 text, _r = await self._run(self.translator, ask, trace, "Translator")
@@ -1009,13 +1060,10 @@ class AgentTeam:
                         return {"lines": lines, "source": "agent", "trace": trace}
                 ask += "\n\nYour previous translation had: " + "; ".join(problems) + ". Translate again."
             return None
-        narrator = self.narrators[persona]
-        rules = NARRATOR_RULES.format(language=LANGUAGE[lang]).replace(
-            '{"title": "...", "body": "..."}', '{"lines": ["...", "..."]}')
-        prompt = ("The viewer stepped away. Tell them what they missed in 2 to 5 short bullet lines, most important "
-                  "first. The screen already shows the time window, so do not repeat it. Cover every goal, red card and "
-                  "every entry in shape_changes (what the team changed, in plain words), then the score. Mention "
-                  "substitutions only when nothing bigger happened. Facts:\n" + json.dumps(facts, ensure_ascii=False))
+        narrator = self.catchup_writer
+        rules = CATCHUP[persona] + "\n" + CATCHUP_RULES
+        prompt = ("Cover every goal, red card and every entry in shape_changes, and the score. Mention substitutions "
+                  "only when nothing bigger happened. Facts:\n" + json.dumps(facts, ensure_ascii=False))
         for _ in range(3):
             text, _r = await self._run(narrator, f"{rules}\n\n{prompt}", trace, narrator.name)
             try:
@@ -1024,6 +1072,11 @@ class AgentTeam:
             except (ValueError, KeyError, TypeError):
                 continue
             problems = self._check_lines(lines, lang, allowed, minutes, must, trace, facts)
+            # a friend doesn't read out a spreadsheet: count numbers beyond scores, small counts and minutes
+            spoken_numbers = [n for n in NUM.findall(TEXT_MINUTES.sub("", " ".join(lines)))
+                              if float(n.replace(",", ".")) not in SMALL_COUNTS]
+            if len(spoken_numbers) > CATCHUP_NUMBERS[persona]:
+                problems.append(f"too many numbers for this viewer ({len(spoken_numbers)}); keep only the ones that matter")
             if not problems and lines:
                 problems = await self._edit_lines(facts, lines, lang, trace)
                 if not problems:

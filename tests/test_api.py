@@ -104,3 +104,15 @@ def test_page_names_its_assets_by_version(client):
     r = client.get("/")
     assert r.status_code == 200 and r.headers["cache-control"] == "no-cache"
     assert "/static/app.js?v=" in r.text and "/static/style.css?v=" in r.text
+
+
+def test_catch_up_since_kick_off_and_half_time(client):
+    s = load(MATCH_DIR)
+    early = new_session(client, 30)
+    assert client.get("/api/catchup", params={"session": early, "since": "ht"}).status_code == 409
+    r = client.get("/api/catchup", params={"session": early, "since": "ko"}).json()
+    assert r["facts"]["window"]["from"] == "1'" or r["facts"]["window"]["from"].startswith("0")
+    late = new_session(client, 80)
+    r = client.get("/api/catchup", params={"session": late, "since": "ht"}).json()
+    assert r["facts"]["window"]["from"] == s.clock(s.ht_minute)  # from the half-time whistle, not before
+    assert client.get("/api/catchup", params={"session": late, "since": "xx"}).status_code == 422

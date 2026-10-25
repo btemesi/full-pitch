@@ -110,6 +110,10 @@ select,.chk{background:var(--panel);border:1px solid var(--line);border-radius:8
 .drawer-head{display:flex;justify-content:space-between;align-items:center}
 .drawer-head h2{margin:0;font:700 28px/1 var(--cond)}
 .x{border:0;background:none;font-size:28px;line-height:1;color:var(--mute)}
+.welcome{color:var(--accent);font-weight:600;margin:10px 0 0}
+.away-slider{display:flex;gap:10px;align-items:center;margin:-4px 0 12px;color:var(--mute);font-size:13px}
+.away-slider input{flex:1;accent-color:var(--accent)}
+.away-slider b{color:var(--ink);min-width:56px;text-align:right}
 .chips{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
 .chips span{color:var(--mute);margin-right:4px}
 .chips button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 12px;font-size:13px}

@@ -119,11 +119,19 @@
       <h2 id="drawerTitle" data-hu="Mit hagytam ki?">What did I miss?</h2>
       <button class="x" id="drawerClose" aria-label="Close">×</button>
     </div>
+    <p class="welcome" id="missedWelcome" hidden></p>
     <div class="chips" id="awayFor">
       <span data-hu="Ennyi ideig voltam távol:">I was away for</span>
-      <button data-min="5" data-hu="5 perc">5 min</button><button data-min="10" class="on" data-hu="10 perc">10 min</button>
-      <button data-min="15" data-hu="15 perc">15 min</button><button data-min="30" data-hu="30 perc">30 min</button>
+      <button data-min="2" data-hu="2 perc">2 min</button><button data-min="5" data-hu="5 perc">5 min</button>
+      <button data-min="10" class="on" data-hu="10 perc">10 min</button><button data-min="15" data-hu="15 perc">15 min</button>
+      <button data-min="20" data-hu="20 perc">20 min</button><button data-min="30" data-hu="30 perc">30 min</button>
+      <button data-min="45" data-hu="45 perc">45 min</button>
+      <button data-since="ht" data-hu="Félidő óta">Since half-time</button>
+      <button data-since="ko" data-hu="Kezdés óta">Since kick-off</button>
     </div>
+    <label class="away-slider"><span data-hu="Vagy pontosan:">Or exactly:</span>
+      <input type="range" id="awayRange" min="1" max="90" value="10" aria-label="Minutes away">
+      <b id="awayRangeLabel">10 min</b></label>
     <p class="missed-window" id="missedWindow"></p>
     <ul class="missed-lines" id="missedLines"></ul>
     <p class="source" id="missedSource"></p>

@@ -44,6 +44,7 @@ def window_facts(md, rows, frame_from, frame_to, follow=None, changes=None):
         "score_before": dict(zip(shorts, score_at(md, frame_from - 1))),
         "score_now": dict(zip(shorts, score_at(md, frame_to - 1))),
         "goals": [], "big_chances": [], "cards": [], "substitutions": [],
+        "match_over": frame_to >= md.F - 1,  # until the final whistle, nothing is decided yet
     }
     for e in evs:
         if e["type"] == "goal":

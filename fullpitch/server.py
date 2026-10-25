@@ -281,13 +281,30 @@ def lineup(sid: str = Query(alias="session")):
     return out
 
 
+Since = Literal["ko", "ht"]
+
+
+def _away(s, at, away, since):
+    """Minutes to look back: a number, or since kick-off / half-time (worked out here, so the page never needs
+    to know when half-time came before it has)."""
+    if since == "ko":
+        return at
+    if since == "ht":
+        if at < s.ht_minute:
+            raise HTTPException(409, "the second half hasn't started")
+        return max(1.0, at - s.ht_minute)
+    return away
+
+
 @app.get("/api/catchup/agent")
 async def catchup_agent(sid: str = Query(alias="session"), away: float = Query(10, ge=1, le=120),
-                        follow: str | None = None, persona: Persona = "casual", lang: Lang = "en"):
+                        follow: str | None = None, persona: Persona = "casual", lang: Lang = "en",
+                        since: Since | None = None):
     """'What did I miss?' written by the Narrator agent and fact-checked; 404 if agents are off or fail."""
     if not TEAM:
         raise HTTPException(404, "agents are off")
     s, at = store(), now(sid)
+    away = _away(s, at, away, since)
     if follow and follow not in {p["id"] for p in s.md.meta["players"]}:
         raise HTTPException(404, "unknown player")
     # whole minutes: viewers asking within the same minute share one summary
@@ -409,9 +426,10 @@ async def _answer(key, q, at, lang):
 
 @app.get("/api/catchup")
 def catchup(sid: str = Query(alias="session"), away: float = Query(10, ge=1, le=120),
-            follow: str | None = None, persona: Persona = "casual", lang: Lang = "en"):
-    """'What did I miss?' for the last `away` minutes before now."""
+            follow: str | None = None, persona: Persona = "casual", lang: Lang = "en", since: Since | None = None):
+    """'What did I miss?' for the last `away` minutes before now (or since kick-off / half-time)."""
     s, at = store(), now(sid)
+    away = _away(s, at, away, since)
     if follow and follow not in {p["id"] for p in s.md.meta["players"]}:
         raise HTTPException(404, "unknown player")
     facts = s.catch_up(max(0.0, at - away), at, at_minute=at, follow_player=follow)
