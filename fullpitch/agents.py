@@ -846,7 +846,12 @@ class AgentTeam:
         goals = [{"order": i + 1, "clock": e["clock"], "team": e["team"], "scorer": e.get("player"), "moment": e["moment"]}
                  for i, e in enumerate(g for g in s.key_moments(at) if g["type"] == "goal")]
         context = {"live_clock": s.clock(at), "live_minute": round(at, 2), "teams": teams,
-                   "goals_so_far": goals, "last_goal": goals[-1] if goals else None, "state": s.match_state(at)}
+                   "goals_so_far": goals, "last_goal": goals[-1] if goals else None,
+                   # "since they changed shape" means from this minute, for every tool that takes a from_minute
+                   "shape_changes_so_far": [{"team": c["team"], "since_clock": c["since"],
+                                             "since_minute_for_tools": c["since_minute"]}
+                                            for c in s.tactical_changes(at)],
+                   "state": s.match_state(at)}
         trace = []
         ask = (f"A viewer watching live asks: {question!r}\nInvestigate with the tools (they only show the match up to "
                f"now) and report what answers it. Context:\n{json.dumps(context, ensure_ascii=False)}")
